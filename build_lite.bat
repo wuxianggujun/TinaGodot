@@ -18,6 +18,7 @@ scons platform=windows target=editor arch=x86_64 ^
     module_gltf_enabled=no ^
     module_csg_enabled=no ^
     module_objectdb_profiler_enabled=no ^
+    module_xatlas_unwrap_enabled=no ^
     module_vhacd_enabled=no ^
     -j7
 

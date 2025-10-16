@@ -78,53 +78,17 @@ Ref<ShaderMaterial> MaterialEditor::make_shader_material(const Ref<Material> &p_
 }
 
 void MaterialEditor::gui_input(const Ref<InputEvent> &p_event) {
-#ifndef _3D_DISABLED
-	ERR_FAIL_COND(p_event.is_null());
-
-	Ref<InputEventMouseMotion> mm = p_event;
-	if (mm.is_valid() && (mm->get_button_mask().has_flag(MouseButtonMask::LEFT))) {
-		rot.x -= mm->get_relative().y * 0.01;
-		rot.y -= mm->get_relative().x * 0.01;
-		if (quad_instance->is_visible()) {
-			// Clamp rotation so the quad is always visible.
-			const real_t limit = Math::deg_to_rad(80.0);
-			rot = rot.clampf(-limit, limit);
-		} else {
-			rot.x = CLAMP(rot.x, -Math::PI / 2, Math::PI / 2);
-		}
-		_update_rotation();
-		_store_rotation_metadata();
-	}
-#endif // _3D_DISABLED
+	// 2D Lite: 3D 材质旋转交互已移除
 }
 
 void MaterialEditor::_update_theme_item_cache() {
 	Control::_update_theme_item_cache();
-
-#ifndef _3D_DISABLED
-	theme_cache.light_1_icon = get_editor_theme_icon(SNAME("MaterialPreviewLight1"));
-	theme_cache.light_2_icon = get_editor_theme_icon(SNAME("MaterialPreviewLight2"));
-
-	theme_cache.sphere_icon = get_editor_theme_icon(SNAME("MaterialPreviewSphere"));
-	theme_cache.box_icon = get_editor_theme_icon(SNAME("MaterialPreviewCube"));
-	theme_cache.quad_icon = get_editor_theme_icon(SNAME("MaterialPreviewQuad"));
-#endif // _3D_DISABLED
-
 	theme_cache.checkerboard = get_editor_theme_icon(SNAME("Checkerboard"));
 }
 
 void MaterialEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_THEME_CHANGED: {
-#ifndef _3D_DISABLED
-			light_1_switch->set_button_icon(theme_cache.light_1_icon);
-			light_2_switch->set_button_icon(theme_cache.light_2_icon);
-
-			sphere_switch->set_button_icon(theme_cache.sphere_icon);
-			box_switch->set_button_icon(theme_cache.box_icon);
-			quad_switch->set_button_icon(theme_cache.quad_icon);
-#endif // _3D_DISABLED
-
 			error_label->add_theme_color_override(SceneStringName(font_color), get_theme_color(SNAME("error_color"), EditorStringName(Editor)));
 		} break;
 
@@ -137,112 +101,28 @@ void MaterialEditor::_notification(int p_what) {
 	}
 }
 
-#ifndef _3D_DISABLED
-void MaterialEditor::_set_rotation(real_t p_x_degrees, real_t p_y_degrees) {
-	rot.x = Math::deg_to_rad(p_x_degrees);
-	rot.y = Math::deg_to_rad(p_y_degrees);
-	_update_rotation();
-}
-
-// Store the rotation so it can persist when switching between materials.
-void MaterialEditor::_store_rotation_metadata() {
-	Vector2 rotation_degrees = Vector2(Math::rad_to_deg(rot.x), Math::rad_to_deg(rot.y));
-	EditorSettings::get_singleton()->set_project_metadata("inspector_options", "material_preview_rotation", rotation_degrees);
-}
-
-void MaterialEditor::_update_rotation() {
-	Transform3D t;
-	t.basis.rotate(Vector3(0, 1, 0), -rot.y);
-	t.basis.rotate(Vector3(1, 0, 0), -rot.x);
-	rotation->set_transform(t);
-}
-#endif // _3D_DISABLED
-
 void MaterialEditor::edit(Ref<Material> p_material) {
 	material = p_material;
-	// 2D Lite版本:移除Environment参数和3D相关设置
 
 	is_unsupported_shader_mode = false;
 	if (material.is_valid()) {
 		Shader::Mode mode = p_material->get_shader_mode();
-		switch (mode) {
-			case Shader::MODE_CANVAS_ITEM:
-				layout_error->hide();
-#ifndef _3D_DISABLED
-				layout_3d->hide();
-#endif
-				layout_2d->show();
-				rect_instance->set_material(material);
-				vc->hide();
-				break;
-#ifndef _3D_DISABLED
-			case Shader::MODE_SPATIAL:
-				layout_error->hide();
-				layout_2d->hide();
-				layout_3d->show();
-				sphere_instance->set_material_override(material);
-				box_instance->set_material_override(material);
-				quad_instance->set_material_override(material);
-				vc->show();
-				break;
-#endif // _3D_DISABLED
-			default:
-				layout_error->show();
-				layout_2d->hide();
-#ifndef _3D_DISABLED
-				layout_3d->hide();
-#endif
-				is_unsupported_shader_mode = true;
-				vc->hide();
-				break;
+		if (mode == Shader::MODE_CANVAS_ITEM) {
+			layout_error->hide();
+			layout_2d->show();
+			rect_instance->set_material(material);
+			vc->hide();
+		} else {
+			// 不支持的着色器模式 (仅支持 2D Canvas)
+			layout_error->show();
+			layout_2d->hide();
+			is_unsupported_shader_mode = true;
+			vc->hide();
 		}
 	} else {
 		hide();
 	}
 }
-
-#ifndef _3D_DISABLED
-void MaterialEditor::_on_light_1_switch_pressed() {
-	light1->set_visible(light_1_switch->is_pressed());
-}
-
-void MaterialEditor::_on_light_2_switch_pressed() {
-	light2->set_visible(light_2_switch->is_pressed());
-}
-
-void MaterialEditor::_on_sphere_switch_pressed() {
-	sphere_instance->show();
-	box_instance->hide();
-	quad_instance->hide();
-	box_switch->set_pressed(false);
-	quad_switch->set_pressed(false);
-	_set_rotation(-15.0, 30.0);
-	_store_rotation_metadata();
-	EditorSettings::get_singleton()->set_project_metadata("inspector_options", "material_preview_mesh", "sphere");
-}
-
-void MaterialEditor::_on_box_switch_pressed() {
-	sphere_instance->hide();
-	box_instance->show();
-	quad_instance->hide();
-	sphere_switch->set_pressed(false);
-	quad_switch->set_pressed(false);
-	_set_rotation(-15.0, 30.0);
-	_store_rotation_metadata();
-	EditorSettings::get_singleton()->set_project_metadata("inspector_options", "material_preview_mesh", "box");
-}
-
-void MaterialEditor::_on_quad_switch_pressed() {
-	sphere_instance->hide();
-	box_instance->hide();
-	quad_instance->show();
-	sphere_switch->set_pressed(false);
-	box_switch->set_pressed(false);
-	_set_rotation(0.0, 0.0);
-	_store_rotation_metadata();
-	EditorSettings::get_singleton()->set_project_metadata("inspector_options", "material_preview_mesh", "quad");
-}
-#endif // _3D_DISABLED
 
 MaterialEditor::MaterialEditor() {
 	set_custom_minimum_size(Size2(1, 150) * EDSCALE);
@@ -284,133 +164,6 @@ MaterialEditor::MaterialEditor() {
 	layout_error->add_child(error_label);
 	layout_error->hide();
 	add_child(layout_error);
-
-	// Spatial (3D materials) - disabled in 2D Lite version
-#ifndef _3D_DISABLED
-	vc = memnew(SubViewportContainer);
-	vc->set_stretch(true);
-	add_child(vc);
-	vc->set_anchors_and_offsets_preset(PRESET_FULL_RECT);
-	viewport = memnew(SubViewport);
-	Ref<World3D> world_3d;
-	world_3d.instantiate();
-	viewport->set_world_3d(world_3d); // Use own world.
-	vc->add_child(viewport);
-	viewport->set_disable_input(true);
-	viewport->set_transparent_background(true);
-	viewport->set_msaa_3d(Viewport::MSAA_4X);
-
-	camera = memnew(Camera3D);
-	camera->set_transform(Transform3D(Basis(), Vector3(0, 0, 1.1)));
-	// Use low field of view so the sphere/box/quad is fully encompassed within the preview,
-	// without much distortion.
-	camera->set_perspective(20, 0.1, 10);
-	camera->make_current();
-	if (GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units")) {
-		camera_attributes.instantiate();
-		camera->set_attributes(camera_attributes);
-	}
-	viewport->add_child(camera);
-
-	light1 = memnew(DirectionalLight3D);
-	light1->set_transform(Transform3D().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
-	viewport->add_child(light1);
-
-	light2 = memnew(DirectionalLight3D);
-	light2->set_transform(Transform3D().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
-	light2->set_color(Color(0.7, 0.7, 0.7));
-	viewport->add_child(light2);
-
-	rotation = memnew(Node3D);
-	viewport->add_child(rotation);
-
-	sphere_instance = memnew(MeshInstance3D);
-	rotation->add_child(sphere_instance);
-
-	box_instance = memnew(MeshInstance3D);
-	rotation->add_child(box_instance);
-
-	quad_instance = memnew(MeshInstance3D);
-	rotation->add_child(quad_instance);
-
-	sphere_instance->set_transform(Transform3D() * 0.375);
-	box_instance->set_transform(Transform3D() * 0.25);
-	quad_instance->set_transform(Transform3D() * 0.375);
-
-	sphere_mesh.instantiate();
-	sphere_instance->set_mesh(sphere_mesh);
-	box_mesh.instantiate();
-	box_instance->set_mesh(box_mesh);
-	quad_mesh.instantiate();
-	quad_instance->set_mesh(quad_mesh);
-
-	layout_3d = memnew(HBoxContainer);
-	add_child(layout_3d);
-	layout_3d->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT, Control::PRESET_MODE_MINSIZE, 2);
-
-	VBoxContainer *vb_shape = memnew(VBoxContainer);
-	layout_3d->add_child(vb_shape);
-
-	sphere_switch = memnew(Button);
-	sphere_switch->set_theme_type_variation("PreviewLightButton");
-	sphere_switch->set_toggle_mode(true);
-	sphere_switch->set_accessibility_name(TTRC("Sphere"));
-	vb_shape->add_child(sphere_switch);
-	sphere_switch->connect(SceneStringName(pressed), callable_mp(this, &MaterialEditor::_on_sphere_switch_pressed));
-
-	box_switch = memnew(Button);
-	box_switch->set_theme_type_variation("PreviewLightButton");
-	box_switch->set_toggle_mode(true);
-	box_switch->set_accessibility_name(TTRC("Box"));
-	vb_shape->add_child(box_switch);
-	box_switch->connect(SceneStringName(pressed), callable_mp(this, &MaterialEditor::_on_box_switch_pressed));
-
-	quad_switch = memnew(Button);
-	quad_switch->set_theme_type_variation("PreviewLightButton");
-	quad_switch->set_toggle_mode(true);
-	quad_switch->set_accessibility_name(TTRC("Quad"));
-	vb_shape->add_child(quad_switch);
-	quad_switch->connect(SceneStringName(pressed), callable_mp(this, &MaterialEditor::_on_quad_switch_pressed));
-
-	layout_3d->add_spacer();
-
-	VBoxContainer *vb_light = memnew(VBoxContainer);
-	layout_3d->add_child(vb_light);
-
-	light_1_switch = memnew(Button);
-	light_1_switch->set_theme_type_variation("PreviewLightButton");
-	light_1_switch->set_toggle_mode(true);
-	light_1_switch->set_pressed(true);
-	light_1_switch->set_accessibility_name(TTRC("First Light"));
-	vb_light->add_child(light_1_switch);
-	light_1_switch->connect(SceneStringName(pressed), callable_mp(this, &MaterialEditor::_on_light_1_switch_pressed));
-
-	light_2_switch = memnew(Button);
-	light_2_switch->set_theme_type_variation("PreviewLightButton");
-	light_2_switch->set_toggle_mode(true);
-	light_2_switch->set_pressed(true);
-	light_2_switch->set_accessibility_name(TTRC("Second Light"));
-	vb_light->add_child(light_2_switch);
-	light_2_switch->connect(SceneStringName(pressed), callable_mp(this, &MaterialEditor::_on_light_2_switch_pressed));
-
-	String shape = EditorSettings::get_singleton()->get_project_metadata("inspector_options", "material_preview_mesh", "sphere");
-	if (shape == "sphere") {
-		box_instance->hide();
-		quad_instance->hide();
-		sphere_switch->set_pressed_no_signal(true);
-	} else if (shape == "box") {
-		sphere_instance->hide();
-		quad_instance->hide();
-		box_switch->set_pressed_no_signal(true);
-	} else {
-		sphere_instance->hide();
-		box_instance->hide();
-		quad_switch->set_pressed_no_signal(true);
-	}
-
-	Vector2 stored_rot = EditorSettings::get_singleton()->get_project_metadata("inspector_options", "material_preview_rotation", Vector2());
-	_set_rotation(stored_rot.x, stored_rot.y);
-#endif // _3D_DISABLED
 }
 
 ///////////////////////
@@ -472,15 +225,6 @@ void EditorInspectorPluginMaterial::_undo_redo_inspector_callback(Object *p_undo
 }
 
 EditorInspectorPluginMaterial::EditorInspectorPluginMaterial() {
-#ifndef _3D_DISABLED
-	env.instantiate();
-	Ref<Sky> sky = memnew(Sky());
-	env->set_sky(sky);
-	env->set_background(Environment::BG_COLOR);
-	env->set_ambient_source(Environment::AMBIENT_SOURCE_SKY);
-	env->set_reflection_source(Environment::REFLECTION_SOURCE_SKY);
-#endif
-
 	EditorNode::get_editor_data().add_undo_redo_inspector_hook_callback(callable_mp(this, &EditorInspectorPluginMaterial::_undo_redo_inspector_callback));
 }
 

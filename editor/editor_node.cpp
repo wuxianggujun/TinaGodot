@@ -49,9 +49,6 @@
 #include "editor/inspector/editor_context_menu_plugin.h"
 #include "main/main.h"
 #include "scene/2d/node_2d.h"
-#ifndef PHYSICS_3D_DISABLED
-#include "scene/3d/bone_attachment_3d.h"
-#endif
 #include "scene/animation/animation_tree.h"
 #include "scene/gui/color_picker.h"
 #include "scene/gui/dialogs.h"
@@ -72,9 +69,6 @@
 #include "scene/theme/theme_db.h"
 #include "servers/display/display_server.h"
 #include "servers/navigation_2d/navigation_server_2d.h"
-#ifndef PHYSICS_3D_DISABLED
-#include "servers/navigation_3d/navigation_server_3d.h"
-#endif
 #include "servers/rendering/rendering_server.h"
 
 #include "editor/animation/animation_player_editor_plugin.h"
@@ -115,12 +109,6 @@
 #include "editor/gui/editor_toaster.h"
 #include "editor/gui/progress_dialog.h"
 #include "editor/gui/window_wrapper.h"
-#ifndef PHYSICS_3D_DISABLED
-#include "editor/import/3d/editor_import_collada.h"
-#include "editor/import/3d/resource_importer_obj.h"
-#include "editor/import/3d/resource_importer_scene.h"
-#include "editor/import/3d/scene_import_settings.h"
-#endif
 #include "editor/import/audio_stream_import_settings.h"
 #include "editor/import/dynamic_font_import_settings.h"
 #include "editor/import/fbx_importer_manager.h"
@@ -1973,16 +1961,6 @@ void EditorNode::_save_scene_with_preview(String p_file, int p_idx) {
 			if (viewport_texture->get_width() > 0 && viewport_texture->get_height() > 0) {
 				img = viewport_texture->get_image();
 			}
-		} else {
-#ifndef _3D_DISABLED
-			// The 3D editor may be disabled as a feature, but scenes can still be opened.
-			// This check prevents the preview from regenerating in case those scenes are then saved.
-			// The preview will be generated if no feature profile is set (as the 3D editor is enabled by default).
-			Ref<EditorFeatureProfile> profile = feature_profile_manager->get_current_profile();
-			if (profile.is_null() || !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D)) {
-				img = Node3DEditor::get_singleton()->get_editor_viewport(0)->get_viewport_node()->get_texture()->get_image();
-			}
-#endif // _3D_DISABLED
 		}
 
 		if (img.is_valid() && img->get_width() > 0 && img->get_height() > 0) {
@@ -2439,42 +2417,6 @@ void EditorNode::_dialog_action(String p_file) {
 			}
 		} break;
 
-		case FILE_EXPORT_MESH_LIBRARY: {
-#ifndef _3D_DISABLED
-			const Dictionary &fd_options = file_export_lib->get_selected_options();
-			bool merge_with_existing_library = fd_options.get(TTR("Merge With Existing"), true);
-			bool apply_mesh_instance_transforms = fd_options.get(TTR("Apply MeshInstance Transforms"), false);
-
-			Ref<MeshLibrary> ml;
-			if (merge_with_existing_library && FileAccess::exists(p_file)) {
-				ml = ResourceLoader::load(p_file, "MeshLibrary");
-
-				if (ml.is_null()) {
-					show_accept(TTR("Can't load MeshLibrary for merging!"), TTR("OK"));
-					return;
-				}
-			}
-
-			if (ml.is_null()) {
-				ml.instantiate();
-			}
-
-			MeshLibraryEditor::update_library_file(editor_data.get_edited_scene_root(), ml, merge_with_existing_library, apply_mesh_instance_transforms);
-
-			Error err = ResourceSaver::save(ml, p_file);
-			if (err) {
-				show_accept(TTR("Error saving MeshLibrary!"), TTR("OK"));
-				return;
-			} else if (ResourceCache::has(p_file)) {
-				// Make sure MeshLibrary is updated in the editor.
-				ResourceLoader::load(p_file)->reload_from_file();
-			}
-
-#else
-			show_accept(TTR("MeshLibrary export is only available when 3D support is enabled."), TTR("OK"));
-#endif // _3D_DISABLED
-		} break;
-
 		case PROJECT_PACK_AS_ZIP: {
 			ProjectZIPPacker::pack_project_zip(p_file);
 			{
@@ -2710,17 +2652,7 @@ void EditorNode::push_item_no_inspector(Object *p_object) {
 }
 
 void EditorNode::save_default_environment() {
-#ifndef _3D_DISABLED
-	Ref<Environment> fallback = get_tree()->get_root()->get_world_3d()->get_fallback_environment();
-
-	if (fallback.is_valid() && fallback->get_path().is_resource_file()) {
-		HashMap<Ref<Resource>, bool> processed;
-		_find_and_save_edited_subresources(fallback.ptr(), processed, 0);
-		save_resource_in_path(fallback, fallback->get_path());
-	}
-#else
-	// No default environment to save when 3D support is disabled.
-#endif // _3D_DISABLED
+	// No default environment to save in 2D-only mode.
 }
 
 void EditorNode::hide_unused_editors(const Object *p_editing_owner) {
@@ -3728,21 +3660,8 @@ void EditorNode::_export_as_menu_option(int p_idx) {
 			return;
 		}
 
-#ifndef _3D_DISABLED
-		List<String> extensions;
-		Ref<MeshLibrary> ml(memnew(MeshLibrary));
-		ResourceSaver::get_recognized_extensions(ml, &extensions);
-		file_export_lib->clear_filters();
-		for (const String &E : extensions) {
-			file_export_lib->add_filter("*." + E);
-		}
-
-		file_export_lib->set_title(TTR("Export Mesh Library"));
-		file_export_lib->popup_file_dialog();
-#else
 		show_accept(TTR("MeshLibrary export is only available when 3D support is enabled."), TTR("OK"));
 		return;
-#endif // _3D_DISABLED
 	} else { // Custom menu options added by plugins
 		if (export_as_menu->get_item_submenu(p_idx).is_empty()) { // If not a submenu
 			Callable callback = export_as_menu->get_item_metadata(p_idx);
@@ -4807,12 +4726,6 @@ void EditorNode::get_preload_scene_modification_table(
 				if (node_2d) {
 					new_additive_node_entry.transform_2d = node_2d->get_transform();
 				}
-#ifndef _3D_DISABLED
-				Node3D *node_3d = Object::cast_to<Node3D>(p_node);
-				if (node_3d) {
-					new_additive_node_entry.transform_3d = node_3d->get_transform();
-				}
-#endif // _3D_DISABLED
 
 				p_instance_modifications.addition_list.push_back(new_additive_node_entry);
 			}
@@ -6575,18 +6488,6 @@ void EditorNode::_file_access_close_error_notify_impl(const String &p_str) {
 // tree so that editor scripts which create transient nodes will have the opportunity
 // to recreate them.
 void EditorNode::_notify_nodes_scene_reimported(Node *p_node, Array p_reimported_nodes) {
-#ifndef _3D_DISABLED
-	Skeleton3D *skel_3d = Object::cast_to<Skeleton3D>(p_node);
-	if (skel_3d) {
-		skel_3d->reset_bone_poses();
-	} else {
-		BoneAttachment3D *attachment = Object::cast_to<BoneAttachment3D>(p_node);
-		if (attachment) {
-			attachment->notify_rebind_required();
-		}
-	}
-#endif // _3D_DISABLED
-
 	if (p_node->has_method("_nodes_scene_reimported")) {
 		p_node->call("_nodes_scene_reimported", p_reimported_nodes);
 	}
@@ -7023,13 +6924,6 @@ void EditorNode::reload_instances_with_path_in_edited_scenes() {
 					if (node_2d) {
 						node_2d->set_transform(additive_node_entry.transform_2d);
 					}
-
-#ifndef _3D_DISABLED
-					Node3D *node_3d = Object::cast_to<Node3D>(additive_node_entry.node);
-					if (node_3d) {
-						node_3d->set_transform(additive_node_entry.transform_3d);
-					}
-#endif // _3D_DISABLED
 				}
 			}
 
@@ -7824,37 +7718,9 @@ EditorNode::EditorNode() {
 		import_wav.instantiate();
 		ResourceFormatImporter::get_singleton()->add_importer(import_wav);
 
-#ifndef _3D_DISABLED
-		Ref<ResourceImporterOBJ> import_obj;
-		import_obj.instantiate();
-		ResourceFormatImporter::get_singleton()->add_importer(import_obj);
-#endif // _3D_DISABLED
-
 		Ref<ResourceImporterShaderFile> import_shader_file;
 		import_shader_file.instantiate();
 		ResourceFormatImporter::get_singleton()->add_importer(import_shader_file);
-
-#ifndef _3D_DISABLED
-		Ref<ResourceImporterScene> import_scene = memnew(ResourceImporterScene("PackedScene", true));
-		ResourceFormatImporter::get_singleton()->add_importer(import_scene);
-
-		Ref<ResourceImporterScene> import_animation = memnew(ResourceImporterScene("AnimationLibrary", true));
-		ResourceFormatImporter::get_singleton()->add_importer(import_animation);
-
-		{
-			Ref<EditorSceneFormatImporterCollada> import_collada;
-			import_collada.instantiate();
-			ResourceImporterScene::add_scene_importer(import_collada);
-
-			Ref<EditorOBJImporter> import_obj2;
-			import_obj2.instantiate();
-			ResourceImporterScene::add_scene_importer(import_obj2);
-
-			Ref<EditorSceneFormatImporterESCN> import_escn;
-			import_escn.instantiate();
-			ResourceImporterScene::add_scene_importer(import_escn);
-		}
-#endif // _3D_DISABLED
 
 		Ref<ResourceImporterBitMap> import_bitmap;
 		import_bitmap.instantiate();
@@ -7865,12 +7731,6 @@ EditorNode::EditorNode() {
 		Ref<EditorInspectorDefaultPlugin> eidp;
 		eidp.instantiate();
 		EditorInspector::add_inspector_plugin(eidp);
-
-#ifndef _3D_DISABLED
-		Ref<EditorInspectorRootMotionPlugin> rmp;
-		rmp.instantiate();
-		EditorInspector::add_inspector_plugin(rmp);
-#endif // _3D_DISABLED
 
 		Ref<EditorInspectorVisualShaderModePlugin> smp;
 		smp.instantiate();
@@ -8098,9 +7958,7 @@ EditorNode::EditorNode() {
 	scene_root->set_auto_translate_mode(AUTO_TRANSLATE_MODE_ALWAYS);
 	scene_root->set_translation_domain(StringName());
 	scene_root->set_embedding_subwindows(true);
-#ifndef _3D_DISABLED
-	scene_root->set_disable_3d(true);
-#endif // _3D_DISABLED
+	// 2D Lite: 全局禁用 3D，无需调用 SubViewport::set_disable_3d。
 	scene_root->set_disable_input(true);
 	scene_root->set_as_audio_listener_2d(true);
 
@@ -8143,11 +8001,6 @@ EditorNode::EditorNode() {
 
 	project_settings_editor = memnew(ProjectSettingsEditor(&editor_data));
 	gui_base->add_child(project_settings_editor);
-
-#ifndef _3D_DISABLED
-	scene_import_settings = memnew(SceneImportSettingsDialog);
-	gui_base->add_child(scene_import_settings);
-#endif // _3D_DISABLED
 
 	audio_stream_import_settings = memnew(AudioStreamImportSettingsDialog);
 	gui_base->add_child(audio_stream_import_settings);
@@ -8685,9 +8538,6 @@ EditorNode::EditorNode() {
 	add_editor_plugin(memnew(AnimationTrackKeyEditEditorPlugin));
 	add_editor_plugin(memnew(AnimationMarkerKeyEditEditorPlugin));
 	add_editor_plugin(memnew(CanvasItemEditorPlugin));
-#ifndef _3D_DISABLED
-	add_editor_plugin(memnew(Node3DEditorPlugin));
-#endif // _3D_DISABLED
 	add_editor_plugin(memnew(ScriptEditorPlugin));
 
 	if (!Engine::get_singleton()->is_recovery_mode_hint()) {
@@ -8744,32 +8594,6 @@ EditorNode::EditorNode() {
 	resource_preview->add_preview_generator(Ref<EditorGradientPreviewPlugin>(memnew(EditorGradientPreviewPlugin)));
 
 	{
-#ifndef _3D_DISABLED
-		Ref<StandardMaterial3DConversionPlugin> spatial_mat_convert;
-		spatial_mat_convert.instantiate();
-		resource_conversion_plugins.push_back(spatial_mat_convert);
-
-		Ref<ORMMaterial3DConversionPlugin> orm_mat_convert;
-		orm_mat_convert.instantiate();
-		resource_conversion_plugins.push_back(orm_mat_convert);
-
-		Ref<ProceduralSkyMaterialConversionPlugin> procedural_sky_mat_convert;
-		procedural_sky_mat_convert.instantiate();
-		resource_conversion_plugins.push_back(procedural_sky_mat_convert);
-
-		Ref<PanoramaSkyMaterialConversionPlugin> panorama_sky_mat_convert;
-		panorama_sky_mat_convert.instantiate();
-		resource_conversion_plugins.push_back(panorama_sky_mat_convert);
-
-		Ref<PhysicalSkyMaterialConversionPlugin> physical_sky_mat_convert;
-		physical_sky_mat_convert.instantiate();
-		resource_conversion_plugins.push_back(physical_sky_mat_convert);
-
-		Ref<FogMaterialConversionPlugin> fog_mat_convert;
-		fog_mat_convert.instantiate();
-		resource_conversion_plugins.push_back(fog_mat_convert);
-#endif // _3D_DISABLED
-
 		Ref<CanvasItemMaterialConversionPlugin> canvas_item_mat_convert;
 		canvas_item_mat_convert.instantiate();
 		resource_conversion_plugins.push_back(canvas_item_mat_convert);
@@ -8919,11 +8743,6 @@ EditorNode::EditorNode() {
 	ED_SHORTCUT_AND_COMMAND("editor/editor_next", TTRC("Open the next Editor"));
 	ED_SHORTCUT_AND_COMMAND("editor/editor_prev", TTRC("Open the previous Editor"));
 
-	// Apply setting presets in case the editor_settings file is missing values.
-#ifndef _3D_DISABLED
-	EditorSettingsDialog::update_navigation_preset();
-#endif // _3D_DISABLED
-
 	screenshot_timer = memnew(Timer);
 	screenshot_timer->set_one_shot(true);
 	screenshot_timer->set_wait_time(settings_menu->get_submenu_popup_delay() + 0.1f);
@@ -8970,9 +8789,6 @@ EditorNode::EditorNode() {
 EditorNode::~EditorNode() {
 	EditorInspector::cleanup_plugins();
 	EditorTranslationParser::get_singleton()->clean_parsers();
-#ifndef _3D_DISABLED
-	ResourceImporterScene::clean_up_importer_plugins();
-#endif // _3D_DISABLED
 	EditorContextMenuPluginManager::cleanup();
 
 	remove_print_handler(&print_handler);
@@ -9034,28 +8850,6 @@ bool EditorPluginList::forward_gui_input(const Ref<InputEvent> &p_event) {
 
 	return discard;
 }
-
-#ifndef _3D_DISABLED
-EditorPlugin::AfterGUIInput EditorPluginList::forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled) {
-	EditorPlugin::AfterGUIInput after = EditorPlugin::AFTER_GUI_INPUT_PASS;
-
-	for (int i = 0; i < plugins_list.size(); i++) {
-		if ((!serve_when_force_input_enabled) && plugins_list[i]->is_input_event_forwarding_always_enabled()) {
-			continue;
-		}
-
-		EditorPlugin::AfterGUIInput current_after = plugins_list[i]->forward_3d_gui_input(p_camera, p_event);
-		if (current_after == EditorPlugin::AFTER_GUI_INPUT_STOP) {
-			after = EditorPlugin::AFTER_GUI_INPUT_STOP;
-		}
-		if (after != EditorPlugin::AFTER_GUI_INPUT_STOP && current_after == EditorPlugin::AFTER_GUI_INPUT_CUSTOM) {
-			after = EditorPlugin::AFTER_GUI_INPUT_CUSTOM;
-		}
-	}
-
-	return after;
-}
-#endif // _3D_DISABLED
 
 void EditorPluginList::forward_canvas_draw_over_viewport(Control *p_overlay) {
 	for (int i = 0; i < plugins_list.size(); i++) {

@@ -43,7 +43,7 @@ void ParticlesEditorPlugin::_notification(int p_what) {
 			if (handled_type.ends_with("2D")) {
 				add_control_to_container(CONTAINER_CANVAS_EDITOR_MENU, toolbar);
 			} else if (handled_type.ends_with("3D")) {
-				add_control_to_container(CONTAINER_SPATIAL_EDITOR_MENU, toolbar);
+				// 2D Lite: 忽略 3D 粒子编辑器容器注册。
 			} else {
 				DEV_ASSERT(false);
 			}

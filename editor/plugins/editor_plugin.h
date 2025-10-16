@@ -33,12 +33,8 @@
 #include "core/io/config_file.h"
 #include "editor/docks/editor_dock_manager.h"
 #include "editor/inspector/editor_context_menu_plugin.h"
-// Removed 3D camera for 2D Lite version
-// #include "scene/3d/camera_3d.h"
 #include "scene/gui/control.h"
 
-class Node3D;
-class Camera3D;
 class Button;
 class PopupMenu;
 class EditorDebuggerPlugin;
@@ -49,7 +45,6 @@ class EditorExportPlatform;
 class EditorImportPlugin;
 class EditorInspectorPlugin;
 class EditorInterface;
-class EditorNode3DGizmoPlugin;
 class EditorResourceConversionPlugin;
 class EditorSceneFormatImporter;
 class EditorScenePostImportPlugin;
@@ -77,10 +72,6 @@ class EditorPlugin : public Node {
 public:
 	enum CustomControlContainer {
 		CONTAINER_TOOLBAR,
-		CONTAINER_SPATIAL_EDITOR_MENU,
-		CONTAINER_SPATIAL_EDITOR_SIDE_LEFT,
-		CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT,
-		CONTAINER_SPATIAL_EDITOR_BOTTOM,
 		CONTAINER_CANVAS_EDITOR_MENU,
 		CONTAINER_CANVAS_EDITOR_SIDE_LEFT,
 		CONTAINER_CANVAS_EDITOR_SIDE_RIGHT,
@@ -189,12 +180,6 @@ public:
 	virtual void forward_canvas_draw_over_viewport(Control *p_overlay);
 	virtual void forward_canvas_force_draw_over_viewport(Control *p_overlay);
 
-#ifndef _3D_DISABLED
-	virtual EditorPlugin::AfterGUIInput forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event);
-	virtual void forward_3d_draw_over_viewport(Control *p_overlay);
-	virtual void forward_3d_force_draw_over_viewport(Control *p_overlay);
-#endif // _3D_DISABLED
-
 	virtual String get_plugin_name() const;
 	virtual const Ref<Texture2D> get_plugin_icon() const;
 	virtual String get_plugin_version() const;
@@ -243,8 +228,8 @@ public:
 	void add_export_platform(const Ref<EditorExportPlatform> &p_platform);
 	void remove_export_platform(const Ref<EditorExportPlatform> &p_platform);
 
-	void add_node_3d_gizmo_plugin(const Ref<EditorNode3DGizmoPlugin> &p_gizmo_plugin);
-	void remove_node_3d_gizmo_plugin(const Ref<EditorNode3DGizmoPlugin> &p_gizmo_plugin);
+#ifndef _3D_DISABLED
+#endif
 
 	void add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);
 	void remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);
