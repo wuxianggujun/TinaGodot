@@ -38,9 +38,11 @@
 #include "rendering_server_globals.h"
 #include "storage/texture_storage.h"
 
-#ifndef XR_DISABLED
-#include "servers/xr/xr_interface.h"
-#endif // XR_DISABLED
+// Removed XR support for 2D Lite version
+// #ifndef XR_DISABLED
+// #include "servers/xr/xr_interface.h"
+// #endif // XR_DISABLED
+#define XR_DISABLED
 
 static Transform2D _canvas_get_transform(RendererViewport::Viewport *p_viewport, RendererCanvasCull::Canvas *p_canvas, RendererViewport::Viewport::CanvasData *p_canvas_data, const Vector2 &p_vp_size) {
 	Transform2D xf = p_viewport->global_transform;

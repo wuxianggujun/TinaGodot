@@ -30,6 +30,7 @@
 
 #include "editor_scene_tabs.h"
 
+#include "core/io/resource_loader.h"
 #include "editor/docks/inspector_dock.h"
 #include "editor/editor_main_screen.h"
 #include "editor/editor_node.h"

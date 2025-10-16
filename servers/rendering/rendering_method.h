@@ -33,12 +33,16 @@
 #include "servers/rendering/rendering_server.h"
 #include "servers/rendering/storage/render_scene_buffers.h"
 
+// Removed XR support for 2D Lite version
+#ifndef XR_DISABLED
+#define XR_DISABLED
+#endif
 #ifdef XR_DISABLED
-// RendererSceneCull::render_camera is empty when 3D is disabled, but
+// For now we'll make dummy classes to avoid having to have a ton of ifdefs everywhere.
 // it and RenderingMethod::render_camera have a parameter for XRInterface.
 #define XRInterface RefCounted
 #else
-#include "servers/xr/xr_interface.h"
+// #include "servers/xr/xr_interface.h"
 #endif // XR_DISABLED
 
 class RenderingMethod {

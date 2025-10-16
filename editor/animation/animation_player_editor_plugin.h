@@ -42,6 +42,8 @@
 
 class AnimationPlayerEditorPlugin;
 class ImageTexture;
+class ShaderMaterial;  // Forward declaration for onion skinning
+class Shader;           // Forward declaration for onion skinning
 
 class AnimationPlayerEditor : public VBoxContainer {
 	GDCLASS(AnimationPlayerEditor, VBoxContainer);
@@ -310,7 +312,9 @@ public:
 	virtual void make_visible(bool p_visible) override;
 
 	virtual void forward_canvas_force_draw_over_viewport(Control *p_overlay) override { anim_editor->forward_force_draw_over_viewport(p_overlay); }
+#ifndef _3D_DISABLED
 	virtual void forward_3d_force_draw_over_viewport(Control *p_overlay) override { anim_editor->forward_force_draw_over_viewport(p_overlay); }
+#endif // _3D_DISABLED
 
 	AnimationPlayerEditorPlugin();
 	~AnimationPlayerEditorPlugin();

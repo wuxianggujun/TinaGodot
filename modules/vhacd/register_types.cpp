@@ -32,6 +32,8 @@
 
 #include "scene/resources/mesh.h"
 
+#ifdef MESH_HAS_CONVEX_DECOMPOSITION
+
 #include "thirdparty/vhacd/public/VHACD.h"
 
 static Vector<Vector<Vector3>> convex_decompose(const real_t *p_vertices, int p_vertex_count, const uint32_t *p_triangles, int p_triangle_count, const Ref<MeshConvexDecompositionSettings> &p_settings, Vector<Vector<uint32_t>> *r_convex_indices) {
@@ -106,3 +108,20 @@ void uninitialize_vhacd_module(ModuleInitializationLevel p_level) {
 
 	Mesh::convex_decomposition_function = nullptr;
 }
+
+#else // MESH_HAS_CONVEX_DECOMPOSITION
+
+void initialize_vhacd_module(ModuleInitializationLevel p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
+	// 2D 精简版禁用 VHACD，因此不注册 Mesh 回调
+}
+
+void uninitialize_vhacd_module(ModuleInitializationLevel p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
+}
+
+#endif // MESH_HAS_CONVEX_DECOMPOSITION

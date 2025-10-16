@@ -33,18 +33,28 @@
 #include "editor/inspector/editor_inspector.h"
 #include "editor/plugins/editor_plugin.h"
 #include "editor/plugins/editor_resource_conversion_plugin.h"
-#include "scene/resources/3d/primitive_meshes.h"
+// 3D primitives removed in 2D Lite version
+// #include "scene/resources/3d/primitive_meshes.h"
 #include "scene/resources/material.h"
 
-class Camera3D;
+// 3D classes removed in 2D Lite version
+// class Camera3D;
 class ColorRect;
-class DirectionalLight3D;
+// class DirectionalLight3D;
 class HBoxContainer;
-class MeshInstance3D;
+// class MeshInstance3D;
 class SubViewport;
 class SubViewportContainer;
 class Button;
 class Label;
+class ShaderMaterial;  // Forward declaration
+class Environment;      // Forward declaration
+
+// 3D mesh types - removed in 2D Lite
+// class SphereMesh;
+// class BoxMesh;
+// class QuadMesh;
+// class CameraAttributesPractical;
 
 class MaterialEditor : public Control {
 	GDCLASS(MaterialEditor, Control);
@@ -72,36 +82,36 @@ class MaterialEditor : public Control {
 	HBoxContainer *layout_2d = nullptr;
 	ColorRect *rect_instance = nullptr;
 
-	// 3D spatial materials.
-	Vector2 rot;
-	Node3D *rotation = nullptr;
-	MeshInstance3D *sphere_instance = nullptr;
-	MeshInstance3D *box_instance = nullptr;
-	MeshInstance3D *quad_instance = nullptr;
-	DirectionalLight3D *light1 = nullptr;
-	DirectionalLight3D *light2 = nullptr;
-	Camera3D *camera = nullptr;
-	Ref<CameraAttributesPractical> camera_attributes;
-	Ref<SphereMesh> sphere_mesh;
-	Ref<BoxMesh> box_mesh;
-	Ref<QuadMesh> quad_mesh;
-	HBoxContainer *layout_3d = nullptr;
+	// 3D spatial materials - removed in 2D Lite version
+	// Vector2 rot;
+	// Node3D *rotation = nullptr;
+	// MeshInstance3D *sphere_instance = nullptr;
+	// MeshInstance3D *box_instance = nullptr;
+	// MeshInstance3D *quad_instance = nullptr;
+	// DirectionalLight3D *light1 = nullptr;
+	// DirectionalLight3D *light2 = nullptr;
+	// Camera3D *camera = nullptr;
+	// Ref<CameraAttributesPractical> camera_attributes;
+	// Ref<SphereMesh> sphere_mesh;
+	// Ref<BoxMesh> box_mesh;
+	// Ref<QuadMesh> quad_mesh;
+	// HBoxContainer *layout_3d = nullptr;
 
-	Button *sphere_switch = nullptr;
-	Button *box_switch = nullptr;
-	Button *quad_switch = nullptr;
-	Button *light_1_switch = nullptr;
-	Button *light_2_switch = nullptr;
+	// Button *sphere_switch = nullptr;
+	// Button *box_switch = nullptr;
+	// Button *quad_switch = nullptr;
+	// Button *light_1_switch = nullptr;
+	// Button *light_2_switch = nullptr;
 
-	void _on_light_1_switch_pressed();
-	void _on_light_2_switch_pressed();
-	void _on_sphere_switch_pressed();
-	void _on_box_switch_pressed();
-	void _on_quad_switch_pressed();
+	// void _on_light_1_switch_pressed();
+	// void _on_light_2_switch_pressed();
+	// void _on_sphere_switch_pressed();
+	// void _on_box_switch_pressed();
+	// void _on_quad_switch_pressed();
 
-	void _set_rotation(real_t p_x_degrees, real_t p_y_degrees);
-	void _store_rotation_metadata();
-	void _update_rotation();
+	// void _set_rotation(real_t p_x_degrees, real_t p_y_degrees);
+	// void _store_rotation_metadata();
+	// void _update_rotation();
 
 protected:
 	virtual void _update_theme_item_cache() override;
@@ -110,13 +120,16 @@ protected:
 
 public:
 	static Ref<ShaderMaterial> make_shader_material(const Ref<Material> &p_from, bool p_copy_params = true);
-	void edit(Ref<Material> p_material, const Ref<Environment> &p_env);
+	// 3D environment removed in 2D Lite
+	// void edit(Ref<Material> p_material, const Ref<Environment> &p_env);
+	void edit(Ref<Material> p_material);
 	MaterialEditor();
 };
 
 class EditorInspectorPluginMaterial : public EditorInspectorPlugin {
 	GDCLASS(EditorInspectorPluginMaterial, EditorInspectorPlugin);
-	Ref<Environment> env;
+	// 3D environment removed
+	// Ref<Environment> env;
 
 public:
 	virtual bool can_handle(Object *p_object) override;

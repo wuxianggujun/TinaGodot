@@ -30,6 +30,7 @@
 
 #include "animation_library_editor.h"
 
+#include "core/io/resource_loader.h"  // Add missing ResourceLoader header
 #include "core/string/print_string.h"
 #include "core/string/ustring.h"
 #include "core/templates/vector.h"

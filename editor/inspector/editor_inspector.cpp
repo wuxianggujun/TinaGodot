@@ -31,6 +31,7 @@
 #include "editor_inspector.h"
 #include "editor_inspector.compat.inc"
 
+#include "core/io/resource_loader.h"
 #include "core/os/keyboard.h"
 #include "editor/debugger/editor_debugger_inspector.h"
 #include "editor/doc/doc_tools.h"
@@ -55,6 +56,7 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/main/timer.h"
 #include "scene/property_utils.h"
+#include "scene/resources/material.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box_flat.h"
 #include "scene/scene_string_names.h"

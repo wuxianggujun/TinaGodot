@@ -46,7 +46,11 @@
 #include "editor/inspector/editor_resource_preview.h"
 #include "editor/inspector/property_selector.h"
 #include "editor/run/editor_run_bar.h"
-#include "editor/scene/3d/node_3d_editor_plugin.h"
+#include "scene/resources/mesh.h"
+
+// 3D support removed in 2D Lite version
+// #ifndef PHYSICS_3D_DISABLED
+// #include "editor/scene/3d/node_3d_editor_plugin.h"
 #include "editor/scene/editor_scene_tabs.h"
 #include "editor/scene/scene_tree_editor.h"
 #include "editor/settings/editor_command_palette.h"
@@ -54,8 +58,15 @@
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 #include "main/main.h"
-#include "scene/3d/light_3d.h"
-#include "scene/3d/mesh_instance_3d.h"
+// 3D classes removed
+// #include "scene/3d/light_3d.h"
+// #include "scene/3d/mesh_instance_3d.h"
+// #include "scene/3d/node_3d.h"
+// #include "scene/3d/camera_3d.h"
+// #include "scene/resources/camera_attributes.h"
+// #include "scene/resources/environment.h"
+// #include "scene/resources/world_3d.h"
+// #endif
 #include "scene/gui/box_container.h"
 #include "scene/gui/control.h"
 #include "scene/main/window.h"
@@ -105,6 +116,35 @@ EditorUndoRedoManager *EditorInterface::get_editor_undo_redo() const {
 	return EditorUndoRedoManager::get_singleton();
 }
 
+#ifdef PHYSICS_3D_DISABLED
+AABB EditorInterface::_calculate_aabb_for_scene(Node *p_node, AABB &p_scene_aabb) {
+	// 2D 精简版不执行 3D 包围盒计算
+	(void)p_node;
+	return p_scene_aabb;
+}
+
+TypedArray<Texture2D> EditorInterface::_make_mesh_previews(const TypedArray<Mesh> &p_meshes, int p_preview_size) {
+	// 2D 精简版禁用 3D 预览
+	(void)p_meshes;
+	(void)p_preview_size;
+	return TypedArray<Texture2D>();
+}
+
+Vector<Ref<Texture2D>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>> &p_meshes, Vector<Transform3D> *p_transforms, int p_preview_size) {
+	// 2D 精简版禁用 3D 预览
+	(void)p_meshes;
+	(void)p_transforms;
+	(void)p_preview_size;
+	return Vector<Ref<Texture2D>>();
+}
+
+void EditorInterface::make_scene_preview(const String &p_path, Node *p_scene, int p_preview_size) {
+	// 2D 精简版不生成 3D 场景预览
+	(void)p_path;
+	(void)p_scene;
+	(void)p_preview_size;
+}
+#else
 AABB EditorInterface::_calculate_aabb_for_scene(Node *p_node, AABB &p_scene_aabb) {
 	MeshInstance3D *mesh_node = Object::cast_to<MeshInstance3D>(p_node);
 	if (mesh_node && mesh_node->get_mesh().is_valid()) {
@@ -365,6 +405,8 @@ void EditorInterface::make_scene_preview(const String &p_path, Node *p_scene, in
 	EditorFileSystem::get_singleton()->emit_signal(SNAME("filesystem_changed"));
 }
 
+#endif // PHYSICS_3D_DISABLED
+
 void EditorInterface::add_root_node(Node *p_node) {
 	if (EditorNode::get_singleton()->get_edited_scene()) {
 		ERR_PRINT("EditorInterface::add_root_node: The current scene already has a root node.");
@@ -418,8 +460,12 @@ SubViewport *EditorInterface::get_editor_viewport_2d() const {
 }
 
 SubViewport *EditorInterface::get_editor_viewport_3d(int p_idx) const {
+#ifndef PHYSICS_3D_DISABLED
 	ERR_FAIL_INDEX_V(p_idx, static_cast<int>(Node3DEditor::VIEWPORTS_COUNT), nullptr);
 	return Node3DEditor::get_singleton()->get_editor_viewport(p_idx)->get_viewport_node();
+#else
+	return nullptr;
+#endif
 }
 
 void EditorInterface::set_main_screen_editor(const String &p_name) {
@@ -443,19 +489,35 @@ float EditorInterface::get_editor_scale() const {
 }
 
 bool EditorInterface::is_node_3d_snap_enabled() const {
+#ifndef PHYSICS_3D_DISABLED
 	return Node3DEditor::get_singleton()->is_snap_enabled();
+#else
+	return false;
+#endif
 }
 
 real_t EditorInterface::get_node_3d_translate_snap() const {
+#ifndef PHYSICS_3D_DISABLED
 	return Node3DEditor::get_singleton()->get_translate_snap();
+#else
+	return 0.0;
+#endif
 }
 
 real_t EditorInterface::get_node_3d_rotate_snap() const {
+#ifndef PHYSICS_3D_DISABLED
 	return Node3DEditor::get_singleton()->get_rotate_snap();
+#else
+	return 0.0;
+#endif
 }
 
 real_t EditorInterface::get_node_3d_scale_snap() const {
+#ifndef PHYSICS_3D_DISABLED
 	return Node3DEditor::get_singleton()->get_scale_snap();
+#else
+	return 0.0;
+#endif
 }
 
 void EditorInterface::popup_dialog(Window *p_dialog, const Rect2i &p_screen_rect) {
@@ -801,10 +863,12 @@ void EditorInterface::get_argument_options(const StringName &p_function, int p_i
 			for (String E : { "\"2D\"", "\"3D\"", "\"Script\"", "\"Game\"", "\"AssetLib\"" }) {
 				r_options->push_back(E);
 			}
+#ifndef PHYSICS_3D_DISABLED
 		} else if (pf == "get_editor_viewport_3d") {
 			for (uint32_t i = 0; i < Node3DEditor::VIEWPORTS_COUNT; i++) {
 				r_options->push_back(String::num_int64(i));
 			}
+#endif
 		}
 	}
 	Object::get_argument_options(p_function, p_idx, r_options);

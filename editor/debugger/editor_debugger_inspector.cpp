@@ -31,6 +31,7 @@
 #include "editor_debugger_inspector.h"
 
 #include "core/debugger/debugger_marshalls.h"
+#include "core/io/resource_loader.h"
 #include "core/io/marshalls.h"
 #include "editor/docks/inspector_dock.h"
 #include "editor/editor_node.h"

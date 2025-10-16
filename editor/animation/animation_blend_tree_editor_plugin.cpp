@@ -40,7 +40,8 @@
 #include "editor/inspector/editor_properties.h"
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
-#include "scene/3d/skeleton_3d.h"
+// 3D skeleton removed in 2D Lite version
+// #include "scene/3d/skeleton_3d.h"
 #include "scene/gui/check_box.h"
 #include "scene/gui/grid_container.h"
 #include "scene/gui/line_edit.h"
@@ -838,6 +839,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 		if (path.get_subname_count()) {
 			String concat = path.get_concatenated_subnames();
 
+#ifndef PHYSICS_3D_DISABLED
 			Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(node);
 			if (skeleton && skeleton->find_bone(concat) != -1) {
 				//path in skeleton
@@ -876,7 +878,9 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 				ti->set_icon(0, get_editor_theme_icon(SNAME("Bone")));
 				ti->set_metadata(0, path);
 
-			} else {
+			} else
+#endif // PHYSICS_3D_DISABLED
+			{
 				//just a property
 				ti = filters->create_item(ti);
 				ti->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);

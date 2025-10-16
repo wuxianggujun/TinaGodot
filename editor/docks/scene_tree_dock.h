@@ -43,6 +43,8 @@ class MenuButton;
 class RenameDialog;
 class ReparentDialog;
 class ShaderCreateDialog;
+class Shader;
+class ShaderMaterial;  // Forward declaration
 class TextureRect;
 class VBoxContainer;
 

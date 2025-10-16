@@ -33,7 +33,10 @@
 #include "editor/editor_data.h"
 #include "editor/inspector/editor_properties.h"
 #include "editor/inspector/property_selector.h"
-#include "scene/3d/node_3d.h"
+// 3D node removed in 2D Lite version
+// #ifndef PHYSICS_3D_DISABLED
+// #include "scene/3d/node_3d.h"
+// #endif
 #include "scene/gui/control.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/scroll_bar.h"
@@ -945,8 +948,10 @@ public:
 	void set_anim_pos(float p_pos);
 	void insert_node_value_key(Node *p_node, const String &p_property, bool p_only_if_exists = false, bool p_advance = false);
 	void insert_value_key(const String &p_property, bool p_advance);
+#ifndef PHYSICS_3D_DISABLED
 	void insert_transform_key(Node3D *p_node, const String &p_sub, const Animation::TrackType p_type, const Variant &p_value);
 	bool has_track(Node3D *p_node, const String &p_sub, const Animation::TrackType p_type);
+#endif
 	void make_insert_queue();
 	void commit_insert_queue();
 

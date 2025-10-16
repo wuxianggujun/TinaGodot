@@ -28,6 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+// Godot 2D Lite - Disable 3D features
+#ifndef _3D_DISABLED
+#define _3D_DISABLED
+#endif
+#ifndef PHYSICS_3D_DISABLED
+#define PHYSICS_3D_DISABLED
+#endif
+#ifndef NAVIGATION_3D_DISABLED
+#define NAVIGATION_3D_DISABLED
+#endif
+#ifndef XR_DISABLED
+#define XR_DISABLED
+#endif
+
 #include "register_scene_types.h"
 
 #include "core/config/project_settings.h"
@@ -255,20 +269,22 @@
 #include "scene/3d/voxel_gi.h"
 #include "scene/3d/world_environment.h"
 #include "scene/animation/root_motion_view.h"
-#include "scene/resources/3d/fog_material.h"
-#include "scene/resources/3d/importer_mesh.h"
-#include "scene/resources/3d/mesh_library.h"
-#include "scene/resources/3d/navigation_mesh_source_geometry_data_3d.h"
-#include "scene/resources/3d/primitive_meshes.h"
-#include "scene/resources/3d/sky_material.h"
-#include "scene/resources/3d/world_3d.h"
-#ifndef NAVIGATION_3D_DISABLED
-#include "scene/3d/navigation/navigation_agent_3d.h"
-#include "scene/3d/navigation/navigation_link_3d.h"
-#include "scene/3d/navigation/navigation_obstacle_3d.h"
-#include "scene/3d/navigation/navigation_region_3d.h"
-#include "scene/resources/3d/navigation_mesh_source_geometry_data_3d.h"
-#endif // NAVIGATION_3D_DISABLED
+// Removed 3D resources for 2D Lite version
+// #include "scene/resources/3d/fog_material.h"
+// #include "scene/resources/3d/importer_mesh.h"
+// #include "scene/resources/3d/mesh_library.h"
+// #include "scene/resources/3d/navigation_mesh_source_geometry_data_3d.h"
+// #include "scene/resources/3d/primitive_meshes.h"
+// #include "scene/resources/3d/sky_material.h"
+// #include "scene/resources/3d/world_3d.h"
+#define NAVIGATION_3D_DISABLED
+// #ifndef NAVIGATION_3D_DISABLED
+// #include "scene/3d/navigation/navigation_agent_3d.h"
+// #include "scene/3d/navigation/navigation_link_3d.h"
+// #include "scene/3d/navigation/navigation_obstacle_3d.h"
+// #include "scene/3d/navigation/navigation_region_3d.h"
+// #include "scene/resources/3d/navigation_mesh_source_geometry_data_3d.h"
+// #endif // NAVIGATION_3D_DISABLED
 #ifndef XR_DISABLED
 #include "scene/3d/xr/xr_body_modifier_3d.h"
 #include "scene/3d/xr/xr_face_modifier_3d.h"
@@ -315,39 +331,41 @@
 #include "scene/resources/2d/world_boundary_shape_2d.h"
 #endif // PHYSICS_2D_DISABLED
 
-#ifndef PHYSICS_3D_DISABLED
-#include "scene/3d/physics/animatable_body_3d.h"
-#include "scene/3d/physics/area_3d.h"
-#include "scene/3d/physics/character_body_3d.h"
-#include "scene/3d/physics/collision_polygon_3d.h"
-#include "scene/3d/physics/collision_shape_3d.h"
-#include "scene/3d/physics/joints/cone_twist_joint_3d.h"
-#include "scene/3d/physics/joints/generic_6dof_joint_3d.h"
-#include "scene/3d/physics/joints/hinge_joint_3d.h"
-#include "scene/3d/physics/joints/joint_3d.h"
-#include "scene/3d/physics/joints/pin_joint_3d.h"
-#include "scene/3d/physics/joints/slider_joint_3d.h"
-#include "scene/3d/physics/kinematic_collision_3d.h"
-#include "scene/3d/physics/physical_bone_3d.h"
-#include "scene/3d/physics/physical_bone_simulator_3d.h"
-#include "scene/3d/physics/physics_body_3d.h"
-#include "scene/3d/physics/ray_cast_3d.h"
-#include "scene/3d/physics/rigid_body_3d.h"
-#include "scene/3d/physics/shape_cast_3d.h"
-#include "scene/3d/physics/soft_body_3d.h"
-#include "scene/3d/physics/spring_arm_3d.h"
-#include "scene/3d/physics/static_body_3d.h"
-#include "scene/3d/physics/vehicle_body_3d.h"
-#include "scene/resources/3d/box_shape_3d.h"
-#include "scene/resources/3d/capsule_shape_3d.h"
-#include "scene/resources/3d/concave_polygon_shape_3d.h"
-#include "scene/resources/3d/convex_polygon_shape_3d.h"
-#include "scene/resources/3d/cylinder_shape_3d.h"
-#include "scene/resources/3d/height_map_shape_3d.h"
-#include "scene/resources/3d/separation_ray_shape_3d.h"
-#include "scene/resources/3d/sphere_shape_3d.h"
-#include "scene/resources/3d/world_boundary_shape_3d.h"
-#endif // PHYSICS_3D_DISABLED
+// Removed 3D physics for 2D Lite version
+// #ifndef PHYSICS_3D_DISABLED
+// #include "scene/3d/physics/animatable_body_3d.h"
+// #include "scene/3d/physics/area_3d.h"
+// #include "scene/3d/physics/character_body_3d.h"
+// #include "scene/3d/physics/collision_polygon_3d.h"
+// #include "scene/3d/physics/collision_shape_3d.h"
+// #include "scene/3d/physics/joints/cone_twist_joint_3d.h"
+// #include "scene/3d/physics/joints/generic_6dof_joint_3d.h"
+// #include "scene/3d/physics/joints/hinge_joint_3d.h"
+// #include "scene/3d/physics/joints/joint_3d.h"
+// #include "scene/3d/physics/joints/pin_joint_3d.h"
+// #include "scene/3d/physics/joints/slider_joint_3d.h"
+// #include "scene/3d/physics/kinematic_collision_3d.h"
+// #include "scene/3d/physics/physical_bone_3d.h"
+// #include "scene/3d/physics/physical_bone_simulator_3d.h"
+// #include "scene/3d/physics/physics_body_3d.h"
+// #include "scene/3d/physics/ray_cast_3d.h"
+// #include "scene/3d/physics/rigid_body_3d.h"
+// #include "scene/3d/physics/shape_cast_3d.h"
+// #include "scene/3d/physics/soft_body_3d.h"
+// #include "scene/3d/physics/spring_arm_3d.h"
+// #include "scene/3d/physics/static_body_3d.h"
+// #include "scene/3d/physics/vehicle_body_3d.h"
+// #include "scene/resources/3d/box_shape_3d.h"
+// #include "scene/resources/3d/capsule_shape_3d.h"
+// #include "scene/resources/3d/concave_polygon_shape_3d.h"
+// #include "scene/resources/3d/convex_polygon_shape_3d.h"
+// #include "scene/resources/3d/cylinder_shape_3d.h"
+// #include "scene/resources/3d/height_map_shape_3d.h"
+// #include "scene/resources/3d/separation_ray_shape_3d.h"
+// #include "scene/resources/3d/sphere_shape_3d.h"
+// #include "scene/resources/3d/world_boundary_shape_3d.h"
+// PHYSICS_3D_DISABLED already defined at the top of this file
+// #endif // PHYSICS_3D_DISABLED
 
 static Ref<ResourceFormatSaverText> resource_saver_text;
 static Ref<ResourceFormatLoaderText> resource_loader_text;

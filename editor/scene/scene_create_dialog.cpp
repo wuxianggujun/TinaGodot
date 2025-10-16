@@ -31,6 +31,7 @@
 #include "scene_create_dialog.h"
 
 #include "core/io/dir_access.h"
+#include "core/io/resource_saver.h"
 #include "editor/editor_node.h"
 #include "editor/editor_string_names.h"
 #include "editor/gui/create_dialog.h"
@@ -38,7 +39,6 @@
 #include "editor/settings/editor_feature_profile.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/2d/node_2d.h"
-#include "scene/3d/node_3d.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/check_box.h"
 #include "scene/gui/grid_container.h"
@@ -167,7 +167,11 @@ Node *SceneCreateDialog::create_scene_root() {
 			root = memnew(Node2D);
 			break;
 		case ROOT_3D_SCENE:
+#ifndef _3D_DISABLED
 			root = memnew(Node3D);
+#else
+			root = memnew(Node2D); // 在2D模式下使用Node2D作为替代
+#endif
 			break;
 		case ROOT_USER_INTERFACE: {
 			Control *gui_ctl = memnew(Control);

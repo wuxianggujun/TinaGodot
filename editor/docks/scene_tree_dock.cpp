@@ -50,7 +50,8 @@
 #include "editor/gui/editor_quick_open_dialog.h"
 #include "editor/inspector/editor_context_menu_plugin.h"
 #include "editor/inspector/multi_node_edit.h"
-#include "editor/scene/3d/node_3d_editor_plugin.h"
+// 3D editor removed in 2D Lite version
+// #include "editor/scene/3d/node_3d_editor_plugin.h"
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/scene/rename_dialog.h"
 #include "editor/scene/reparent_dialog.h"
@@ -66,6 +67,7 @@
 #include "scene/gui/box_container.h"
 #include "scene/gui/check_box.h"
 #include "scene/property_utils.h"
+#include "scene/resources/material.h"
 #include "scene/resources/packed_scene.h"
 #include "servers/display/display_server.h"
 
@@ -376,8 +378,10 @@ void SceneTreeDock::_perform_create_audio_stream_players(const Vector<String> &p
 	if (Input::get_singleton()->is_key_pressed(Key::SHIFT)) {
 		if (Object::cast_to<Node2D>(p_parent)) {
 			node_type = "AudioStreamPlayer2D";
+#ifndef _3D_DISABLED
 		} else if (Object::cast_to<Node3D>(p_parent)) {
 			node_type = "AudioStreamPlayer3D";
+#endif // _3D_DISABLED
 		}
 	}
 
@@ -466,6 +470,7 @@ void SceneTreeDock::_replace_with_branch_scene(const String &p_file, Node *base)
 		copy_2d->set_scale(base_2d->get_scale());
 	}
 
+#ifndef _3D_DISABLED
 	Node3D *copy_3d = Object::cast_to<Node3D>(instantiated_scene);
 	Node3D *base_3d = Object::cast_to<Node3D>(base);
 	if (copy_3d && base_3d) {
@@ -473,6 +478,7 @@ void SceneTreeDock::_replace_with_branch_scene(const String &p_file, Node *base)
 		copy_3d->set_rotation(base_3d->get_rotation());
 		copy_3d->set_scale(base_3d->get_scale());
 	}
+#endif // _3D_DISABLED
 
 	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
 	undo_redo->create_action(TTR("Replace with Branch Scene"));
@@ -608,7 +614,9 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 				if (preferred_types.is_empty()) {
 					preferred_types.push_back("Control");
 					preferred_types.push_back("Node2D");
+#ifndef _3D_DISABLED
 					preferred_types.push_back("Node3D");
+#endif // _3D_DISABLED
 				}
 
 				for (int i = 0; i < preferred_types.size(); i++) {
@@ -1532,7 +1540,11 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 						new_node = memnew(Node2D);
 						break;
 					case TOOL_CREATE_3D_SCENE:
+#ifndef _3D_DISABLED
 						new_node = memnew(Node3D);
+#else
+						new_node = memnew(Node);
+#endif // _3D_DISABLED
 						break;
 					case TOOL_CREATE_USER_INTERFACE: {
 						Control *node = memnew(Control);
@@ -1621,9 +1633,13 @@ void SceneTreeDock::_notification(int p_what) {
 				scene_tree->connect("node_changed", callable_mp((CanvasItem *)canvas_item_plugin->get_canvas_item_editor()->get_viewport_control(), &CanvasItem::queue_redraw));
 			}
 
+#ifndef _3D_DISABLED
 			Node3DEditorPlugin *spatial_editor_plugin = Object::cast_to<Node3DEditorPlugin>(editor_data->get_editor_by_name("3D"));
-			spatial_editor_plugin->get_spatial_editor()->connect("item_lock_status_changed", callable_mp(scene_tree, &SceneTreeEditor::_update_tree).bind(false));
-			spatial_editor_plugin->get_spatial_editor()->connect("item_group_status_changed", callable_mp(scene_tree, &SceneTreeEditor::_update_tree).bind(false));
+			if (spatial_editor_plugin) {
+				spatial_editor_plugin->get_spatial_editor()->connect("item_lock_status_changed", callable_mp(scene_tree, &SceneTreeEditor::_update_tree).bind(false));
+				spatial_editor_plugin->get_spatial_editor()->connect("item_group_status_changed", callable_mp(scene_tree, &SceneTreeEditor::_update_tree).bind(false));
+			}
+#endif // _3D_DISABLED
 
 			filter->set_clear_button_enabled(true);
 
@@ -1666,11 +1682,15 @@ void SceneTreeDock::_notification(int p_what) {
 			button_2d->set_button_icon(get_editor_theme_icon(SNAME("Node2D")));
 			button_2d->connect(SceneStringName(pressed), callable_mp(this, &SceneTreeDock::_tool_selected).bind(TOOL_CREATE_2D_SCENE, false));
 
+#ifndef _3D_DISABLED
 			button_3d = memnew(Button);
 			beginner_node_shortcuts->add_child(button_3d);
 			button_3d->set_text(TTR("3D Scene"));
 			button_3d->set_button_icon(get_editor_theme_icon(SNAME("Node3D")));
 			button_3d->connect(SceneStringName(pressed), callable_mp(this, &SceneTreeDock::_tool_selected).bind(TOOL_CREATE_3D_SCENE, false));
+#else
+			button_3d = nullptr;
+#endif // _3D_DISABLED
 
 			button_ui = memnew(Button);
 			beginner_node_shortcuts->add_child(button_ui);
@@ -2126,11 +2146,13 @@ bool SceneTreeDock::_check_node_path_recursive(Node *p_root_node, Variant &r_var
 				break;
 			}
 
+#ifndef _3D_DISABLED
 			if (Object::cast_to<Material>(resource)) {
 				// For performance reasons, assume that Materials don't have NodePaths in them.
 				// TODO This check could be removed when String performance has improved.
 				break;
 			}
+#endif // _3D_DISABLED
 
 			if (!resource->is_built_in()) {
 				// For performance reasons, assume that scene paths are no concern for external resources.
@@ -2488,9 +2510,11 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 			if (Object::cast_to<Node2D>(node)) {
 				undo_redo->add_do_method(node, "set_global_transform", Object::cast_to<Node2D>(node)->get_global_transform());
 			}
+#ifndef _3D_DISABLED
 			if (Object::cast_to<Node3D>(node)) {
 				undo_redo->add_do_method(node, "set_global_transform", Object::cast_to<Node3D>(node)->get_global_transform());
 			}
+#endif // _3D_DISABLED
 			if (Object::cast_to<Control>(node)) {
 				undo_redo->add_do_method(node, "set_global_position", Object::cast_to<Control>(node)->get_global_position());
 			}
@@ -2533,9 +2557,11 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 			if (Object::cast_to<Node2D>(node)) {
 				undo_redo->add_undo_method(node, "set_transform", Object::cast_to<Node2D>(node)->get_transform());
 			}
+#ifndef _3D_DISABLED
 			if (Object::cast_to<Node3D>(node)) {
 				undo_redo->add_undo_method(node, "set_transform", Object::cast_to<Node3D>(node)->get_transform());
 			}
+#endif // _3D_DISABLED
 			if (!reparented_to_container && Object::cast_to<Control>(node)) {
 				undo_redo->add_undo_method(node, "set_position", Object::cast_to<Control>(node)->get_position());
 			}
@@ -2598,6 +2624,7 @@ void SceneTreeDock::_script_created(Ref<Script> p_script) {
 
 	InspectorDock::get_inspector_singleton()->edit(edited_object);
 }
+
 
 void SceneTreeDock::_shader_created(Ref<Shader> p_shader) {
 	if (selected_shader_material.is_null()) {
@@ -2690,10 +2717,13 @@ void SceneTreeDock::_reparent_nodes_to_paths_with_transform_and_name(Node *p_roo
 		node->get_owned_by(p_owner, &owned);
 		node->reparent(parent_node);
 		node->set_name(p_names[i]);
+#ifndef _3D_DISABLED
 		Node3D *node_3d = Object::cast_to<Node3D>(node);
 		if (node_3d) {
 			node_3d->set_transform(p_transforms[i]);
-		} else {
+		} else
+#endif // _3D_DISABLED
+		{
 			Node2D *node_2d = Object::cast_to<Node2D>(node);
 			if (node_2d) {
 				node_2d->set_transform(p_transforms[i]);
@@ -2740,10 +2770,13 @@ void SceneTreeDock::_toggle_editable_children(Node *p_node) {
 				owned_nodes_array.push_back(owned_node);
 				paths_array.push_back(p_node->get_path_to(owned_node->get_parent()));
 				name_array.push_back(owned_node->get_name());
+#ifndef _3D_DISABLED
 				Node3D *node_3d = Object::cast_to<Node3D>(owned_node);
 				if (node_3d) {
 					transform_array.push_back(node_3d->get_transform());
-				} else {
+				} else
+#endif // _3D_DISABLED
+				{
 					Node2D *node_2d = Object::cast_to<Node2D>(owned_node);
 					if (node_2d) {
 						transform_array.push_back(node_2d->get_transform());
@@ -2760,8 +2793,10 @@ void SceneTreeDock::_toggle_editable_children(Node *p_node) {
 		}
 	}
 
+#ifndef _3D_DISABLED
 	undo_redo->add_undo_method(Node3DEditor::get_singleton(), "update_all_gizmos", p_node);
 	undo_redo->add_do_method(Node3DEditor::get_singleton(), "update_all_gizmos", p_node);
+#endif // _3D_DISABLED
 
 	undo_redo->add_undo_method(scene_tree, "update_tree");
 	undo_redo->add_do_method(scene_tree, "update_tree");
@@ -3105,6 +3140,7 @@ void SceneTreeDock::_create() {
 
 		if (center_parent) {
 			// Find parent type and only average positions of relevant nodes.
+#ifndef _3D_DISABLED
 			Node3D *parent_node_3d = Object::cast_to<Node3D>(last_created);
 			if (parent_node_3d) {
 				Vector3 position;
@@ -3121,6 +3157,7 @@ void SceneTreeDock::_create() {
 					parent_node_3d->set_global_position(position / node_count);
 				}
 			}
+#endif // _3D_DISABLED
 
 			Node2D *parent_node_2d = Object::cast_to<Node2D>(last_created);
 			if (parent_node_2d) {
@@ -3452,6 +3489,7 @@ void SceneTreeDock::_new_scene_from(const String &p_file) {
 				copy_2d->set_scale(Size2(1, 1));
 			}
 		}
+#ifndef _3D_DISABLED
 		Node3D *copy_3d = Object::cast_to<Node3D>(copy);
 		if (copy_3d != nullptr) {
 			if (reset_position) {
@@ -3464,6 +3502,7 @@ void SceneTreeDock::_new_scene_from(const String &p_file) {
 				copy_3d->set_scale(Vector3(1, 1, 1));
 			}
 		}
+#endif // _3D_DISABLED
 
 		Ref<PackedScene> sdata = memnew(PackedScene);
 		Error err = sdata->pack(copy);
@@ -4130,10 +4169,15 @@ void SceneTreeDock::_focus_node() {
 	if (node->is_class("CanvasItem")) {
 		CanvasItemEditorPlugin *editor = Object::cast_to<CanvasItemEditorPlugin>(editor_data->get_editor_by_name("2D"));
 		editor->get_canvas_item_editor()->focus_selection();
-	} else {
-		Node3DEditorPlugin *editor = Object::cast_to<Node3DEditorPlugin>(editor_data->get_editor_by_name("3D"));
-		editor->get_spatial_editor()->get_editor_viewport(0)->focus_selection();
 	}
+#ifndef _3D_DISABLED
+	else {
+		Node3DEditorPlugin *editor = Object::cast_to<Node3DEditorPlugin>(editor_data->get_editor_by_name("3D"));
+		if (editor) {
+			editor->get_spatial_editor()->get_editor_viewport(0)->focus_selection();
+		}
+	}
+#endif // _3D_DISABLED
 }
 
 void SceneTreeDock::attach_script_to_selected(bool p_extend) {
@@ -4482,13 +4526,17 @@ void SceneTreeDock::_feature_profile_changed() {
 		profile_allow_script_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT);
 		bool profile_allow_3d = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D);
 
-		button_3d->set_visible(profile_allow_3d);
+		if (button_3d) {
+			button_3d->set_visible(profile_allow_3d);
+		}
 		button_add->set_visible(profile_allow_editing);
 		button_instance->set_visible(profile_allow_editing);
 		scene_tree->set_can_rename(profile_allow_editing);
 
 	} else {
-		button_3d->set_visible(true);
+		if (button_3d) {
+			button_3d->set_visible(true);
+		}
 		button_add->set_visible(true);
 		button_instance->set_visible(true);
 		scene_tree->set_can_rename(true);

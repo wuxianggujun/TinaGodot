@@ -32,7 +32,8 @@
 
 #include "core/os/rw_lock.h"
 #include "scene/resources/mesh.h"
-#include "servers/navigation_3d/navigation_constants_3d.h"
+// Removed 3D navigation for 2D Lite version
+// #include "servers/navigation_3d/navigation_constants_3d.h"
 
 class NavigationMesh : public Resource {
 	GDCLASS(NavigationMesh, Resource);
@@ -77,8 +78,9 @@ public:
 	};
 
 protected:
-	float cell_size = NavigationDefaults3D::NAV_MESH_CELL_SIZE;
-	float cell_height = NavigationDefaults3D::NAV_MESH_CELL_HEIGHT;
+	// Hardcoded defaults for 2D Lite (removed 3D navigation constants)
+	float cell_size = 0.25f; // NavigationDefaults3D::NAV_MESH_CELL_SIZE;
+	float cell_height = 0.25f; // NavigationDefaults3D::NAV_MESH_CELL_HEIGHT;
 	float border_size = 0.0f;
 	float agent_height = 1.5f;
 	float agent_radius = 0.5f;
@@ -200,7 +202,9 @@ public:
 	void get_data(Vector<Vector3> &r_vertices, Vector<Vector<int>> &r_polygons);
 
 #ifdef DEBUG_ENABLED
+#ifndef NAVIGATION_3D_DISABLED
 	Ref<ArrayMesh> get_debug_mesh();
+#endif // NAVIGATION_3D_DISABLED
 #endif // DEBUG_ENABLED
 };
 

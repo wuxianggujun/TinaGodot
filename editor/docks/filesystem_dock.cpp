@@ -46,7 +46,9 @@
 #include "editor/gui/create_dialog.h"
 #include "editor/gui/directory_create_dialog.h"
 #include "editor/gui/editor_dir_dialog.h"
+#ifndef _3D_DISABLED
 #include "editor/import/3d/scene_import_settings.h"
+#endif
 #include "editor/inspector/editor_context_menu_plugin.h"
 #include "editor/inspector/editor_resource_preview.h"
 #include "editor/inspector/editor_resource_tooltip_plugins.h"
@@ -1256,6 +1258,8 @@ void FileSystemDock::_select_file(const String &p_path, bool p_select_in_favorit
 		}
 
 		String resource_type = ResourceLoader::get_resource_type(fpath);
+		bool handled_scene_resource = false;
+#ifndef _3D_DISABLED
 		if (resource_type == "PackedScene" || resource_type == "AnimationLibrary") {
 			bool is_imported = false;
 			{
@@ -1275,7 +1279,16 @@ void FileSystemDock::_select_file(const String &p_path, bool p_select_in_favorit
 			} else {
 				EditorNode::get_singleton()->load_scene_or_resource(fpath);
 			}
-		} else if (ResourceLoader::is_imported(fpath)) {
+			handled_scene_resource = true;
+		}
+#else
+		if (resource_type == "PackedScene" || resource_type == "AnimationLibrary") {
+			EditorNode::get_singleton()->load_scene_or_resource(fpath);
+			handled_scene_resource = true;
+		}
+#endif // _3D_DISABLED
+
+		if (!handled_scene_resource && ResourceLoader::is_imported(fpath)) {
 			// If the importer has advanced settings, show them.
 			int order;
 			bool can_threads;
@@ -1293,7 +1306,7 @@ void FileSystemDock::_select_file(const String &p_path, bool p_select_in_favorit
 			if (!used_advanced_settings) {
 				EditorNode::get_singleton()->load_resource(fpath);
 			}
-		} else {
+		} else if (!handled_scene_resource) {
 			EditorNode::get_singleton()->load_resource(fpath);
 		}
 	}

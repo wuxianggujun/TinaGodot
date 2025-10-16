@@ -99,16 +99,17 @@
 #include "servers/physics_3d/physics_server_3d_dummy.h"
 #include "servers/physics_3d/physics_server_3d_extension.h"
 #endif // PHYSICS_3D_DISABLED
-#ifndef XR_DISABLED
-#include "xr/xr_body_tracker.h"
-#include "xr/xr_controller_tracker.h"
-#include "xr/xr_face_tracker.h"
-#include "xr/xr_hand_tracker.h"
-#include "xr/xr_interface.h"
-#include "xr/xr_interface_extension.h"
-#include "xr/xr_positional_tracker.h"
-#include "xr/xr_server.h"
-#endif // XR_DISABLED
+// Removed XR support for 2D Lite version
+// #ifndef XR_DISABLED
+// #include "xr/xr_body_tracker.h"
+// #include "xr/xr_controller_tracker.h"
+// #include "xr/xr_face_tracker.h"
+// #include "xr/xr_hand_tracker.h"
+// #include "xr/xr_interface.h"
+// #include "xr/xr_interface_extension.h"
+// #include "xr/xr_positional_tracker.h"
+// #include "xr/xr_server.h"
+// #endif // XR_DISABLED
 
 ShaderTypes *shader_types = nullptr;
 
@@ -330,19 +331,20 @@ void register_server_types() {
 	PhysicsServer3DManager::get_singleton()->register_server("Dummy", callable_mp_static(_create_dummy_physics_server_3d));
 #endif // PHYSICS_3D_DISABLED
 
-#ifndef XR_DISABLED
-	GDREGISTER_ABSTRACT_CLASS(XRInterface);
-	GDREGISTER_ABSTRACT_CLASS(XRTracker);
-	GDREGISTER_CLASS(XRVRS);
-	GDREGISTER_CLASS(XRPositionalTracker);
-	GDREGISTER_CLASS(XRBodyTracker);
-	GDREGISTER_CLASS(XRControllerTracker);
-	GDREGISTER_CLASS(XRFaceTracker);
-	GDREGISTER_CLASS(XRHandTracker);
-	GDREGISTER_CLASS(XRInterfaceExtension); // can't register this as virtual because we need a creation function for our extensions.
-	GDREGISTER_CLASS(XRPose);
-	GDREGISTER_CLASS(XRServer);
-#endif // XR_DISABLED
+// Removed XR support for 2D Lite version
+// #ifndef XR_DISABLED
+// 	GDREGISTER_ABSTRACT_CLASS(XRInterface);
+// 	GDREGISTER_ABSTRACT_CLASS(XRTracker);
+// 	GDREGISTER_CLASS(XRVRS);
+// 	GDREGISTER_CLASS(XRPositionalTracker);
+// 	GDREGISTER_CLASS(XRBodyTracker);
+// 	GDREGISTER_CLASS(XRControllerTracker);
+// 	GDREGISTER_CLASS(XRFaceTracker);
+// 	GDREGISTER_CLASS(XRHandTracker);
+// 	GDREGISTER_CLASS(XRInterfaceExtension); // can't register this as virtual because we need a creation function for our extensions.
+// 	GDREGISTER_CLASS(XRPose);
+// 	GDREGISTER_CLASS(XRServer);
+// #endif // XR_DISABLED
 
 	if constexpr (GD_IS_CLASS_ENABLED(MovieWriterPNGWAV)) {
 		writer_pngwav = memnew(MovieWriterPNGWAV);
@@ -384,9 +386,10 @@ void register_server_singletons() {
 #ifndef PHYSICS_3D_DISABLED
 	Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer3D", PhysicsServer3D::get_singleton(), "PhysicsServer3D"));
 #endif // PHYSICS_3D_DISABLED
-#ifndef XR_DISABLED
-	Engine::get_singleton()->add_singleton(Engine::Singleton("XRServer", XRServer::get_singleton(), "XRServer"));
-#endif // XR_DISABLED
+// Removed XR support for 2D Lite version
+// #ifndef XR_DISABLED
+// 	Engine::get_singleton()->add_singleton(Engine::Singleton("XRServer", XRServer::get_singleton(), "XRServer"));
+// #endif // XR_DISABLED
 
 	OS::get_singleton()->benchmark_end_measure("Servers", "Register Singletons");
 }

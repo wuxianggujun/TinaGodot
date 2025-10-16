@@ -232,7 +232,7 @@ opts.Add(BoolVariable("vsproj", "Generate a Visual Studio solution", False))
 opts.Add("vsproj_name", "Name of the Visual Studio solution", "godot")
 opts.Add("import_env_vars", "A comma-separated list of environment variables to copy from the outer environment.", "")
 opts.Add(BoolVariable("disable_exceptions", "Force disabling exception handling code", True))
-opts.Add(BoolVariable("disable_3d", "Disable 3D nodes for a smaller executable", False))
+opts.Add(BoolVariable("disable_3d", "Disable 3D nodes for a smaller executable", True))
 opts.Add(BoolVariable("disable_advanced_gui", "Disable advanced GUI nodes and behaviors", False))
 opts.Add(BoolVariable("disable_physics_2d", "Disable 2D physics nodes and server", False))
 opts.Add(BoolVariable("disable_physics_3d", "Disable 3D physics nodes and server", False))
@@ -997,7 +997,6 @@ sys.modules.pop("detect")
 if env.editor_build:
     unsupported_opts = []
     for disable_opt in [
-        "disable_3d",
         "disable_advanced_gui",
         "disable_physics_2d",
         "disable_physics_3d",

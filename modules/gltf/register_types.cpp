@@ -30,6 +30,14 @@
 
 #include "register_types.h"
 
+#ifdef _3D_DISABLED
+
+void initialize_gltf_module(ModuleInitializationLevel) {}
+
+void uninitialize_gltf_module(ModuleInitializationLevel) {}
+
+#else
+
 #include "extensions/gltf_document_extension_convert_importer_mesh.h"
 #include "extensions/gltf_document_extension_texture_ktx.h"
 #include "extensions/gltf_document_extension_texture_webp.h"
@@ -163,3 +171,5 @@ void uninitialize_gltf_module(ModuleInitializationLevel p_level) {
 	}
 	GLTFDocument::unregister_all_gltf_document_extensions();
 }
+
+#endif // _3D_DISABLED

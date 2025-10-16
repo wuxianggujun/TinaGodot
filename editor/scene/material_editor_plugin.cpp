@@ -45,10 +45,7 @@
 #include "scene/resources/canvas_item_material.h"
 #include "scene/resources/particle_process_material.h"
 
-// 3D.
-#include "scene/3d/camera_3d.h"
-#include "scene/3d/light_3d.h"
-#include "scene/3d/mesh_instance_3d.h"
+// 3D classes removed in 2D Lite version
 
 Ref<ShaderMaterial> MaterialEditor::make_shader_material(const Ref<Material> &p_from, bool p_copy_params) {
 	ERR_FAIL_COND_V(p_from.is_null(), Ref<ShaderMaterial>());
@@ -81,6 +78,7 @@ Ref<ShaderMaterial> MaterialEditor::make_shader_material(const Ref<Material> &p_
 }
 
 void MaterialEditor::gui_input(const Ref<InputEvent> &p_event) {
+#ifndef _3D_DISABLED
 	ERR_FAIL_COND(p_event.is_null());
 
 	Ref<InputEventMouseMotion> mm = p_event;
@@ -97,17 +95,20 @@ void MaterialEditor::gui_input(const Ref<InputEvent> &p_event) {
 		_update_rotation();
 		_store_rotation_metadata();
 	}
+#endif // _3D_DISABLED
 }
 
 void MaterialEditor::_update_theme_item_cache() {
 	Control::_update_theme_item_cache();
 
+#ifndef _3D_DISABLED
 	theme_cache.light_1_icon = get_editor_theme_icon(SNAME("MaterialPreviewLight1"));
 	theme_cache.light_2_icon = get_editor_theme_icon(SNAME("MaterialPreviewLight2"));
 
 	theme_cache.sphere_icon = get_editor_theme_icon(SNAME("MaterialPreviewSphere"));
 	theme_cache.box_icon = get_editor_theme_icon(SNAME("MaterialPreviewCube"));
 	theme_cache.quad_icon = get_editor_theme_icon(SNAME("MaterialPreviewQuad"));
+#endif // _3D_DISABLED
 
 	theme_cache.checkerboard = get_editor_theme_icon(SNAME("Checkerboard"));
 }
@@ -115,12 +116,14 @@ void MaterialEditor::_update_theme_item_cache() {
 void MaterialEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_THEME_CHANGED: {
+#ifndef _3D_DISABLED
 			light_1_switch->set_button_icon(theme_cache.light_1_icon);
 			light_2_switch->set_button_icon(theme_cache.light_2_icon);
 
 			sphere_switch->set_button_icon(theme_cache.sphere_icon);
 			box_switch->set_button_icon(theme_cache.box_icon);
 			quad_switch->set_button_icon(theme_cache.quad_icon);
+#endif // _3D_DISABLED
 
 			error_label->add_theme_color_override(SceneStringName(font_color), get_theme_color(SNAME("error_color"), EditorStringName(Editor)));
 		} break;
@@ -134,6 +137,7 @@ void MaterialEditor::_notification(int p_what) {
 	}
 }
 
+#ifndef _3D_DISABLED
 void MaterialEditor::_set_rotation(real_t p_x_degrees, real_t p_y_degrees) {
 	rot.x = Math::deg_to_rad(p_x_degrees);
 	rot.y = Math::deg_to_rad(p_y_degrees);
@@ -152,10 +156,11 @@ void MaterialEditor::_update_rotation() {
 	t.basis.rotate(Vector3(1, 0, 0), -rot.x);
 	rotation->set_transform(t);
 }
+#endif // _3D_DISABLED
 
-void MaterialEditor::edit(Ref<Material> p_material, const Ref<Environment> &p_env) {
+void MaterialEditor::edit(Ref<Material> p_material) {
 	material = p_material;
-	camera->set_environment(p_env);
+	// 2D Lite版本:移除Environment参数和3D相关设置
 
 	is_unsupported_shader_mode = false;
 	if (material.is_valid()) {
@@ -163,11 +168,14 @@ void MaterialEditor::edit(Ref<Material> p_material, const Ref<Environment> &p_en
 		switch (mode) {
 			case Shader::MODE_CANVAS_ITEM:
 				layout_error->hide();
+#ifndef _3D_DISABLED
 				layout_3d->hide();
+#endif
 				layout_2d->show();
 				rect_instance->set_material(material);
 				vc->hide();
 				break;
+#ifndef _3D_DISABLED
 			case Shader::MODE_SPATIAL:
 				layout_error->hide();
 				layout_2d->hide();
@@ -177,10 +185,13 @@ void MaterialEditor::edit(Ref<Material> p_material, const Ref<Environment> &p_en
 				quad_instance->set_material_override(material);
 				vc->show();
 				break;
+#endif // _3D_DISABLED
 			default:
 				layout_error->show();
 				layout_2d->hide();
+#ifndef _3D_DISABLED
 				layout_3d->hide();
+#endif
 				is_unsupported_shader_mode = true;
 				vc->hide();
 				break;
@@ -190,6 +201,7 @@ void MaterialEditor::edit(Ref<Material> p_material, const Ref<Environment> &p_en
 	}
 }
 
+#ifndef _3D_DISABLED
 void MaterialEditor::_on_light_1_switch_pressed() {
 	light1->set_visible(light_1_switch->is_pressed());
 }
@@ -230,6 +242,7 @@ void MaterialEditor::_on_quad_switch_pressed() {
 	_store_rotation_metadata();
 	EditorSettings::get_singleton()->set_project_metadata("inspector_options", "material_preview_mesh", "quad");
 }
+#endif // _3D_DISABLED
 
 MaterialEditor::MaterialEditor() {
 	set_custom_minimum_size(Size2(1, 150) * EDSCALE);
@@ -272,8 +285,8 @@ MaterialEditor::MaterialEditor() {
 	layout_error->hide();
 	add_child(layout_error);
 
-	// Spatial
-
+	// Spatial (3D materials) - disabled in 2D Lite version
+#ifndef _3D_DISABLED
 	vc = memnew(SubViewportContainer);
 	vc->set_stretch(true);
 	add_child(vc);
@@ -397,6 +410,7 @@ MaterialEditor::MaterialEditor() {
 
 	Vector2 stored_rot = EditorSettings::get_singleton()->get_project_metadata("inspector_options", "material_preview_rotation", Vector2());
 	_set_rotation(stored_rot.x, stored_rot.y);
+#endif // _3D_DISABLED
 }
 
 ///////////////////////
@@ -418,7 +432,7 @@ void EditorInspectorPluginMaterial::parse_begin(Object *p_object) {
 	Ref<Material> m(material);
 
 	MaterialEditor *editor = memnew(MaterialEditor);
-	editor->edit(m, env);
+	editor->edit(m);
 	add_custom_control(editor);
 }
 
@@ -458,12 +472,14 @@ void EditorInspectorPluginMaterial::_undo_redo_inspector_callback(Object *p_undo
 }
 
 EditorInspectorPluginMaterial::EditorInspectorPluginMaterial() {
+#ifndef _3D_DISABLED
 	env.instantiate();
 	Ref<Sky> sky = memnew(Sky());
 	env->set_sky(sky);
 	env->set_background(Environment::BG_COLOR);
 	env->set_ambient_source(Environment::AMBIENT_SOURCE_SKY);
 	env->set_reflection_source(Environment::REFLECTION_SOURCE_SKY);
+#endif
 
 	EditorNode::get_editor_data().add_undo_redo_inspector_hook_callback(callable_mp(this, &EditorInspectorPluginMaterial::_undo_redo_inspector_callback));
 }
