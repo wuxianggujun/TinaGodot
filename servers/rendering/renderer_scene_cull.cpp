@@ -42,19 +42,6 @@
 
 /* HALTON SEQUENCE */
 
-#ifndef _3D_DISABLED
-static float get_halton_value(int p_index, int p_base) {
-	float f = 1;
-	float r = 0;
-	while (p_index > 0) {
-		f = f / static_cast<float>(p_base);
-		r = r + f * (p_index % p_base);
-		p_index = p_index / p_base;
-	}
-	return r * 2.0f - 1.0f;
-}
-#endif // _3D_DISABLED
-
 /* EVENT QUEUING */
 
 void RendererSceneCull::tick() {
@@ -2590,111 +2577,7 @@ bool RendererSceneCull::_light_instance_update_shadow(Instance *p_instance, cons
 }
 
 void RendererSceneCull::render_camera(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_camera, RID p_scenario, RID p_viewport, Size2 p_viewport_size, uint32_t p_jitter_phase_count, float p_screen_mesh_lod_threshold, RID p_shadow_atlas, Ref<XRInterface> &p_xr_interface, RenderInfo *r_render_info) {
-#ifndef _3D_DISABLED
-
-	Camera *camera = camera_owner.get_or_null(p_camera);
-	ERR_FAIL_NULL(camera);
-
-	Vector2 jitter;
-	float taa_frame_count = 0.0f;
-	if (p_jitter_phase_count > 0) {
-		uint32_t current_jitter_count = camera_jitter_array.size();
-		if (p_jitter_phase_count != current_jitter_count) {
-			// Resize the jitter array and fill it with the pre-computed Halton sequence.
-			camera_jitter_array.resize(p_jitter_phase_count);
-
-			for (uint32_t i = current_jitter_count; i < p_jitter_phase_count; i++) {
-				camera_jitter_array[i].x = get_halton_value(i, 2);
-				camera_jitter_array[i].y = get_halton_value(i, 3);
-			}
-		}
-
-		jitter = camera_jitter_array[RSG::rasterizer->get_frame_number() % p_jitter_phase_count] / p_viewport_size;
-		taa_frame_count = float(RSG::rasterizer->get_frame_number() % p_jitter_phase_count);
-	}
-
-	RendererSceneRender::CameraData camera_data;
-
-	// Setup Camera(s)
-	if (p_xr_interface.is_null()) {
-		// Normal camera
-		Transform3D transform = camera->transform;
-		Projection projection;
-		bool vaspect = camera->vaspect;
-		bool is_orthogonal = false;
-		bool is_frustum = false;
-
-		switch (camera->type) {
-			case Camera::ORTHOGONAL: {
-				projection.set_orthogonal(
-						camera->size,
-						p_viewport_size.width / (float)p_viewport_size.height,
-						camera->znear,
-						camera->zfar,
-						camera->vaspect);
-				is_orthogonal = true;
-			} break;
-			case Camera::PERSPECTIVE: {
-				projection.set_perspective(
-						camera->fov,
-						p_viewport_size.width / (float)p_viewport_size.height,
-						camera->znear,
-						camera->zfar,
-						camera->vaspect);
-
-			} break;
-			case Camera::FRUSTUM: {
-				projection.set_frustum(
-						camera->size,
-						p_viewport_size.width / (float)p_viewport_size.height,
-						camera->offset,
-						camera->znear,
-						camera->zfar,
-						camera->vaspect);
-				is_frustum = true;
-			} break;
-		}
-
-		camera_data.set_camera(transform, projection, is_orthogonal, is_frustum, vaspect, jitter, taa_frame_count, camera->visible_layers);
-#ifndef XR_DISABLED
-	} else {
-		XRServer *xr_server = XRServer::get_singleton();
-
-		// Setup our camera for our XR interface.
-		// We can support multiple views here each with their own camera
-		Transform3D transforms[RendererSceneRender::MAX_RENDER_VIEWS];
-		Projection projections[RendererSceneRender::MAX_RENDER_VIEWS];
-
-		uint32_t view_count = p_xr_interface->get_view_count();
-		ERR_FAIL_COND_MSG(view_count == 0 || view_count > RendererSceneRender::MAX_RENDER_VIEWS, "Requested view count is not supported");
-
-		float aspect = p_viewport_size.width / (float)p_viewport_size.height;
-
-		Transform3D world_origin = xr_server->get_world_origin();
-
-		// We ignore our camera position, it will have been positioned with a slightly old tracking position.
-		// Instead we take our origin point and have our XR interface add fresh tracking data! Whoohoo!
-		for (uint32_t v = 0; v < view_count; v++) {
-			transforms[v] = p_xr_interface->get_transform_for_view(v, world_origin);
-			projections[v] = p_xr_interface->get_projection_for_view(v, aspect, camera->znear, camera->zfar);
-		}
-
-		// If requested, we move the views to be rendered as if the HMD is at the XROrigin.
-		if (unlikely(xr_server->is_camera_locked_to_origin())) {
-			Transform3D camera_reset = p_xr_interface->get_camera_transform().affine_inverse() * xr_server->get_reference_frame().affine_inverse();
-			for (uint32_t v = 0; v < view_count; v++) {
-				transforms[v] *= camera_reset;
-			}
-		}
-
-		if (view_count == 1) {
-			camera_data.set_camera(transforms[0], projections[0], false, false, camera->vaspect, jitter, p_jitter_phase_count, camera->visible_layers);
-		} else if (view_count == 2) {
-			camera_data.set_multiview_camera(view_count, transforms, projections, false, false, camera->vaspect, camera->visible_layers);
-		} else {
-			// this won't be called (see fail check above) but keeping this comment to indicate we may support more then 2 views in the future...
-		}
-#endif // XR_DISABLED
+ // XR_DISABLED
 	}
 
 	RID environment = _render_get_environment(p_camera, p_scenario);
@@ -3536,23 +3419,7 @@ RID RendererSceneCull::_render_get_compositor(RID p_camera, RID p_scenario) {
 }
 
 void RendererSceneCull::render_empty_scene(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_scenario, RID p_shadow_atlas) {
-#ifndef _3D_DISABLED
-	Scenario *scenario = scenario_owner.get_or_null(p_scenario);
 
-	RID environment;
-	if (scenario->environment.is_valid()) {
-		environment = scenario->environment;
-	} else {
-		environment = scenario->fallback_environment;
-	}
-	RID compositor = scenario->compositor;
-	RENDER_TIMESTAMP("Render Empty 3D Scene");
-
-	RendererSceneRender::CameraData camera_data;
-	camera_data.set_camera(Transform3D(), Projection(), true, false, false);
-
-	scene_render->render_scene(p_render_buffers, &camera_data, &camera_data, PagedArray<RenderGeometryInstance *>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), environment, RID(), compositor, p_shadow_atlas, RID(), scenario->reflection_atlas, RID(), 0, 0, nullptr, 0, nullptr, 0, nullptr);
-#endif
 }
 
 bool RendererSceneCull::_render_reflection_probe_step(Instance *p_instance, int p_step) {

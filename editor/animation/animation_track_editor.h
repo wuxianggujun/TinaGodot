@@ -34,9 +34,7 @@
 #include "editor/inspector/editor_properties.h"
 #include "editor/inspector/property_selector.h"
 // 3D node removed in 2D Lite version
-// #ifndef PHYSICS_3D_DISABLED
-// #include "scene/3d/node_3d.h"
-// #endif
+// 
 #include "scene/gui/control.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/scroll_bar.h"

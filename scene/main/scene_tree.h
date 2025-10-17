@@ -42,9 +42,7 @@ class ArrayMesh;
 class PackedScene;
 class InputEvent;
 class Node;
-#ifndef _3D_DISABLED
-class Node3D;
-#endif
+
 class Window;
 class Material;
 class Mesh;
@@ -121,13 +119,6 @@ private:
 		Vector<Node *> nodes;
 		bool changed = false;
 	};
-
-#ifndef _3D_DISABLED
-	struct ClientPhysicsInterpolation {
-		SelfList<Node3D>::List _node_3d_list;
-		void physics_process();
-	} _client_physics_interpolation;
-#endif
 
 	Window *root = nullptr;
 
@@ -459,11 +450,6 @@ public:
 	// Different name to disambiguate fast static versions from the user bound versions.
 	static bool is_fti_enabled() { return _physics_interpolation_enabled; }
 	static bool is_fti_enabled_in_project() { return _physics_interpolation_enabled_in_project; }
-
-#ifndef _3D_DISABLED
-	void client_physics_interpolation_add_node_3d(SelfList<Node3D> *p_elem);
-	void client_physics_interpolation_remove_node_3d(SelfList<Node3D> *p_elem);
-#endif
 
 	SceneTreeFTI &get_scene_tree_fti() { return scene_tree_fti; }
 

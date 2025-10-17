@@ -167,11 +167,7 @@ Node *SceneCreateDialog::create_scene_root() {
 			root = memnew(Node2D);
 			break;
 		case ROOT_3D_SCENE:
-#ifndef _3D_DISABLED
-			root = memnew(Node3D);
-#else
-			root = memnew(Node2D); // 在2D模式下使用Node2D作为替代
-#endif
+
 			break;
 		case ROOT_USER_INTERFACE: {
 			Control *gui_ctl = memnew(Control);

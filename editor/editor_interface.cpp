@@ -49,24 +49,7 @@
 #include "scene/resources/mesh.h"
 
 // 3D support removed in 2D Lite version
-// #ifndef PHYSICS_3D_DISABLED
-// #include "editor/scene/3d/node_3d_editor_plugin.h"
-#include "editor/scene/editor_scene_tabs.h"
-#include "editor/scene/scene_tree_editor.h"
-#include "editor/settings/editor_command_palette.h"
-#include "editor/settings/editor_feature_profile.h"
-#include "editor/settings/editor_settings.h"
-#include "editor/themes/editor_scale.h"
-#include "main/main.h"
-// 3D classes removed
-// #include "scene/3d/light_3d.h"
-// #include "scene/3d/mesh_instance_3d.h"
-// #include "scene/3d/node_3d.h"
-// #include "scene/3d/camera_3d.h"
-// #include "scene/resources/camera_attributes.h"
-// #include "scene/resources/environment.h"
-// #include "scene/resources/world_3d.h"
-// #endif
+// 
 #include "scene/gui/box_container.h"
 #include "scene/gui/control.h"
 #include "scene/main/window.h"
@@ -115,7 +98,6 @@ EditorToaster *EditorInterface::get_editor_toaster() const {
 EditorUndoRedoManager *EditorInterface::get_editor_undo_redo() const {
 	return EditorUndoRedoManager::get_singleton();
 }
-
 
 void EditorInterface::add_root_node(Node *p_node) {
 	if (EditorNode::get_singleton()->get_edited_scene()) {

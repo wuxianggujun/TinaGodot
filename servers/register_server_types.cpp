@@ -91,25 +91,9 @@
 #endif // PHYSICS_2D_DISABLED
 
 // 3D physics and navigation.
-#ifndef NAVIGATION_3D_DISABLED
-#include "servers/navigation_3d/navigation_server_3d.h"
-#endif // NAVIGATION_3D_DISABLED
-#ifndef PHYSICS_3D_DISABLED
-#include "servers/physics_3d/physics_server_3d.h"
-#include "servers/physics_3d/physics_server_3d_dummy.h"
-#include "servers/physics_3d/physics_server_3d_extension.h"
-#endif // PHYSICS_3D_DISABLED
+
 // Removed XR support for 2D Lite version
-// #ifndef XR_DISABLED
-// #include "xr/xr_body_tracker.h"
-// #include "xr/xr_controller_tracker.h"
-// #include "xr/xr_face_tracker.h"
-// #include "xr/xr_hand_tracker.h"
-// #include "xr/xr_interface.h"
-// #include "xr/xr_interface_extension.h"
-// #include "xr/xr_positional_tracker.h"
-// #include "xr/xr_server.h"
-// #endif // XR_DISABLED
+// 
 
 ShaderTypes *shader_types = nullptr;
 
@@ -118,12 +102,6 @@ static PhysicsServer2D *_create_dummy_physics_server_2d() {
 	return memnew(PhysicsServer2DDummy);
 }
 #endif // PHYSICS_2D_DISABLED
-
-#ifndef PHYSICS_3D_DISABLED
-static PhysicsServer3D *_create_dummy_physics_server_3d() {
-	return memnew(PhysicsServer3DDummy);
-}
-#endif // PHYSICS_3D_DISABLED
 
 static bool has_server_feature_callback(const String &p_feature) {
 	if (RenderingServer::get_singleton()) {
@@ -295,56 +273,8 @@ void register_server_types() {
 	PhysicsServer2DManager::get_singleton()->register_server("Dummy", callable_mp_static(_create_dummy_physics_server_2d));
 #endif // PHYSICS_2D_DISABLED
 
-#ifndef NAVIGATION_3D_DISABLED
-	GDREGISTER_ABSTRACT_CLASS(NavigationServer3D);
-	GDREGISTER_CLASS(NavigationPathQueryParameters3D);
-	GDREGISTER_CLASS(NavigationPathQueryResult3D);
-#endif // NAVIGATION_3D_DISABLED
-
-#ifndef PHYSICS_3D_DISABLED
-	// Physics 3D
-	GDREGISTER_CLASS(PhysicsServer3DManager);
-	Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer3DManager", PhysicsServer3DManager::get_singleton(), "PhysicsServer3DManager"));
-
-	GDREGISTER_ABSTRACT_CLASS(PhysicsServer3D);
-	GDREGISTER_VIRTUAL_CLASS(PhysicsServer3DExtension);
-	GDREGISTER_ABSTRACT_CLASS(PhysicsDirectBodyState3D);
-	GDREGISTER_VIRTUAL_CLASS(PhysicsDirectBodyState3DExtension);
-	GDREGISTER_ABSTRACT_CLASS(PhysicsDirectSpaceState3D);
-	GDREGISTER_VIRTUAL_CLASS(PhysicsDirectSpaceState3DExtension)
-	GDREGISTER_VIRTUAL_CLASS(PhysicsServer3DRenderingServerHandler)
-
-	GDREGISTER_NATIVE_STRUCT(PhysicsServer3DExtensionRayResult, "Vector3 position;Vector3 normal;RID rid;ObjectID collider_id;Object *collider;int shape;int face_index");
-	GDREGISTER_NATIVE_STRUCT(PhysicsServer3DExtensionShapeResult, "RID rid;ObjectID collider_id;Object *collider;int shape");
-	GDREGISTER_NATIVE_STRUCT(PhysicsServer3DExtensionShapeRestInfo, "Vector3 point;Vector3 normal;RID rid;ObjectID collider_id;int shape;Vector3 linear_velocity");
-	GDREGISTER_NATIVE_STRUCT(PhysicsServer3DExtensionMotionCollision, "Vector3 position;Vector3 normal;Vector3 collider_velocity;Vector3 collider_angular_velocity;real_t depth;int local_shape;ObjectID collider_id;RID collider;int collider_shape");
-	GDREGISTER_NATIVE_STRUCT(PhysicsServer3DExtensionMotionResult, "Vector3 travel;Vector3 remainder;real_t collision_depth;real_t collision_safe_fraction;real_t collision_unsafe_fraction;PhysicsServer3DExtensionMotionCollision collisions[32];int collision_count");
-
-	GDREGISTER_CLASS(PhysicsRayQueryParameters3D);
-	GDREGISTER_CLASS(PhysicsPointQueryParameters3D);
-	GDREGISTER_CLASS(PhysicsShapeQueryParameters3D);
-	GDREGISTER_CLASS(PhysicsTestMotionParameters3D);
-	GDREGISTER_CLASS(PhysicsTestMotionResult3D);
-
-	GLOBAL_DEF(PropertyInfo(Variant::STRING, PhysicsServer3DManager::setting_property_name, PROPERTY_HINT_ENUM, "DEFAULT"), "DEFAULT");
-
-	PhysicsServer3DManager::get_singleton()->register_server("Dummy", callable_mp_static(_create_dummy_physics_server_3d));
-#endif // PHYSICS_3D_DISABLED
-
 // Removed XR support for 2D Lite version
-// #ifndef XR_DISABLED
-// 	GDREGISTER_ABSTRACT_CLASS(XRInterface);
-// 	GDREGISTER_ABSTRACT_CLASS(XRTracker);
-// 	GDREGISTER_CLASS(XRVRS);
-// 	GDREGISTER_CLASS(XRPositionalTracker);
-// 	GDREGISTER_CLASS(XRBodyTracker);
-// 	GDREGISTER_CLASS(XRControllerTracker);
-// 	GDREGISTER_CLASS(XRFaceTracker);
-// 	GDREGISTER_CLASS(XRHandTracker);
-// 	GDREGISTER_CLASS(XRInterfaceExtension); // can't register this as virtual because we need a creation function for our extensions.
-// 	GDREGISTER_CLASS(XRPose);
-// 	GDREGISTER_CLASS(XRServer);
-// #endif // XR_DISABLED
+// 
 
 	if constexpr (GD_IS_CLASS_ENABLED(MovieWriterPNGWAV)) {
 		writer_pngwav = memnew(MovieWriterPNGWAV);
@@ -377,19 +307,13 @@ void register_server_singletons() {
 #ifndef NAVIGATION_2D_DISABLED
 	Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationServer2D", NavigationServer2D::get_singleton(), "NavigationServer2D"));
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-	Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationServer3D", NavigationServer3D::get_singleton(), "NavigationServer3D"));
-#endif // NAVIGATION_3D_DISABLED
+
 #ifndef PHYSICS_2D_DISABLED
 	Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer2D", PhysicsServer2D::get_singleton(), "PhysicsServer2D"));
 #endif // PHYSICS_2D_DISABLED
-#ifndef PHYSICS_3D_DISABLED
-	Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer3D", PhysicsServer3D::get_singleton(), "PhysicsServer3D"));
-#endif // PHYSICS_3D_DISABLED
+
 // Removed XR support for 2D Lite version
-// #ifndef XR_DISABLED
-// 	Engine::get_singleton()->add_singleton(Engine::Singleton("XRServer", XRServer::get_singleton(), "XRServer"));
-// #endif // XR_DISABLED
+// 
 
 	OS::get_singleton()->benchmark_end_measure("Servers", "Register Singletons");
 }

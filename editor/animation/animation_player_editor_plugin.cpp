@@ -2288,39 +2288,7 @@ AnimationPlayerEditor::~AnimationPlayerEditor() {
 void AnimationPlayerEditorPlugin::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
-#ifndef PHYSICS_3D_DISABLED
-			Node3DEditor::get_singleton()->connect(SNAME("transform_key_request"), callable_mp(this, &AnimationPlayerEditorPlugin::_transform_key_request));
-#endif
-			InspectorDock::get_inspector_singleton()->connect(SNAME("property_keyed"), callable_mp(this, &AnimationPlayerEditorPlugin::_property_keyed));
-			anim_editor->get_track_editor()->connect(SNAME("keying_changed"), callable_mp(this, &AnimationPlayerEditorPlugin::_update_keying));
-			InspectorDock::get_inspector_singleton()->connect(SNAME("edited_object_changed"), callable_mp(anim_editor->get_track_editor(), &AnimationTrackEditor::update_keying));
-			set_force_draw_over_forwarding_enabled();
-		} break;
-	}
-}
 
-void AnimationPlayerEditorPlugin::_property_keyed(const String &p_keyed, const Variant &p_value, bool p_advance) {
-	AnimationTrackEditor *te = anim_editor->get_track_editor();
-	if (!te || !te->has_keying()) {
-		return;
-	}
-	te->_clear_selection();
-	te->insert_value_key(p_keyed, p_advance);
-}
-
-void AnimationPlayerEditorPlugin::_transform_key_request(Object *sp, const String &p_sub, const Transform3D &p_key) {
-#ifndef PHYSICS_3D_DISABLED
-	if (!anim_editor->get_track_editor()->has_keying()) {
-		return;
-	}
-	Node3D *s = Object::cast_to<Node3D>(sp);
-	if (!s) {
-		return;
-	}
-	anim_editor->get_track_editor()->insert_transform_key(s, p_sub, Animation::TYPE_POSITION_3D, p_key.origin);
-	anim_editor->get_track_editor()->insert_transform_key(s, p_sub, Animation::TYPE_ROTATION_3D, p_key.basis.get_rotation_quaternion());
-	anim_editor->get_track_editor()->insert_transform_key(s, p_sub, Animation::TYPE_SCALE_3D, p_key.basis.get_scale());
-#endif // PHYSICS_3D_DISABLED
 }
 
 void AnimationPlayerEditorPlugin::_update_keying() {

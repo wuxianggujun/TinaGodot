@@ -113,11 +113,7 @@ protected:
 	GDVIRTUAL1(_forward_canvas_draw_over_viewport, Control *)
 	GDVIRTUAL1(_forward_canvas_force_draw_over_viewport, Control *)
 // Removed 3D editor functions for 2D Lite version
-// #ifndef _3D_DISABLED
-//	GDVIRTUAL2R(int, _forward_3d_gui_input, Camera3D *, Ref<InputEvent>)
-//	GDVIRTUAL1(_forward_3d_draw_over_viewport, Control *)
-//	GDVIRTUAL1(_forward_3d_force_draw_over_viewport, Control *)
-// #endif
+// 
 	GDVIRTUAL0RC(String, _get_plugin_name)
 	GDVIRTUAL0RC(Ref<Texture2D>, _get_plugin_icon)
 	GDVIRTUAL0RC(bool, _has_main_screen)
@@ -227,9 +223,6 @@ public:
 
 	void add_export_platform(const Ref<EditorExportPlatform> &p_platform);
 	void remove_export_platform(const Ref<EditorExportPlatform> &p_platform);
-
-#ifndef _3D_DISABLED
-#endif
 
 	void add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);
 	void remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);

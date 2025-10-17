@@ -52,11 +52,9 @@
 #include "scene/2d/audio_listener_2d.h"
 #include "scene/2d/camera_2d.h"
 
-
 #ifndef PHYSICS_2D_DISABLED
 #include "scene/2d/physics/collision_object_2d.h"
 #endif // PHYSICS_2D_DISABLED
-
 
 void ViewportTexture::setup_local_to_scene() {
 	// For the same target viewport, setup is only allowed once to prevent multiple free or multiple creations.
@@ -589,7 +587,6 @@ void Viewport::_notification(int p_what) {
 			}
 #endif // PHYSICS_2D_DISABLED
 
-
 			remove_from_group("_viewports");
 			set_physics_process_internal(false);
 
@@ -674,7 +671,6 @@ void Viewport::_process_picking() {
 	}
 
 	_drop_physics_mouseover(true);
-
 
 #ifndef PHYSICS_2D_DISABLED
 	PhysicsDirectSpaceState2D *ss2d = PhysicsServer2D::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
@@ -947,13 +943,11 @@ bool Viewport::_set_size(const Size2i &p_size, const Size2 &p_size_2d_override, 
 	stretch_transform = stretch_transform_new;
 	font_oversampling = new_font_oversampling;
 
-
 		if (p_allocated) {
 			RS::get_singleton()->viewport_set_size(viewport, size.width, size.height);
 		} else {
 			RS::get_singleton()->viewport_set_size(viewport, 0, 0);
 		}
-
 
 	_update_global_transform();
 	update_configuration_warnings();
@@ -4569,7 +4563,6 @@ Viewport::Viewport() {
 
 	// Window tooltip.
 	gui.tooltip_delay = GLOBAL_GET("gui/timers/tooltip_delay_sec");
-
 
 	set_sdf_oversize(sdf_oversize); // Set to server.
 
