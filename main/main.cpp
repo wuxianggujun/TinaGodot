@@ -3372,9 +3372,9 @@ Error Main::setup2(bool p_show_boot_logo) {
 	// Default theme will be initialized later, after modules and ScriptServer are ready.
 	initialize_theme_db();
 
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 	MAIN_PRINT("Main: Load Navigation");
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 
 #ifndef NAVIGATION_2D_DISABLED
 	NavigationServer2DManager::initialize_server();
@@ -4481,9 +4481,9 @@ bool Main::iteration() {
 
 	uint64_t physics_process_ticks = 0;
 	uint64_t process_ticks = 0;
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 	uint64_t navigation_process_ticks = 0;
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 
 	frame += ticks_elapsed;
 
@@ -4529,7 +4529,7 @@ bool Main::iteration() {
 			break;
 		}
 
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 		uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
 
 #ifndef NAVIGATION_2D_DISABLED
@@ -4540,7 +4540,7 @@ bool Main::iteration() {
 		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
 
 		message_queue->flush();
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 		PhysicsServer2D::get_singleton()->end_sync();

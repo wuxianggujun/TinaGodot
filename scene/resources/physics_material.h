@@ -30,7 +30,7 @@
 
 #pragma once
 
-#if !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#ifndef PHYSICS_2D_DISABLED
 #include "core/io/resource.h"
 
 class PhysicsMaterial : public Resource {
@@ -67,4 +67,4 @@ public:
 		return absorbent ? -bounce : bounce;
 	}
 };
-#endif // !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#endif // PHYSICS_2D_DISABLED

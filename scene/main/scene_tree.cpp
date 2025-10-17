@@ -635,9 +635,9 @@ bool SceneTree::physics_process(double p_time) {
 
 	emit_signal(SNAME("physics_frame"));
 
-#if !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#ifndef PHYSICS_2D_DISABLED
 	call_group(SNAME("_picking_viewports"), SNAME("_process_picking"));
-#endif // !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#endif // PHYSICS_2D_DISABLED
 
 	_process(true);
 
@@ -2172,9 +2172,9 @@ SceneTree::SceneTree() {
 	}
 #endif // _3D_DISABLED
 
-#if !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#ifndef PHYSICS_2D_DISABLED
 	root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true));
-#endif // !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#endif // PHYSICS_2D_DISABLED
 
 	root->connect("close_requested", callable_mp(this, &SceneTree::_main_window_close));
 	root->connect("go_back_requested", callable_mp(this, &SceneTree::_main_window_go_back));

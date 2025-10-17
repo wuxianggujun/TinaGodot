@@ -78,7 +78,7 @@ void Performance::_bind_methods() {
 	BIND_ENUM_CONSTANT(PHYSICS_2D_ISLAND_COUNT);
 
 	BIND_ENUM_CONSTANT(AUDIO_OUTPUT_LATENCY);
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 	BIND_ENUM_CONSTANT(NAVIGATION_ACTIVE_MAPS);
 	BIND_ENUM_CONSTANT(NAVIGATION_REGION_COUNT);
 	BIND_ENUM_CONSTANT(NAVIGATION_AGENT_COUNT);
@@ -89,7 +89,7 @@ void Performance::_bind_methods() {
 	BIND_ENUM_CONSTANT(NAVIGATION_EDGE_CONNECTION_COUNT);
 	BIND_ENUM_CONSTANT(NAVIGATION_EDGE_FREE_COUNT);
 	BIND_ENUM_CONSTANT(NAVIGATION_OBSTACLE_COUNT);
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 	BIND_ENUM_CONSTANT(PIPELINE_COMPILATIONS_CANVAS);
 	BIND_ENUM_CONSTANT(PIPELINE_COMPILATIONS_MESH);
 	BIND_ENUM_CONSTANT(PIPELINE_COMPILATIONS_SURFACE);
@@ -157,7 +157,7 @@ String Performance::get_monitor_name(Monitor p_monitor) const {
 		PNAME("physics_3d/collision_pairs"),
 		PNAME("physics_3d/islands"),
 		PNAME("audio/driver/output_latency"),
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 		PNAME("navigation/active_maps"),
 		PNAME("navigation/regions"),
 		PNAME("navigation/agents"),
@@ -168,7 +168,7 @@ String Performance::get_monitor_name(Monitor p_monitor) const {
 		PNAME("navigation/edges_connected"),
 		PNAME("navigation/edges_free"),
 		PNAME("navigation/obstacles"),
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 		PNAME("pipeline/compilations_canvas"),
 		PNAME("pipeline/compilations_mesh"),
 		PNAME("pipeline/compilations_surface"),
