@@ -51,18 +51,11 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/world_2d.h"
 
-#ifndef _3D_DISABLED
-#include "scene/3d/node_3d.h"
-#include "scene/resources/3d/world_3d.h"
-#endif // _3D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 #include "servers/physics_2d/physics_server_2d.h"
 #endif // PHYSICS_2D_DISABLED
 
-#ifndef PHYSICS_3D_DISABLED
-#include "servers/physics_3d/physics_server_3d.h"
-#endif // PHYSICS_3D_DISABLED
 
 void SceneTreeTimer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_time_left", "time"), &SceneTreeTimer::set_time_left);
@@ -113,29 +106,6 @@ void SceneTreeTimer::release_connections() {
 		disconnect(connection.signal.get_name(), connection.callable);
 	}
 }
-
-#ifndef _3D_DISABLED
-// This should be called once per physics tick, to make sure the transform previous and current
-// is kept up to date on the few Node3Ds that are using client side physics interpolation.
-void SceneTree::ClientPhysicsInterpolation::physics_process() {
-	for (SelfList<Node3D> *E = _node_3d_list.first(); E;) {
-		Node3D *node_3d = E->self();
-
-		SelfList<Node3D> *current = E;
-
-		// Get the next element here BEFORE we potentially delete one.
-		E = E->next();
-
-		// This will return false if the Node3D has timed out ..
-		// i.e. if get_global_transform_interpolated() has not been called
-		// for a few seconds, we can delete from the list to keep processing
-		// to a minimum.
-		if (!node_3d->update_client_physics_interpolation_data()) {
-			_node_3d_list.remove(current);
-		}
-	}
-}
-#endif // _3D_DISABLED
 
 bool SceneTree::_physics_interpolation_enabled = false;
 bool SceneTree::_physics_interpolation_enabled_in_project = false;
@@ -601,18 +571,6 @@ void SceneTree::set_physics_interpolation_enabled(bool p_enabled) {
 	}
 }
 
-#ifndef _3D_DISABLED
-void SceneTree::client_physics_interpolation_add_node_3d(SelfList<Node3D> *p_elem) {
-	// This ensures that _update_physics_interpolation_data() will be called at least once every
-	// physics tick, to ensure the previous and current transforms are kept up to date.
-	_client_physics_interpolation._node_3d_list.add(p_elem);
-}
-
-void SceneTree::client_physics_interpolation_remove_node_3d(SelfList<Node3D> *p_elem) {
-	_client_physics_interpolation._node_3d_list.remove(p_elem);
-}
-#endif
-
 void SceneTree::iteration_prepare() {
 	if (_physics_interpolation_enabled) {
 		// Make sure any pending transforms from the last tick / frame
@@ -662,13 +620,6 @@ void SceneTree::iteration_end() {
 	// to be flushed to the RenderingServer before finishing a physics tick.
 	if (_physics_interpolation_enabled) {
 		flush_transform_notifications();
-
-#ifndef _3D_DISABLED
-		// Any objects performing client physics interpolation
-		// should be given an opportunity to keep their previous transforms
-		// up to date.
-		_client_physics_interpolation.physics_process();
-#endif
 	}
 }
 
@@ -726,43 +677,6 @@ bool SceneTree::process(double p_time) {
 	_call_idle_callbacks();
 
 #ifdef TOOLS_ENABLED
-#ifndef _3D_DISABLED
-	if (Engine::get_singleton()->is_editor_hint()) {
-		String env_path = GLOBAL_GET("rendering/environment/defaults/default_environment");
-		env_path = env_path.strip_edges(); // User may have added a space or two.
-
-		bool can_load = true;
-		if (env_path.begins_with("uid://")) {
-			// If an uid path, ensure it is mapped to a resource which could not be
-			// the case if the editor is still scanning the filesystem.
-			ResourceUID::ID id = ResourceUID::get_singleton()->text_to_id(env_path);
-			can_load = ResourceUID::get_singleton()->has_id(id);
-			if (can_load) {
-				env_path = ResourceUID::get_singleton()->get_id_path(id);
-			}
-		}
-
-		if (can_load) {
-			String cpath;
-			Ref<Environment> fallback = get_root()->get_world_3d()->get_fallback_environment();
-			if (fallback.is_valid()) {
-				cpath = fallback->get_path();
-			}
-			if (cpath != env_path) {
-				if (!env_path.is_empty()) {
-					fallback = ResourceLoader::load(env_path);
-					if (fallback.is_null()) {
-						//could not load fallback, set as empty
-						ProjectSettings::get_singleton()->set("rendering/environment/defaults/default_environment", "");
-					}
-				} else {
-					fallback.unref();
-				}
-				get_root()->get_world_3d()->set_fallback_environment(fallback);
-			}
-		}
-	}
-#endif // _3D_DISABLED
 #endif // TOOLS_ENABLED
 
 	// Second pass of scene tree fixed timestep interpolation.
@@ -2046,13 +1960,6 @@ SceneTree::SceneTree() {
 	// Set after auto translate mode to avoid changing the displayed title back and forth.
 	root->set_title(GLOBAL_GET("application/config/name"));
 
-#ifndef _3D_DISABLED
-	if (root->get_world_3d().is_null()) {
-		root->set_world_3d(Ref<World3D>(memnew(World3D)));
-	}
-	root->set_as_audio_listener_3d(true);
-#endif // _3D_DISABLED
-
 	set_physics_interpolation_enabled(GLOBAL_DEF("physics/common/physics_interpolation", false));
 
 	// Always disable jitter fix if physics interpolation is enabled -
@@ -2138,39 +2045,6 @@ SceneTree::SceneTree() {
 	root->set_sdf_oversize(sdf_oversize);
 	Viewport::SDFScale sdf_scale = Viewport::SDFScale(int(GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/2d/sdf/scale", PROPERTY_HINT_ENUM, "100%,50%,25%"), 1)));
 	root->set_sdf_scale(sdf_scale);
-
-#ifndef _3D_DISABLED
-	{ // Load default fallback environment.
-		// Get possible extensions.
-		List<String> exts;
-		ResourceLoader::get_recognized_extensions_for_type("Environment", &exts);
-		String ext_hint;
-		for (const String &E : exts) {
-			if (!ext_hint.is_empty()) {
-				ext_hint += ",";
-			}
-			ext_hint += "*." + E;
-		}
-		// Get path.
-		String env_path = GLOBAL_DEF(PropertyInfo(Variant::STRING, "rendering/environment/defaults/default_environment", PROPERTY_HINT_FILE, ext_hint), "");
-		// Setup property.
-		env_path = env_path.strip_edges();
-		if (!env_path.is_empty()) {
-			Ref<Environment> env = ResourceLoader::load(env_path);
-			if (env.is_valid()) {
-				root->get_world_3d()->set_fallback_environment(env);
-			} else {
-				if (Engine::get_singleton()->is_editor_hint()) {
-					// File was erased, clear the field.
-					ProjectSettings::get_singleton()->set("rendering/environment/defaults/default_environment", "");
-				} else {
-					// File was erased, notify user.
-					ERR_PRINT("Default Environment as specified in the project setting \"rendering/environment/defaults/default_environment\" could not be loaded.");
-				}
-			}
-		}
-	}
-#endif // _3D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 	root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true));
