@@ -1858,7 +1858,7 @@ void SpriteFramesEditor::_fetch_sprite_node() {
 
 	bool show_node_edit = false;
 	AnimatedSprite2D *as2d = Object::cast_to<AnimatedSprite2D>(selected);
-
+	if (as2d) {
 		if (frames != selected->call("get_sprite_frames")) {
 			_remove_sprite_node();
 		} else {
@@ -2559,7 +2559,7 @@ void SpriteFramesEditorPlugin::edit(Object *p_object) {
 	if (animated_sprite) {
 		s = animated_sprite->get_sprite_frames();
 	} else {
-
+		s = p_object;
 	}
 
 	frames_editor->edit(s);

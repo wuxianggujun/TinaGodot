@@ -2288,7 +2288,21 @@ AnimationPlayerEditor::~AnimationPlayerEditor() {
 void AnimationPlayerEditorPlugin::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
+			InspectorDock::get_inspector_singleton()->connect(SNAME("property_keyed"), callable_mp(this, &AnimationPlayerEditorPlugin::_property_keyed));
+			anim_editor->get_track_editor()->connect(SNAME("keying_changed"), callable_mp(this, &AnimationPlayerEditorPlugin::_update_keying));
+			InspectorDock::get_inspector_singleton()->connect(SNAME("edited_object_changed"), callable_mp(anim_editor->get_track_editor(), &AnimationTrackEditor::update_keying));
+			set_force_draw_over_forwarding_enabled();
+		} break;
+	}
+}
 
+void AnimationPlayerEditorPlugin::_property_keyed(const String &p_keyed, const Variant &p_value, bool p_advance) {
+	AnimationTrackEditor *te = anim_editor->get_track_editor();
+	if (!te || !te->has_keying()) {
+		return;
+	}
+	te->_clear_selection();
+	te->insert_value_key(p_keyed, p_advance);
 }
 
 void AnimationPlayerEditorPlugin::_update_keying() {

@@ -28,6 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#ifndef _3D_DISABLED
+
+#include "scene_tree_fti.h"
+
+#include "core/config/engine.h"
+#include "core/config/project_settings.h"
+#include "core/math/transform_interpolator.h"
+#include "core/os/os.h"
+#include "scene/3d/visual_instance_3d.h"
+
+#ifdef GODOT_SCENE_TREE_FTI_VERIFY
+#include "scene_tree_fti_tests.h"
+#endif
+
 #ifdef DEV_ENABLED
 
 // Uncomment this to enable some slow extra DEV_ENABLED

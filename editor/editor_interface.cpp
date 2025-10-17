@@ -49,7 +49,14 @@
 #include "scene/resources/mesh.h"
 
 // 3D support removed in 2D Lite version
-// 
+#include "editor/scene/editor_scene_tabs.h"
+#include "editor/scene/scene_tree_editor.h"
+#include "editor/settings/editor_command_palette.h"
+#include "editor/settings/editor_feature_profile.h"
+#include "editor/settings/editor_settings.h"
+#include "editor/themes/editor_scale.h"
+#include "main/main.h"
+
 #include "scene/gui/box_container.h"
 #include "scene/gui/control.h"
 #include "scene/main/window.h"
