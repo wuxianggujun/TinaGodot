@@ -48,10 +48,6 @@
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/gui/editor_toaster.h"
 #include "editor/inspector/editor_property_name_processor.h"
-#ifndef _3D_DISABLED
-#include "editor/scene/3d/node_3d_editor_plugin.h"
-#include "scene/3d/camera_3d.h"
-#endif
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
@@ -1123,24 +1119,6 @@ void ScriptEditorDebugger::_notification(int p_what) {
 					}
 
 					// Node3D Editor
-#ifndef _3D_DISABLED
-					{
-						Node3DEditorViewport *viewport = Node3DEditor::get_singleton()->get_last_used_viewport();
-						const Camera3D *cam = viewport->get_camera_3d();
-
-						Array msg = { cam->get_camera_transform() };
-						if (cam->get_projection() == Camera3D::PROJECTION_ORTHOGONAL) {
-							msg.push_back(false);
-							msg.push_back(cam->get_size());
-						} else {
-							msg.push_back(true);
-							msg.push_back(cam->get_fov());
-						}
-						msg.push_back(cam->get_near());
-						msg.push_back(cam->get_far());
-						_put_msg("scene:transform_camera_3d", msg);
-					}
-#endif // _3D_DISABLED
 				}
 
 				if (is_breaked() && can_request_idle_draw) {
