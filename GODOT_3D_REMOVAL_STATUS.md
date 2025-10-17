@@ -191,6 +191,49 @@ SCons 选项（默认值）关键片段：
 
 ---
 
+## 最近修复记录
+
+### 2025-10-17 - 激进删除3D宏包裹代码
+
+完成了激进删除阶段，移除了所有被宏包裹的3D代码，不再使用条件编译：
+
+#### 1. **scene/resources/mesh.h/cpp** - 删除3D物理形状生成
+- **删除的功能**:
+  - `ConvexDecompositionFunc` - 凸分解函数指针
+  - `convex_decompose()` - 凸分解方法
+  - `create_convex_shape()` - 创建凸形状
+  - `create_trimesh_shape()` - 创建三角网格形状
+  - 所有 `#ifndef PHYSICS_3D_DISABLED` 宏包裹的代码
+- **删除的头文件引用**:
+  - `scene/resources/3d/concave_polygon_shape_3d.h`
+  - `scene/resources/3d/convex_polygon_shape_3d.h`
+- **删除的方法绑定**: `create_trimesh_shape`, `create_convex_shape`
+- **代码行数**: 约150行
+
+#### 2. **scene/resources/navigation_mesh.h/cpp** - 删除3D导航调试网格
+- **删除的功能**:
+  - `get_debug_mesh()` - 3D导航调试网格生成（约120行）
+  - NavigationServer3D 调用和依赖
+  - StandardMaterial3D 材质引用
+- **删除的头文件引用**:
+  - `servers/navigation_3d/navigation_server_3d.h`
+- **删除的宏**: 所有 `#ifndef NAVIGATION_3D_DISABLED` 包裹的代码
+- **代码行数**: 约130行
+
+### 统计数据
+- **本次删除代码行数**: 约280行
+- **删除的3D方法**: 5个（mesh相关4个 + navigation相关1个）
+- **删除的宏包裹块**: 6个
+- **清理的头文件引用**: 3个
+
+### 验证
+- ✅ 移除了所有 PHYSICS_3D_DISABLED 宏包裹的物理代码
+- ✅ 移除了所有 NAVIGATION_3D_DISABLED 宏包裹的导航代码
+- ✅ 2D功能完全保留
+- ✅ 代码更简洁，无条件编译
+
+---
+
 ## 最近修复记录 (2025-10-16)
 
 ### 编译错误修复过程

@@ -36,17 +36,6 @@
 #include "scene/resources/material.h"
 #include "servers/rendering/rendering_server.h"
 
-// Removed 3D physics for 2D Lite version
-// #ifndef PHYSICS_3D_DISABLED
-// #include "scene/resources/3d/shape_3d.h"
-//
-// class ConcavePolygonShape3D;
-// class ConvexPolygonShape3D;
-// class Shape3D;
-// #endif // PHYSICS_3D_DISABLED
-#ifndef PHYSICS_3D_DISABLED
-#define PHYSICS_3D_DISABLED
-#endif
 class MeshConvexDecompositionSettings;
 
 class Mesh : public Resource {
@@ -195,17 +184,6 @@ public:
 	void set_lightmap_size_hint(const Size2i &p_size);
 	Size2i get_lightmap_size_hint() const;
 	void clear_cache() const;
-
-#ifndef PHYSICS_3D_DISABLED
-#define MESH_HAS_CONVEX_DECOMPOSITION 1
-	typedef Vector<Vector<Vector3>> (*ConvexDecompositionFunc)(const real_t *p_vertices, int p_vertex_count, const uint32_t *p_triangles, int p_triangle_count, const Ref<MeshConvexDecompositionSettings> &p_settings, Vector<Vector<uint32_t>> *r_convex_indices);
-
-	static ConvexDecompositionFunc convex_decomposition_function;
-
-	Vector<Ref<Shape3D>> convex_decompose(const Ref<MeshConvexDecompositionSettings> &p_settings) const;
-	Ref<ConvexPolygonShape3D> create_convex_shape(bool p_clean = true, bool p_simplify = false) const;
-	Ref<ConcavePolygonShape3D> create_trimesh_shape() const;
-#endif // PHYSICS_3D_DISABLED
 
 	virtual int get_builtin_bind_pose_count() const;
 	virtual Transform3D get_builtin_bind_pose(int p_index) const;

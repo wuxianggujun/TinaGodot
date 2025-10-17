@@ -4360,72 +4360,6 @@ void AnimationTrackEditor::_insert_track(bool p_reset_wanted, bool p_create_bezi
 	}
 }
 
-#ifndef PHYSICS_3D_DISABLED
-void AnimationTrackEditor::insert_transform_key(Node3D *p_node, const String &p_sub, const Animation::TrackType p_type, const Variant &p_value) {
-	ERR_FAIL_NULL(root);
-	ERR_FAIL_COND_MSG(
-			(p_type != Animation::TYPE_POSITION_3D && p_type != Animation::TYPE_ROTATION_3D && p_type != Animation::TYPE_SCALE_3D),
-			"Track type must be Position/Rotation/Scale 3D.");
-	if (!keying) {
-		return;
-	}
-	if (animation.is_null()) {
-		return;
-	}
-
-	// Let's build a node path.
-	String path = String(root->get_path_to(p_node, true));
-	if (!p_sub.is_empty()) {
-		path += ":" + p_sub;
-	}
-
-	NodePath np = path;
-
-	int track_idx = -1;
-
-	for (int i = 0; i < animation->get_track_count(); i++) {
-		if (animation->track_get_path(i) != np) {
-			continue;
-		}
-		if (animation->track_get_type(i) != p_type) {
-			continue;
-		}
-		track_idx = i;
-	}
-
-	InsertData id;
-	id.path = np;
-	// TRANSLATORS: This describes the target of new animation track, will be inserted into another string.
-	id.query = vformat(TTR("node '%s'"), p_node->get_name());
-	id.advance = false;
-	id.track_idx = track_idx;
-	id.value = p_value;
-	id.type = p_type;
-	_query_insert(id);
-}
-
-bool AnimationTrackEditor::has_track(Node3D *p_node, const String &p_sub, const Animation::TrackType p_type) {
-	ERR_FAIL_NULL_V(root, false);
-	if (!keying) {
-		return false;
-	}
-	if (animation.is_null()) {
-		return false;
-	}
-
-	// Let's build a node path.
-	String path = String(root->get_path_to(p_node, true));
-	if (!p_sub.is_empty()) {
-		path += ":" + p_sub;
-	}
-
-	int track_id = animation->find_track(path, p_type);
-	if (track_id >= 0) {
-		return true;
-	}
-	return false;
-}
-#endif // PHYSICS_3D_DISABLED
 
 void AnimationTrackEditor::_insert_animation_key(NodePath p_path, const Variant &p_value) {
 	String path = String(p_path);
@@ -5752,48 +5686,6 @@ void AnimationTrackEditor::_insert_key_from_track(float p_ofs, int p_track) {
 	// id.value is filled in each case handled below.
 
 	switch (animation->track_get_type(p_track)) {
-#ifndef PHYSICS_3D_DISABLED
-		case Animation::TYPE_POSITION_3D: {
-			Node3D *base = Object::cast_to<Node3D>(node);
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
-				return;
-			}
-
-			id.value = base->get_position();
-		} break;
-		case Animation::TYPE_ROTATION_3D: {
-			Node3D *base = Object::cast_to<Node3D>(node);
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
-				return;
-			}
-
-			id.value = base->get_transform().basis.operator Quaternion();
-		} break;
-		case Animation::TYPE_SCALE_3D: {
-			Node3D *base = Object::cast_to<Node3D>(node);
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
-				return;
-			}
-
-			id.value = base->get_scale();
-		} break;
-		case Animation::TYPE_BLEND_SHAPE: {
-			MeshInstance3D *base = Object::cast_to<MeshInstance3D>(node);
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type MeshInstance3D, can't insert key"));
-				return;
-			}
-
-			id.value = base->get_blend_shape_value(base->find_blend_shape_by_name(id.path.get_subname(0)));
-		} break;
-#endif // PHYSICS_3D_DISABLED
 		case Animation::TYPE_VALUE: {
 			NodePath bp;
 			_find_hint_for_track(p_track, bp, &id.value);

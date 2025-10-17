@@ -200,12 +200,6 @@ public:
 
 	void set_data(const Vector<Vector3> &p_vertices, const Vector<Vector<int>> &p_polygons);
 	void get_data(Vector<Vector3> &r_vertices, Vector<Vector<int>> &r_polygons);
-
-#ifdef DEBUG_ENABLED
-#ifndef NAVIGATION_3D_DISABLED
-	Ref<ArrayMesh> get_debug_mesh();
-#endif // NAVIGATION_3D_DISABLED
-#endif // DEBUG_ENABLED
 };
 
 VARIANT_ENUM_CAST(NavigationMesh::SamplePartitionType);

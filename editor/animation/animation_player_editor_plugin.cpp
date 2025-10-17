@@ -41,8 +41,6 @@
 #include "editor/gui/editor_bottom_panel.h"
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/gui/editor_validation_panel.h"
-// 3D editor removed in 2D Lite version
-// #include "editor/scene/3d/node_3d_editor_plugin.h" // For onion skinning.
 #include "editor/scene/canvas_item_editor_plugin.h" // For onion skinning.
 #include "editor/settings/editor_command_palette.h"
 #include "editor/settings/editor_settings.h"
