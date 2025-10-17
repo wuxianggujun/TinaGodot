@@ -1766,30 +1766,6 @@ void AnimationPlayerEditor::_prepare_onion_layers_2_prolog() {
 	}
 
 	// Hide superfluous elements that would make the overlay unnecessary cluttered.
-#ifndef PHYSICS_3D_DISABLED
-	if (Node3DEditor::get_singleton()->is_visible()) {
-		// 3D
-		onion.temp.spatial_edit_state = Node3DEditor::get_singleton()->get_state();
-		Dictionary new_state = onion.temp.spatial_edit_state.duplicate();
-		new_state["show_grid"] = false;
-		new_state["show_origin"] = false;
-		Array orig_vp = onion.temp.spatial_edit_state["viewports"];
-		Array vp;
-		vp.resize(4);
-		for (int i = 0; i < vp.size(); i++) {
-			Dictionary d = ((Dictionary)orig_vp[i]).duplicate();
-			d["use_environment"] = false;
-			d["doppler"] = false;
-			d["listener"] = false;
-			d["gizmos"] = onion.include_gizmos ? d["gizmos"] : Variant(false);
-			d["information"] = false;
-			vp[i] = d;
-		}
-		new_state["viewports"] = vp;
-		// TODO: Save/restore only affected entries.
-		Node3DEditor::get_singleton()->set_state(new_state);
-	} else
-#endif // PHYSICS_3D_DISABLED
 	{
 		// CanvasItemEditor.
 		onion.temp.canvas_edit_state = CanvasItemEditor::get_singleton()->get_state();
@@ -1916,12 +1892,6 @@ void AnimationPlayerEditor::_prepare_onion_layers_2_epilog() {
 	player->restore(onion.temp.anim_values_backup);
 
 	// Restore state of main editors.
-#ifndef PHYSICS_3D_DISABLED
-	if (Node3DEditor::get_singleton()->is_visible()) {
-		// 3D
-		Node3DEditor::get_singleton()->set_state(onion.temp.spatial_edit_state);
-	} else
-#endif // PHYSICS_3D_DISABLED
 	{ // CanvasItemEditor
 		// 2D
 		CanvasItemEditor::get_singleton()->set_state(onion.temp.canvas_edit_state);

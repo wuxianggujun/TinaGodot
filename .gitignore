@@ -26,6 +26,16 @@
 misc/hooks/pre-commit-custom-*
 
 #############################
+### Claude Code specific ####
+#############################
+
+# Claude Code working directory
+.claude/
+
+# Build output directory
+out/
+
+#############################
 ### Godot generated files ###
 #############################
 

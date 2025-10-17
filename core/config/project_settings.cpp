@@ -1670,9 +1670,6 @@ ProjectSettings::ProjectSettings() {
 #ifndef PHYSICS_2D_DISABLED
 	GLOBAL_DEF("physics/2d/run_on_separate_thread", false);
 #endif // PHYSICS_2D_DISABLED
-#ifndef PHYSICS_3D_DISABLED
-	GLOBAL_DEF("physics/3d/run_on_separate_thread", false);
-#endif // PHYSICS_3D_DISABLED
 
 	GLOBAL_DEF_BASIC(PropertyInfo(Variant::STRING, "display/window/stretch/mode", PROPERTY_HINT_ENUM, "disabled,canvas_items,viewport"), "disabled");
 	GLOBAL_DEF_BASIC(PropertyInfo(Variant::STRING, "display/window/stretch/aspect", PROPERTY_HINT_ENUM, "ignore,keep,keep_width,keep_height,expand"), "keep");
@@ -1768,10 +1765,6 @@ ProjectSettings::ProjectSettings() {
 	GLOBAL_DEF("navigation/2d/warnings/navmesh_edge_merge_errors", true);
 	GLOBAL_DEF("navigation/2d/warnings/navmesh_cell_size_mismatch", true);
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-	GLOBAL_DEF("navigation/3d/warnings/navmesh_edge_merge_errors", true);
-	GLOBAL_DEF("navigation/3d/warnings/navmesh_cell_size_mismatch", true);
-#endif // NAVIGATION_3D_DISABLED
 
 	ProjectSettings::get_singleton()->add_hidden_prefix("input/");
 }

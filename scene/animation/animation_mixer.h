@@ -164,9 +164,6 @@ protected:
 	};
 
 	struct TrackCacheTransform : public TrackCache {
-#ifndef _3D_DISABLED
-		ObjectID skeleton_id;
-#endif // _3D_DISABLED
 		int bone_idx = -1;
 		bool loc_used = false;
 		bool rot_used = false;
@@ -180,9 +177,6 @@ protected:
 
 		TrackCacheTransform(const TrackCacheTransform &p_other) :
 				TrackCache(p_other),
-#ifndef _3D_DISABLED
-				skeleton_id(p_other.skeleton_id),
-#endif
 				bone_idx(p_other.bone_idx),
 				loc_used(p_other.loc_used),
 				rot_used(p_other.rot_used),

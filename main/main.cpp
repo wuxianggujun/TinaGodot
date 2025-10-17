@@ -88,19 +88,8 @@
 #endif // PHYSICS_2D_DISABLED
 
 // 3D
-#ifndef NAVIGATION_3D_DISABLED
-#include "servers/navigation_3d/navigation_server_3d.h"
-#include "servers/navigation_3d/navigation_server_3d_dummy.h"
-#endif // NAVIGATION_3D_DISABLED
 
-#ifndef PHYSICS_3D_DISABLED
-#include "servers/physics_3d/physics_server_3d.h"
-#include "servers/physics_3d/physics_server_3d_dummy.h"
-#endif // PHYSICS_3D_DISABLED
 
-#ifndef XR_DISABLED
-#include "servers/xr/xr_server.h"
-#endif // XR_DISABLED
 
 #ifdef TESTS_ENABLED
 #include "tests/test_main.h"
@@ -179,13 +168,6 @@ static ThemeDB *theme_db = nullptr;
 static PhysicsServer2DManager *physics_server_2d_manager = nullptr;
 static PhysicsServer2D *physics_server_2d = nullptr;
 #endif // PHYSICS_2D_DISABLED
-#ifndef PHYSICS_3D_DISABLED
-static PhysicsServer3DManager *physics_server_3d_manager = nullptr;
-static PhysicsServer3D *physics_server_3d = nullptr;
-#endif // PHYSICS_3D_DISABLED
-#ifndef XR_DISABLED
-static XRServer *xr_server = nullptr;
-#endif // XR_DISABLED
 // We error out if setup2() doesn't turn this true
 static bool _start_success = false;
 
@@ -347,25 +329,6 @@ static Vector<String> get_files_with_extension(const String &p_root, const Strin
 
 // FIXME: Could maybe be moved to have less code in main.cpp.
 void initialize_physics() {
-#ifndef PHYSICS_3D_DISABLED
-	/// 3D Physics Server
-	physics_server_3d = PhysicsServer3DManager::get_singleton()->new_server(
-			GLOBAL_GET(PhysicsServer3DManager::setting_property_name));
-	if (!physics_server_3d) {
-		// Physics server not found, Use the default physics
-		physics_server_3d = PhysicsServer3DManager::get_singleton()->new_default_server();
-	}
-
-	// Fall back to dummy if no default server has been registered.
-	if (!physics_server_3d) {
-		WARN_PRINT(vformat("Falling back to dummy PhysicsServer3D; 3D physics functionality will be disabled. If this is intended, set the %s project setting to Dummy.", PhysicsServer3DManager::setting_property_name));
-		physics_server_3d = memnew(PhysicsServer3DDummy);
-	}
-
-	// Should be impossible, but make sure it's not null.
-	ERR_FAIL_NULL_MSG(physics_server_3d, "Failed to initialize PhysicsServer3D.");
-	physics_server_3d->init();
-#endif // PHYSICS_3D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 	// 2D Physics server
@@ -389,10 +352,6 @@ void initialize_physics() {
 }
 
 void finalize_physics() {
-#ifndef PHYSICS_3D_DISABLED
-	physics_server_3d->finish();
-	memdelete(physics_server_3d);
-#endif // PHYSICS_3D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 	physics_server_2d->finish();
@@ -621,9 +580,6 @@ void Main::print_help(const char *p_binary) {
 	print_help_option("--position <X>,<Y>", "Request window position.\n");
 	print_help_option("--screen <N>", "Request window screen.\n");
 	print_help_option("--single-window", "Use a single window (no separate subwindows).\n");
-#ifndef _3D_DISABLED
-	print_help_option("--xr-mode <mode>", "Select XR (Extended Reality) mode [\"default\", \"off\", \"on\"].\n");
-#endif
 	print_help_option("--wid <window_id>", "Request parented to window.\n");
 	print_help_option("--accessibility <mode>", "Select accessibility mode ['auto' (when screen reader is running, default), 'always', 'disabled'].\n");
 
@@ -739,9 +695,6 @@ Error Main::test_setup() {
 		tsman->add_interface(ts);
 	}
 
-#ifndef PHYSICS_3D_DISABLED
-	physics_server_3d_manager = memnew(PhysicsServer3DManager);
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 	physics_server_2d_manager = memnew(PhysicsServer2DManager);
 #endif // PHYSICS_2D_DISABLED
@@ -755,9 +708,6 @@ Error Main::test_setup() {
 
 	/** INITIALIZE SERVERS **/
 	register_server_types();
-#ifndef XR_DISABLED
-	XRServer::set_xr_mode(XRServer::XRMODE_OFF); // Skip in tests.
-#endif // XR_DISABLED
 	initialize_modules(MODULE_INITIALIZATION_LEVEL_SERVERS);
 	GDExtensionManager::get_singleton()->initialize_extensions(GDExtension::INITIALIZATION_LEVEL_SERVERS);
 
@@ -772,9 +722,6 @@ Error Main::test_setup() {
 	// Default theme will be initialized later, after modules and ScriptServer are ready.
 	initialize_theme_db();
 
-#ifndef NAVIGATION_3D_DISABLED
-	NavigationServer3DManager::initialize_server();
-#endif // NAVIGATION_3D_DISABLED
 #ifndef NAVIGATION_2D_DISABLED
 	NavigationServer2DManager::initialize_server();
 #endif // NAVIGATION_2D_DISABLED
@@ -864,9 +811,6 @@ void Main::test_cleanup() {
 #ifndef NAVIGATION_2D_DISABLED
 	NavigationServer2DManager::finalize_server();
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-	NavigationServer3DManager::finalize_server();
-#endif // NAVIGATION_3D_DISABLED
 
 	GDExtensionManager::get_singleton()->deinitialize_extensions(GDExtension::INITIALIZATION_LEVEL_SERVERS);
 	uninitialize_modules(MODULE_INITIALIZATION_LEVEL_SERVERS);
@@ -884,11 +828,6 @@ void Main::test_cleanup() {
 	if (tsman) {
 		memdelete(tsman);
 	}
-#ifndef PHYSICS_3D_DISABLED
-	if (physics_server_3d_manager) {
-		memdelete(physics_server_3d_manager);
-	}
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 	if (physics_server_2d_manager) {
 		memdelete(physics_server_2d_manager);
@@ -1826,26 +1765,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			skip_breakpoints = true;
 		} else if (I->get() == "--ignore-error-breaks") {
 			ignore_error_breaks = true;
-#ifndef XR_DISABLED
-		} else if (arg == "--xr-mode") {
-			if (N) {
-				String xr_mode = N->get().to_lower();
-				N = N->next();
-				if (xr_mode == "default") {
-					XRServer::set_xr_mode(XRServer::XRMODE_DEFAULT);
-				} else if (xr_mode == "off") {
-					XRServer::set_xr_mode(XRServer::XRMODE_OFF);
-				} else if (xr_mode == "on") {
-					XRServer::set_xr_mode(XRServer::XRMODE_ON);
-				} else {
-					OS::get_singleton()->print("Unknown --xr-mode argument \"%s\", aborting.\n", xr_mode.ascii().get_data());
-					goto error;
-				}
-			} else {
-				OS::get_singleton()->print("Missing --xr-mode argument, aborting.\n");
-				goto error;
-			}
-#endif // XR_DISABLED
 		} else if (arg == "--benchmark") {
 			OS::get_singleton()->set_use_benchmark(true);
 		} else if (arg == "--benchmark-file") {
@@ -2684,52 +2603,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	GLOBAL_DEF("display/window/ios/hide_status_bar", true);
 	GLOBAL_DEF("display/window/ios/suppress_ui_gesture", true);
 
-#ifndef _3D_DISABLED
-	// XR project settings.
-	GLOBAL_DEF_RST_BASIC("xr/openxr/enabled", false);
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::STRING, "xr/openxr/default_action_map", PROPERTY_HINT_FILE, "*.tres"), "res://openxr_action_map.tres");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/form_factor", PROPERTY_HINT_ENUM, "Head Mounted,Handheld"), "0");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/view_configuration", PROPERTY_HINT_ENUM, "Mono,Stereo"), "1"); // "Mono,Stereo,Quad,Observer"
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/reference_space", PROPERTY_HINT_ENUM, "Local,Stage,Local Floor"), "1");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/environment_blend_mode", PROPERTY_HINT_ENUM, "Opaque,Additive,Alpha"), "0");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/foveation_level", PROPERTY_HINT_ENUM, "Off,Low,Medium,High"), "0");
-	GLOBAL_DEF_BASIC("xr/openxr/foveation_dynamic", false);
-
-	GLOBAL_DEF_BASIC("xr/openxr/submit_depth_buffer", false);
-	GLOBAL_DEF_BASIC("xr/openxr/startup_alert", true);
-
-	// OpenXR project extensions settings.
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/extensions/debug_utils", PROPERTY_HINT_ENUM, "Disabled,Error,Warning,Info,Verbose"), "0");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/extensions/debug_message_types", PROPERTY_HINT_FLAGS, "General,Validation,Performance,Conformance"), "15");
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/hand_tracking", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/hand_tracking_unobstructed_data_source", false); // XR_HAND_TRACKING_DATA_SOURCE_UNOBSTRUCTED_EXT
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/hand_tracking_controller_data_source", false); // XR_HAND_TRACKING_DATA_SOURCE_CONTROLLER_EXT
-	GLOBAL_DEF_RST_BASIC("xr/openxr/extensions/hand_interaction_profile", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enabled", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_spatial_anchors", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_persistent_anchors", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_builtin_anchor_detection", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_plane_tracking", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_builtin_plane_detection", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_marker_tracking", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/spatial_entity/enable_builtin_marker_tracking", false);
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/extensions/spatial_entity/aruco_dict", PROPERTY_HINT_ENUM, "4x4 50 IDs,4x4 100 IDs,4x4 250 IDs,4x4 1000 IDs,5x5 50 IDs,5x5 100 IDs,5x5 250 IDs,5x5 1000 IDs,6x6 50 IDs,6x6 100 IDs,6x6 250 IDs,6x6 1000 IDs,7x7 50 IDs,7x7 100 IDs,7x7 250 IDs,7x7 1000 IDs"), "15");
-	GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "xr/openxr/extensions/spatial_entity/april_tag_dict", PROPERTY_HINT_ENUM, "4x4H5,5x5H9,6x6H10,6x6H11"), "3");
-	GLOBAL_DEF_RST_BASIC("xr/openxr/extensions/eye_gaze_interaction", false);
-	GLOBAL_DEF_BASIC("xr/openxr/extensions/render_model", false);
-
-	// OpenXR Binding modifier settings
-	GLOBAL_DEF_BASIC("xr/openxr/binding_modifiers/analog_threshold", false);
-	GLOBAL_DEF_RST_BASIC("xr/openxr/binding_modifiers/dpad_binding", false);
-
-#ifdef TOOLS_ENABLED
-	// Disabled for now, using XR inside of the editor we'll be working on during the coming months.
-
-	// editor settings (it seems we're too early in the process when setting up rendering, to access editor settings...)
-	// EDITOR_DEF_RST("xr/openxr/in_editor", false);
-	// GLOBAL_DEF("xr/openxr/in_editor", false);
-#endif // TOOLS_ENABLED
-#endif // _3D_DISABLED
 
 	Engine::get_singleton()->set_frame_delay(frame_delay);
 
@@ -3011,9 +2884,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 		tsman->add_interface(ts);
 	}
 
-#ifndef PHYSICS_3D_DISABLED
-	physics_server_3d_manager = memnew(PhysicsServer3DManager);
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 	physics_server_2d_manager = memnew(PhysicsServer2DManager);
 #endif // PHYSICS_2D_DISABLED
@@ -3155,11 +3025,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 			if (tsman) {
 				memdelete(tsman);
 			}
-#ifndef PHYSICS_3D_DISABLED
-			if (physics_server_3d_manager) {
-				memdelete(physics_server_3d_manager);
-			}
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 			if (physics_server_2d_manager) {
 				memdelete(physics_server_2d_manager);
@@ -3348,17 +3213,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 		OS::get_singleton()->benchmark_end_measure("Servers", "Audio");
 	}
 
-#ifndef XR_DISABLED
-	/* Initialize XR Server */
-
-	{
-		OS::get_singleton()->benchmark_begin_measure("Servers", "XR");
-
-		xr_server = memnew(XRServer);
-
-		OS::get_singleton()->benchmark_end_measure("Servers", "XR");
-	}
-#endif // XR_DISABLED
 
 	OS::get_singleton()->benchmark_end_measure("Startup", "Servers");
 
@@ -3526,9 +3380,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 	MAIN_PRINT("Main: Load Navigation");
 #endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
 
-#ifndef NAVIGATION_3D_DISABLED
-	NavigationServer3DManager::initialize_server();
-#endif // NAVIGATION_3D_DISABLED
 #ifndef NAVIGATION_2D_DISABLED
 	NavigationServer2DManager::initialize_server();
 #endif // NAVIGATION_2D_DISABLED
@@ -4187,27 +4038,17 @@ int Main::start() {
 #ifndef NAVIGATION_2D_DISABLED
 			NavigationServer2D::get_singleton()->set_debug_navigation_enabled(true);
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-			NavigationServer3D::get_singleton()->set_debug_navigation_enabled(true);
-#endif // NAVIGATION_3D_DISABLED
 		}
 		if (debug_avoidance) {
 #ifndef NAVIGATION_2D_DISABLED
 			NavigationServer2D::get_singleton()->set_debug_avoidance_enabled(true);
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-			NavigationServer3D::get_singleton()->set_debug_avoidance_enabled(true);
-#endif // NAVIGATION_3D_DISABLED
 		}
 		if (debug_navigation || debug_avoidance) {
 #ifndef NAVIGATION_2D_DISABLED
 			NavigationServer2D::get_singleton()->set_active(true);
 			NavigationServer2D::get_singleton()->set_debug_enabled(true);
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-			NavigationServer3D::get_singleton()->set_active(true);
-			NavigationServer3D::get_singleton()->set_debug_enabled(true);
-#endif // NAVIGATION_3D_DISABLED
 		}
 		if (debug_canvas_item_redraw) {
 			RenderingServer::get_singleton()->canvas_item_set_debug_redraw(true);
@@ -4661,9 +4502,6 @@ bool Main::iteration() {
 	bool exit = false;
 
 	// process all our active interfaces
-#ifndef XR_DISABLED
-	XRServer::get_singleton()->_process();
-#endif // XR_DISABLED
 
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
 		if (Input::get_singleton()->is_agile_input_event_flushing()) {
@@ -4680,10 +4518,6 @@ bool Main::iteration() {
 		// may be the same, and no interpolation takes place.
 		OS::get_singleton()->get_main_loop()->iteration_prepare();
 
-#ifndef PHYSICS_3D_DISABLED
-		PhysicsServer3D::get_singleton()->sync();
-		PhysicsServer3D::get_singleton()->flush_queries();
-#endif // PHYSICS_3D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 		PhysicsServer2D::get_singleton()->sync();
@@ -4691,9 +4525,6 @@ bool Main::iteration() {
 #endif // PHYSICS_2D_DISABLED
 
 		if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
-#ifndef PHYSICS_3D_DISABLED
-			PhysicsServer3D::get_singleton()->end_sync();
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 			PhysicsServer2D::get_singleton()->end_sync();
 #endif // PHYSICS_2D_DISABLED
@@ -4709,9 +4540,6 @@ bool Main::iteration() {
 #ifndef NAVIGATION_2D_DISABLED
 		NavigationServer2D::get_singleton()->physics_process(physics_step * time_scale);
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-		NavigationServer3D::get_singleton()->physics_process(physics_step * time_scale);
-#endif // NAVIGATION_3D_DISABLED
 
 		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
 		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
@@ -4719,10 +4547,6 @@ bool Main::iteration() {
 		message_queue->flush();
 #endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
 
-#ifndef PHYSICS_3D_DISABLED
-		PhysicsServer3D::get_singleton()->end_sync();
-		PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
-#endif // PHYSICS_3D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 		PhysicsServer2D::get_singleton()->end_sync();
@@ -4753,9 +4577,6 @@ bool Main::iteration() {
 #ifndef NAVIGATION_2D_DISABLED
 	NavigationServer2D::get_singleton()->process(process_step * time_scale);
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-	NavigationServer3D::get_singleton()->process(process_step * time_scale);
-#endif // NAVIGATION_3D_DISABLED
 
 	RenderingServer::get_singleton()->sync(); //sync if still drawing from previous frames.
 
@@ -4946,13 +4767,6 @@ void Main::cleanup(bool p_force) {
 	//clear global shader variables before scene and other graphics stuff are deinitialized.
 	rendering_server->global_shader_parameters_clear();
 
-#ifndef XR_DISABLED
-	if (xr_server) {
-		// Now that we're unregistering properly in plugins we need to keep access to xr_server for a little longer
-		// We do however unset our primary interface
-		xr_server->set_primary_interface(Ref<XRInterface>());
-	}
-#endif // XR_DISABLED
 
 #ifdef TOOLS_ENABLED
 	GDExtensionManager::get_singleton()->deinitialize_extensions(GDExtension::INITIALIZATION_LEVEL_EDITOR);
@@ -4976,9 +4790,6 @@ void Main::cleanup(bool p_force) {
 #ifndef NAVIGATION_2D_DISABLED
 	NavigationServer2DManager::finalize_server();
 #endif // NAVIGATION_2D_DISABLED
-#ifndef NAVIGATION_3D_DISABLED
-	NavigationServer3DManager::finalize_server();
-#endif // NAVIGATION_3D_DISABLED
 	finalize_physics();
 
 	GDExtensionManager::get_singleton()->deinitialize_extensions(GDExtension::INITIALIZATION_LEVEL_SERVERS);
@@ -4987,11 +4798,6 @@ void Main::cleanup(bool p_force) {
 
 	EngineDebugger::deinitialize();
 
-#ifndef XR_DISABLED
-	if (xr_server) {
-		memdelete(xr_server);
-	}
-#endif // XR_DISABLED
 
 	if (audio_server) {
 		audio_server->finish();
@@ -5025,11 +4831,6 @@ void Main::cleanup(bool p_force) {
 	if (tsman) {
 		memdelete(tsman);
 	}
-#ifndef PHYSICS_3D_DISABLED
-	if (physics_server_3d_manager) {
-		memdelete(physics_server_3d_manager);
-	}
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 	if (physics_server_2d_manager) {
 		memdelete(physics_server_2d_manager);

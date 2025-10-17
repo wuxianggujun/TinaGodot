@@ -55,16 +55,6 @@
 #include "scene/2d/physics/collision_shape_2d.h"
 #endif // PHYSICS_2D_DISABLED
 
-#ifndef _3D_DISABLED
-#include "scene/3d/camera_3d.h"
-#ifndef PHYSICS_3D_DISABLED
-#include "scene/3d/physics/collision_object_3d.h"
-#include "scene/3d/physics/collision_shape_3d.h"
-#endif // PHYSICS_3D_DISABLED
-#include "scene/3d/visual_instance_3d.h"
-#include "scene/resources/3d/convex_polygon_shape_3d.h"
-#include "scene/resources/surface_tool.h"
-#endif // _3D_DISABLED
 
 SceneDebugger::SceneDebugger() {
 	singleton = this;
@@ -227,9 +217,6 @@ Error SceneDebugger::_msg_override_cameras(const Array &p_args) {
 	bool enable = p_args[0];
 	bool from_editor = p_args[1];
 	SceneTree::get_singleton()->get_root()->enable_camera_2d_override(enable);
-#ifndef _3D_DISABLED
-	SceneTree::get_singleton()->get_root()->enable_camera_3d_override(enable);
-#endif // _3D_DISABLED
 	RuntimeNodeSelect::get_singleton()->_set_camera_override_enabled(enable && !from_editor);
 	return OK;
 }
@@ -431,32 +418,6 @@ Error SceneDebugger::_msg_transform_camera_2d(const Array &p_args) {
 	return OK;
 }
 
-#ifndef _3D_DISABLED
-Error SceneDebugger::_msg_runtime_node_select_reset_camera_3d(const Array &p_args) {
-	RuntimeNodeSelect::get_singleton()->_reset_camera_3d();
-	return OK;
-}
-
-Error SceneDebugger::_msg_transform_camera_3d(const Array &p_args) {
-	ERR_FAIL_COND_V(p_args.size() < 5, ERR_INVALID_DATA);
-	ERR_FAIL_COND_V(!SceneTree::get_singleton()->get_root()->is_camera_3d_override_enabled(), ERR_BUG);
-	Transform3D transform = p_args[0];
-	bool is_perspective = p_args[1];
-	float size_or_fov = p_args[2];
-	float depth_near = p_args[3];
-	float depth_far = p_args[4];
-
-	Camera3D *override_camera = SceneTree::get_singleton()->get_root()->get_override_camera_3d();
-	if (is_perspective) {
-		override_camera->set_perspective(size_or_fov, depth_near, depth_far);
-	} else {
-		override_camera->set_orthogonal(size_or_fov, depth_near, depth_far);
-	}
-	override_camera->set_transform(transform);
-	RuntimeNodeSelect::get_singleton()->_queue_selection_update();
-	return OK;
-}
-#endif // _3D_DISABLED
 
 // endregion
 
@@ -541,9 +502,6 @@ void SceneDebugger::_init_message_handlers() {
 	message_handlers["debug_mute_audio"] = _msg_debug_mute_audio;
 	message_handlers["override_cameras"] = _msg_override_cameras;
 	message_handlers["transform_camera_2d"] = _msg_transform_camera_2d;
-#ifndef _3D_DISABLED
-	message_handlers["transform_camera_3d"] = _msg_transform_camera_3d;
-#endif // _3D_DISABLED
 	message_handlers["set_object_property"] = _msg_set_object_property;
 	message_handlers["set_object_property_field"] = _msg_set_object_property_field;
 	message_handlers["reload_cached_files"] = _msg_reload_cached_files;
@@ -568,9 +526,6 @@ void SceneDebugger::_init_message_handlers() {
 	message_handlers["runtime_node_select_set_mode"] = _msg_runtime_node_select_set_mode;
 	message_handlers["runtime_node_select_set_visible"] = _msg_runtime_node_select_set_visible;
 	message_handlers["runtime_node_select_reset_camera_2d"] = _msg_runtime_node_select_reset_camera_2d;
-#ifndef _3D_DISABLED
-	message_handlers["runtime_node_select_reset_camera_3d"] = _msg_runtime_node_select_reset_camera_3d;
-#endif
 	message_handlers["rq_screenshot"] = _msg_rq_screenshot;
 }
 
@@ -1558,65 +1513,6 @@ void RuntimeNodeSelect::_setup(const Dictionary &p_settings) {
 	RS::get_singleton()->canvas_item_set_parent(sel_drag_ci, draw_canvas);
 	RS::get_singleton()->canvas_item_set_parent(sbox_2d_ci, draw_canvas);
 
-#ifndef _3D_DISABLED
-	cursor = Cursor();
-
-	camera_fov = p_settings.get("editors/3d/default_fov", 70);
-	camera_znear = p_settings.get("editors/3d/default_z_near", 0.05);
-	camera_zfar = p_settings.get("editors/3d/default_z_far", 4'000);
-
-	invert_x_axis = p_settings.get("editors/3d/navigation/invert_x_axis", false);
-	invert_y_axis = p_settings.get("editors/3d/navigation/invert_y_axis", false);
-	warped_mouse_panning_3d = p_settings.get("editors/3d/navigation/warped_mouse_panning", true);
-
-	freelook_base_speed = p_settings.get("editors/3d/freelook/freelook_base_speed", 5);
-	freelook_sensitivity = Math::deg_to_rad((real_t)p_settings.get("editors/3d/freelook/freelook_sensitivity", 0.25));
-	orbit_sensitivity = Math::deg_to_rad((real_t)p_settings.get("editors/3d/navigation_feel/orbit_sensitivity", 0.004));
-	translation_sensitivity = p_settings.get("editors/3d/navigation_feel/translation_sensitivity", 1);
-
-	/// 3D Selection Box Generation
-	// Copied from the Node3DEditor implementation.
-
-	sbox_3d_color = p_settings.get("editors/3d/selection_box_color", Color());
-
-	// Use two AABBs to create the illusion of a slightly thicker line.
-	AABB aabb(Vector3(), Vector3(1, 1, 1));
-
-	// Create a x-ray (visible through solid surfaces) and standard version of the selection box.
-	// Both will be drawn at the same position, but with different opacity.
-	// This lets the user see where the selection is while still having a sense of depth.
-	Ref<SurfaceTool> st = memnew(SurfaceTool);
-	Ref<SurfaceTool> st_xray = memnew(SurfaceTool);
-
-	st->begin(Mesh::PRIMITIVE_LINES);
-	st_xray->begin(Mesh::PRIMITIVE_LINES);
-	for (int i = 0; i < 12; i++) {
-		Vector3 a, b;
-		aabb.get_edge(i, a, b);
-
-		st->add_vertex(a);
-		st->add_vertex(b);
-		st_xray->add_vertex(a);
-		st_xray->add_vertex(b);
-	}
-
-	Ref<StandardMaterial3D> mat = memnew(StandardMaterial3D);
-	mat->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
-	mat->set_flag(StandardMaterial3D::FLAG_DISABLE_FOG, true);
-	mat->set_albedo(sbox_3d_color);
-	mat->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
-	st->set_material(mat);
-	sbox_3d_mesh = st->commit();
-
-	Ref<StandardMaterial3D> mat_xray = memnew(StandardMaterial3D);
-	mat_xray->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
-	mat_xray->set_flag(StandardMaterial3D::FLAG_DISABLE_FOG, true);
-	mat_xray->set_flag(StandardMaterial3D::FLAG_DISABLE_DEPTH_TEST, true);
-	mat_xray->set_albedo(sbox_3d_color * Color(1, 1, 1, 0.15));
-	mat_xray->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
-	st_xray->set_material(mat_xray);
-	sbox_3d_mesh_xray = st_xray->commit();
-#endif // _3D_DISABLED
 
 	SceneTree::get_singleton()->connect("process_frame", callable_mp(this, &RuntimeNodeSelect::_process_frame));
 	SceneTree::get_singleton()->connect("physics_frame", callable_mp(this, &RuntimeNodeSelect::_physics_frame));
@@ -1640,21 +1536,11 @@ void RuntimeNodeSelect::_set_camera_override_enabled(bool p_enabled) {
 
 	if (camera_first_override) {
 		_reset_camera_2d();
-#ifndef _3D_DISABLED
-		_reset_camera_3d();
-#endif // _3D_DISABLED
 
 		camera_first_override = false;
 	} else if (p_enabled) {
 		_update_view_2d();
 
-#ifndef _3D_DISABLED
-		Window *root = SceneTree::get_singleton()->get_root();
-		ERR_FAIL_COND(!root->is_camera_3d_override_enabled());
-		Camera3D *override_camera = root->get_override_camera_3d();
-		override_camera->set_transform(_get_cursor_transform());
-		override_camera->set_perspective(camera_fov * cursor.fov_scale, camera_znear, camera_zfar);
-#endif // _3D_DISABLED
 	}
 }
 
@@ -1675,12 +1561,6 @@ void RuntimeNodeSelect::_root_window_input(const Ref<InputEvent> &p_event) {
 	if (camera_override) {
 		if (node_select_type == NODE_TYPE_2D) {
 			is_dragging_camera = panner->gui_input(p_event, Rect2(Vector2(), root->get_visible_rect().get_size()));
-#ifndef _3D_DISABLED
-		} else if (node_select_type == NODE_TYPE_3D && selection_drag_state == SELECTION_DRAG_NONE) {
-			if (_handle_3d_input(p_event)) {
-				return;
-			}
-#endif // _3D_DISABLED
 		}
 	}
 
@@ -1750,66 +1630,6 @@ void RuntimeNodeSelect::_update_input_state() {
 }
 
 void RuntimeNodeSelect::_process_frame() {
-#ifndef _3D_DISABLED
-	if (camera_freelook) {
-		Transform3D transform = _get_cursor_transform();
-		Vector3 forward = transform.basis.xform(Vector3(0, 0, -1));
-		const Vector3 right = transform.basis.xform(Vector3(1, 0, 0));
-		Vector3 up = transform.basis.xform(Vector3(0, 1, 0));
-
-		Vector3 direction;
-
-		Input *input = Input::get_singleton();
-		bool was_input_disabled = input->is_input_disabled();
-		if (was_input_disabled) {
-			input->set_disable_input(false);
-		}
-
-		if (input->is_physical_key_pressed(Key::A)) {
-			direction -= right;
-		}
-		if (input->is_physical_key_pressed(Key::D)) {
-			direction += right;
-		}
-		if (input->is_physical_key_pressed(Key::W)) {
-			direction += forward;
-		}
-		if (input->is_physical_key_pressed(Key::S)) {
-			direction -= forward;
-		}
-		if (input->is_physical_key_pressed(Key::E)) {
-			direction += up;
-		}
-		if (input->is_physical_key_pressed(Key::Q)) {
-			direction -= up;
-		}
-
-		real_t speed = freelook_base_speed;
-		if (input->is_physical_key_pressed(Key::SHIFT)) {
-			speed *= 3.0;
-		}
-		if (input->is_physical_key_pressed(Key::ALT)) {
-			speed *= 0.333333;
-		}
-
-		if (was_input_disabled) {
-			input->set_disable_input(true);
-		}
-
-		if (direction != Vector3()) {
-			Window *root = SceneTree::get_singleton()->get_root();
-			ERR_FAIL_COND(!root->is_camera_3d_override_enabled());
-
-			// Calculate the process time manually, as the time scale is frozen.
-			const double process_time = (1.0 / Engine::get_singleton()->get_frames_per_second()) * Engine::get_singleton()->get_unfrozen_time_scale();
-			const Vector3 motion = direction * speed * process_time;
-			cursor.pos += motion;
-			cursor.eye_pos += motion;
-
-			root->get_override_camera_3d()->set_transform(_get_cursor_transform());
-		}
-	}
-#endif // _3D_DISABLED
 
 	if (selection_update_queued || !SceneTree::get_singleton()->is_suspended()) {
 		selection_update_queued = false;
@@ -1851,14 +1671,6 @@ void RuntimeNodeSelect::_physics_frame() {
 				}
 			}
 		}
-#ifndef _3D_DISABLED
-	} else if (node_select_type == NODE_TYPE_3D) {
-		if (selection_drag_valid) {
-			_find_3d_items_at_rect(selection_drag_area, items);
-		} else {
-			_find_3d_items_at_pos(selection_position, items);
-		}
-#endif // _3D_DISABLED
 	}
 
 	items.sort();
@@ -1893,18 +1705,10 @@ void RuntimeNodeSelect::_physics_frame() {
 				// Allow forcing box selection when an item was clicked.
 				selection_drag_state = SELECTION_DRAG_MOVE;
 			} else if (items.is_empty()) {
-#ifdef _3D_DISABLED
-				if (!selected_ci_nodes.is_empty()) {
-#else
-				if (!selected_ci_nodes.is_empty() || !selected_3d_nodes.is_empty()) {
-#endif // _3D_DISABLED
-					EngineDebugger::get_singleton()->send_message("remote_nothing_selected", Array());
-					_clear_selection();
-				}
-
-				selection_drag_state = SELECTION_DRAG_MOVE;
+				EngineDebugger::get_singleton()->send_message("remote_nothing_selected", Array());
+				_clear_selection();
 			} else {
-				break;
+				selection_drag_state = SELECTION_DRAG_MOVE;
 			}
 
 			[[fallthrough]];
@@ -1980,25 +1784,10 @@ void RuntimeNodeSelect::_send_ids(const Vector<Node *> &p_picked_nodes, bool p_i
 				nodes.push_back(ci);
 			}
 		} else {
-#ifndef _3D_DISABLED
-			if (Node3D *node3d = Object::cast_to<Node3D>(node)) {
-				if (selected_3d_nodes.has(id)) {
-					if (p_invert_new_selections) {
-						selected_3d_nodes.erase(id);
-					}
-				} else {
-					ids.push_back(id);
-					nodes.push_back(node3d);
-				}
-			}
-#endif // _3D_DISABLED
 		}
 	}
 
 	uint32_t limit = max_selection - selected_ci_nodes.size();
-#ifndef _3D_DISABLED
-	limit -= selected_3d_nodes.size();
-#endif // _3D_DISABLED
 	if (ids.size() > limit) {
 		ids.resize(limit);
 		nodes.resize(limit);
@@ -2009,12 +1798,6 @@ void RuntimeNodeSelect::_send_ids(const Vector<Node *> &p_picked_nodes, bool p_i
 		ids.push_back(id);
 		nodes.push_back(ObjectDB::get_instance<Node>(id));
 	}
-#ifndef _3D_DISABLED
-	for (const KeyValue<ObjectID, Ref<SelectionBox3D>> &KV : selected_3d_nodes) {
-		ids.push_back(KV.key);
-		nodes.push_back(ObjectDB::get_instance<Node>(KV.key));
-	}
-#endif // _3D_DISABLED
 
 	if (ids.is_empty()) {
 		EngineDebugger::get_singleton()->send_message("remote_nothing_selected", message);
@@ -2040,9 +1823,6 @@ void RuntimeNodeSelect::_set_selected_nodes(const Vector<Node *> &p_nodes) {
 
 	bool changed = false;
 	LocalVector<ObjectID> nodes_ci;
-#ifndef _3D_DISABLED
-	HashMap<ObjectID, Ref<SelectionBox3D>> nodes_3d;
-#endif // _3D_DISABLED
 
 	for (Node *node : p_nodes) {
 		ObjectID id = node->get_instance_id();
@@ -2053,73 +1833,14 @@ void RuntimeNodeSelect::_set_selected_nodes(const Vector<Node *> &p_nodes) {
 
 			nodes_ci.push_back(id);
 		} else {
-#ifndef _3D_DISABLED
-			Node3D *node_3d = Object::cast_to<Node3D>(node);
-			if (!node_3d || !node_3d->is_inside_world()) {
-				continue;
-			}
-
-			if (!changed || !selected_3d_nodes.has(id)) {
-				changed = true;
-			}
-
-			if (selected_3d_nodes.has(id)) {
-				// Assign an already available visual instance.
-				nodes_3d[id] = selected_3d_nodes.get(id);
-				continue;
-			}
-
-			if (sbox_3d_mesh.is_null() || sbox_3d_mesh_xray.is_null()) {
-				continue;
-			}
-
-			Ref<SelectionBox3D> sb;
-			sb.instantiate();
-			nodes_3d[id] = sb;
-
-			RID scenario = node_3d->get_world_3d()->get_scenario();
-
-			sb->instance = RS::get_singleton()->instance_create2(sbox_3d_mesh->get_rid(), scenario);
-			sb->instance_ofs = RS::get_singleton()->instance_create2(sbox_3d_mesh->get_rid(), scenario);
-			RS::get_singleton()->instance_geometry_set_cast_shadows_setting(sb->instance, RS::SHADOW_CASTING_SETTING_OFF);
-			RS::get_singleton()->instance_geometry_set_cast_shadows_setting(sb->instance_ofs, RS::SHADOW_CASTING_SETTING_OFF);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance, RS::INSTANCE_FLAG_IGNORE_OCCLUSION_CULLING, true);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance, RS::INSTANCE_FLAG_USE_BAKED_LIGHT, false);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance_ofs, RS::INSTANCE_FLAG_IGNORE_OCCLUSION_CULLING, true);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance_ofs, RS::INSTANCE_FLAG_USE_BAKED_LIGHT, false);
-
-			sb->instance_xray = RS::get_singleton()->instance_create2(sbox_3d_mesh_xray->get_rid(), scenario);
-			sb->instance_xray_ofs = RS::get_singleton()->instance_create2(sbox_3d_mesh_xray->get_rid(), scenario);
-			RS::get_singleton()->instance_geometry_set_cast_shadows_setting(sb->instance_xray, RS::SHADOW_CASTING_SETTING_OFF);
-			RS::get_singleton()->instance_geometry_set_cast_shadows_setting(sb->instance_xray_ofs, RS::SHADOW_CASTING_SETTING_OFF);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance_xray, RS::INSTANCE_FLAG_IGNORE_OCCLUSION_CULLING, true);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance_xray, RS::INSTANCE_FLAG_USE_BAKED_LIGHT, false);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance_xray_ofs, RS::INSTANCE_FLAG_IGNORE_OCCLUSION_CULLING, true);
-			RS::get_singleton()->instance_geometry_set_flag(sb->instance_xray_ofs, RS::INSTANCE_FLAG_USE_BAKED_LIGHT, false);
-#endif // _3D_DISABLED
 		}
 	}
 
-#ifdef _3D_DISABLED
-	if (!changed && nodes_ci.size() == selected_ci_nodes.size()) {
-		return;
-	}
-#else
-	if (!changed && nodes_ci.size() == selected_ci_nodes.size() && nodes_3d.size() == selected_3d_nodes.size()) {
-		return;
-	}
-#endif // _3D_DISABLED
 
 	_clear_selection();
 	selected_ci_nodes = nodes_ci;
 	has_selection = !nodes_ci.is_empty();
 
-#ifndef _3D_DISABLED
-	if (!nodes_3d.is_empty()) {
-		selected_3d_nodes = nodes_3d;
-		has_selection = true;
-	}
-#endif // _3D_DISABLED
 
 	_queue_selection_update();
 }
@@ -2183,78 +1904,6 @@ void RuntimeNodeSelect::_update_selection() {
 		}
 	}
 
-#ifndef _3D_DISABLED
-	for (HashMap<ObjectID, Ref<SelectionBox3D>>::ConstIterator KV = selected_3d_nodes.begin(); KV != selected_3d_nodes.end(); ++KV) {
-		ObjectID id = KV->key;
-		Node3D *node_3d = ObjectDB::get_instance<Node3D>(id);
-		if (!node_3d) {
-			selected_3d_nodes.erase(id);
-			--KV;
-			continue;
-		}
-
-		if (!node_3d->is_inside_tree()) {
-			continue;
-		}
-
-		// Fallback.
-		AABB bounds(Vector3(-0.5, -0.5, -0.5), Vector3(1, 1, 1));
-
-		VisualInstance3D *visual_instance = Object::cast_to<VisualInstance3D>(node_3d);
-		if (visual_instance) {
-			bounds = visual_instance->get_aabb();
-		} else {
-#ifndef PHYSICS_3D_DISABLED
-			CollisionShape3D *collision_shape = Object::cast_to<CollisionShape3D>(node_3d);
-			if (collision_shape) {
-				Ref<Shape3D> shape = collision_shape->get_shape();
-				if (shape.is_valid()) {
-					bounds = shape->get_debug_mesh()->get_aabb();
-				}
-			}
-#endif // PHYSICS_3D_DISABLED
-		}
-
-		Transform3D xform_to_top_level_parent_space = node_3d->get_global_transform().affine_inverse() * node_3d->get_global_transform();
-		bounds = xform_to_top_level_parent_space.xform(bounds);
-		Transform3D t = node_3d->get_global_transform();
-
-		Ref<SelectionBox3D> sb = KV->value;
-		if (t == sb->transform && bounds == sb->bounds) {
-			continue; // Nothing changed.
-		}
-		sb->transform = t;
-		sb->bounds = bounds;
-
-		Transform3D t_offset = t;
-
-		// Apply AABB scaling before item's global transform.
-		{
-			const Vector3 offset(0.005, 0.005, 0.005);
-			Basis aabb_s;
-			aabb_s.scale(bounds.size + offset);
-			t.translate_local(bounds.position - offset / 2);
-			t.basis = t.basis * aabb_s;
-		}
-		{
-			const Vector3 offset(0.01, 0.01, 0.01);
-			Basis aabb_s;
-			aabb_s.scale(bounds.size + offset);
-			t_offset.translate_local(bounds.position - offset / 2);
-			t_offset.basis = t_offset.basis * aabb_s;
-		}
-
-		RS::get_singleton()->instance_set_visible(sb->instance, selection_visible);
-		RS::get_singleton()->instance_set_visible(sb->instance_ofs, selection_visible);
-		RS::get_singleton()->instance_set_visible(sb->instance_xray, selection_visible);
-		RS::get_singleton()->instance_set_visible(sb->instance_xray_ofs, selection_visible);
-
-		RS::get_singleton()->instance_set_transform(sb->instance, t);
-		RS::get_singleton()->instance_set_transform(sb->instance_ofs, t_offset);
-		RS::get_singleton()->instance_set_transform(sb->instance_xray, t);
-		RS::get_singleton()->instance_set_transform(sb->instance_xray_ofs, t_offset);
-	}
-#endif // _3D_DISABLED
 }
 
 void RuntimeNodeSelect::_clear_selection() {
@@ -2263,9 +1912,6 @@ void RuntimeNodeSelect::_clear_selection() {
 		RS::get_singleton()->canvas_item_clear(sbox_2d_ci);
 	}
 
-#ifndef _3D_DISABLED
-	selected_3d_nodes.clear();
-#endif // _3D_DISABLED
 
 	has_selection = false;
 }
@@ -2522,469 +2168,5 @@ void RuntimeNodeSelect::_update_view_2d() {
 	_queue_selection_update();
 }
 
-#ifndef _3D_DISABLED
-void RuntimeNodeSelect::_find_3d_items_at_pos(const Point2 &p_pos, Vector<SelectResult> &r_items) {
-	Window *root = SceneTree::get_singleton()->get_root();
-
-	Vector3 ray, pos, to;
-	Camera3D *camera = root->get_camera_3d();
-	if (!camera) {
-		return;
-	}
-
-	ray = camera->project_ray_normal(p_pos);
-	pos = camera->project_ray_origin(p_pos);
-	to = pos + ray * camera->get_far();
-
-#ifndef PHYSICS_3D_DISABLED
-	// Start with physical objects.
-	PhysicsDirectSpaceState3D *ss = root->get_world_3d()->get_direct_space_state();
-	PhysicsDirectSpaceState3D::RayResult result;
-	HashSet<RID> excluded;
-	PhysicsDirectSpaceState3D::RayParameters ray_params;
-	ray_params.from = pos;
-	ray_params.to = to;
-	ray_params.collide_with_areas = true;
-	while (true) {
-		ray_params.exclude = excluded;
-		if (ss->intersect_ray(ray_params, result)) {
-			SelectResult res;
-			res.item = Object::cast_to<Node>(result.collider);
-			res.order = -pos.distance_to(result.position);
-
-			// Fetch collision shapes.
-			CollisionObject3D *collision = Object::cast_to<CollisionObject3D>(result.collider);
-			if (collision) {
-				List<uint32_t> owners;
-				collision->get_shape_owners(&owners);
-				for (uint32_t &I : owners) {
-					SelectResult res_shape;
-					res_shape.item = Object::cast_to<Node>(collision->shape_owner_get_owner(I));
-					res_shape.order = res.order;
-					r_items.push_back(res_shape);
-				}
-			}
-
-			r_items.push_back(res);
-
-			excluded.insert(result.rid);
-		} else {
-			break;
-		}
-	}
-#endif // PHYSICS_3D_DISABLED
-
-	// Then go for the meshes.
-	Vector<ObjectID> items = RS::get_singleton()->instances_cull_ray(pos, to, root->get_world_3d()->get_scenario());
-	for (int i = 0; i < items.size(); i++) {
-		Object *obj = ObjectDB::get_instance(items[i]);
-
-		GeometryInstance3D *geo_instance = Object::cast_to<GeometryInstance3D>(obj);
-		if (geo_instance) {
-			Ref<TriangleMesh> mesh_collision = geo_instance->generate_triangle_mesh();
-
-			if (mesh_collision.is_valid()) {
-				Transform3D gt = geo_instance->get_global_transform();
-				Transform3D ai = gt.affine_inverse();
-				Vector3 point, normal;
-				if (mesh_collision->intersect_ray(ai.xform(pos), ai.basis.xform(ray).normalized(), point, normal)) {
-					SelectResult res;
-					res.item = Object::cast_to<Node>(obj);
-					res.order = -pos.distance_to(gt.xform(point));
-					r_items.push_back(res);
-
-					continue;
-				}
-			}
-		}
-
-		items.remove_at(i);
-		i--;
-	}
-}
-
-void RuntimeNodeSelect::_find_3d_items_at_rect(const Rect2 &p_rect, Vector<SelectResult> &r_items) {
-	Window *root = SceneTree::get_singleton()->get_root();
-	Camera3D *camera = root->get_camera_3d();
-	if (!camera) {
-		return;
-	}
-
-	Vector3 cam_pos = camera->get_global_position();
-	Vector3 dist_pos = camera->project_ray_origin(p_rect.position + p_rect.size / 2);
-
-	real_t znear = camera->get_near();
-	real_t zfar = camera->get_far();
-	real_t zofs = MAX(0.0, 5.0 - znear);
-
-	const Point2 pos_end = p_rect.position + p_rect.size;
-	Vector3 box[4] = {
-		Vector3(
-				MIN(p_rect.position.x, pos_end.x),
-				MIN(p_rect.position.y, pos_end.y),
-				zofs),
-		Vector3(
-				MAX(p_rect.position.x, pos_end.x),
-				MIN(p_rect.position.y, pos_end.y),
-				zofs),
-		Vector3(
-				MAX(p_rect.position.x, pos_end.x),
-				MAX(p_rect.position.y, pos_end.y),
-				zofs),
-		Vector3(
-				MIN(p_rect.position.x, pos_end.x),
-				MAX(p_rect.position.y, pos_end.y),
-				zofs)
-	};
-
-	Vector<Plane> frustum;
-	for (int i = 0; i < 4; i++) {
-		Vector3 a = _get_screen_to_space(box[i]);
-		Vector3 b = _get_screen_to_space(box[(i + 1) % 4]);
-		frustum.push_back(Plane(a, b, cam_pos));
-	}
-
-	// Get the camera normal.
-	Plane near_plane = Plane(camera->get_global_transform().basis.get_column(2), cam_pos);
-
-	near_plane.d -= znear;
-	frustum.push_back(near_plane);
-
-	Plane far_plane = -near_plane;
-	far_plane.d += zfar;
-	frustum.push_back(far_plane);
-
-#ifndef PHYSICS_3D_DISABLED
-	Vector<Vector3> points = Geometry3D::compute_convex_mesh_points(&frustum[0], frustum.size());
-	Ref<ConvexPolygonShape3D> shape;
-	shape.instantiate();
-	shape->set_points(points);
-
-	// Start with physical objects.
-	PhysicsDirectSpaceState3D *ss = root->get_world_3d()->get_direct_space_state();
-	PhysicsDirectSpaceState3D::ShapeResult result;
-	PhysicsDirectSpaceState3D::ShapeParameters shape_params;
-	shape_params.shape_rid = shape->get_rid();
-	shape_params.collide_with_areas = true;
-	if (ss->intersect_shape(shape_params, &result, 32)) {
-		SelectResult res;
-		res.item = Object::cast_to<Node>(result.collider);
-		res.order = -dist_pos.distance_to(Object::cast_to<Node3D>(res.item)->get_global_transform().origin);
-
-		// Fetch collision shapes.
-		CollisionObject3D *collision = Object::cast_to<CollisionObject3D>(result.collider);
-		if (collision) {
-			List<uint32_t> owners;
-			collision->get_shape_owners(&owners);
-			for (uint32_t &I : owners) {
-				SelectResult res_shape;
-				res_shape.item = Object::cast_to<Node>(collision->shape_owner_get_owner(I));
-				res_shape.order = res.order;
-				r_items.push_back(res_shape);
-			}
-		}
-
-		r_items.push_back(res);
-	}
-#endif // PHYSICS_3D_DISABLED
-
-	// Then go for the meshes.
-	Vector<ObjectID> items = RS::get_singleton()->instances_cull_convex(frustum, root->get_world_3d()->get_scenario());
-	for (int i = 0; i < items.size(); i++) {
-		Object *obj = ObjectDB::get_instance(items[i]);
-		GeometryInstance3D *geo_instance = Object::cast_to<GeometryInstance3D>(obj);
-		if (geo_instance) {
-			Ref<TriangleMesh> mesh_collision = geo_instance->generate_triangle_mesh();
-
-			if (mesh_collision.is_valid()) {
-				Transform3D gt = geo_instance->get_global_transform();
-				Vector3 mesh_scale = gt.get_basis().get_scale();
-				gt.orthonormalize();
-
-				Transform3D it = gt.affine_inverse();
-
-				Vector<Plane> transformed_frustum;
-				int plane_count = frustum.size();
-				transformed_frustum.resize(plane_count);
-
-				for (int j = 0; j < plane_count; j++) {
-					transformed_frustum.write[j] = it.xform(frustum[j]);
-				}
-				Vector<Vector3> convex_points = Geometry3D::compute_convex_mesh_points(transformed_frustum.ptr(), plane_count);
-				if (mesh_collision->inside_convex_shape(transformed_frustum.ptr(), transformed_frustum.size(), convex_points.ptr(), convex_points.size(), mesh_scale)) {
-					SelectResult res;
-					res.item = Object::cast_to<Node>(obj);
-					res.order = -dist_pos.distance_to(gt.origin);
-					r_items.push_back(res);
-
-					continue;
-				}
-			}
-		}
-
-		items.remove_at(i);
-		i--;
-	}
-}
-
-Vector3 RuntimeNodeSelect::_get_screen_to_space(const Vector3 &p_vector3) {
-	Window *root = SceneTree::get_singleton()->get_root();
-	Camera3D *camera = root->get_camera_3d();
-
-	Transform3D camera_transform = camera->get_camera_transform();
-	Size2 size = root->get_size();
-	real_t znear = camera->get_near();
-	Projection cm = Projection::create_perspective(camera->get_fov(), size.aspect(), znear + p_vector3.z, camera->get_far());
-	Vector2 screen_he = cm.get_viewport_half_extents();
-	return camera_transform.xform(Vector3(((p_vector3.x / size.width) * 2.0 - 1.0) * screen_he.x, ((1.0 - (p_vector3.y / size.height)) * 2.0 - 1.0) * screen_he.y, -(znear + p_vector3.z)));
-}
-
-bool RuntimeNodeSelect::_handle_3d_input(const Ref<InputEvent> &p_event) {
-	Ref<InputEventMouseButton> b = p_event;
-	if (b.is_valid()) {
-		const real_t zoom_factor = 1.08 * b->get_factor();
-		switch (b->get_button_index()) {
-			case MouseButton::WHEEL_UP: {
-				if (!camera_freelook) {
-					_cursor_scale_distance(1.0 / zoom_factor);
-				} else {
-					_scale_freelook_speed(zoom_factor);
-				}
-
-				return true;
-			} break;
-			case MouseButton::WHEEL_DOWN: {
-				if (!camera_freelook) {
-					_cursor_scale_distance(zoom_factor);
-				} else {
-					_scale_freelook_speed(1.0 / zoom_factor);
-				}
-
-				return true;
-			} break;
-			case MouseButton::RIGHT: {
-				_set_camera_freelook_enabled(b->is_pressed());
-				return true;
-			} break;
-			default: {
-			}
-		}
-	}
-
-	Ref<InputEventMouseMotion> m = p_event;
-	if (m.is_valid()) {
-		if (camera_freelook) {
-			_cursor_look(m);
-		} else if (m->get_button_mask().has_flag(MouseButtonMask::MIDDLE)) {
-			if (m->is_shift_pressed()) {
-				_cursor_pan(m);
-			} else {
-				_cursor_orbit(m);
-			}
-		}
-
-		return true;
-	}
-
-	Ref<InputEventKey> k = p_event;
-	if (k.is_valid()) {
-		if (k->get_physical_keycode() == Key::ESCAPE) {
-			_set_camera_freelook_enabled(false);
-			return true;
-		} else if (k->is_ctrl_pressed()) {
-			switch (k->get_physical_keycode()) {
-				case Key::EQUAL: {
-					ERR_FAIL_COND_V(!SceneTree::get_singleton()->get_root()->is_camera_3d_override_enabled(), false);
-					cursor.fov_scale = CLAMP(cursor.fov_scale - 0.05, CAMERA_MIN_FOV_SCALE, CAMERA_MAX_FOV_SCALE);
-					SceneTree::get_singleton()->get_root()->get_override_camera_3d()->set_perspective(camera_fov * cursor.fov_scale, camera_znear, camera_zfar);
-
-					return true;
-				} break;
-				case Key::MINUS: {
-					ERR_FAIL_COND_V(!SceneTree::get_singleton()->get_root()->is_camera_3d_override_enabled(), false);
-					cursor.fov_scale = CLAMP(cursor.fov_scale + 0.05, CAMERA_MIN_FOV_SCALE, CAMERA_MAX_FOV_SCALE);
-					SceneTree::get_singleton()->get_root()->get_override_camera_3d()->set_perspective(camera_fov * cursor.fov_scale, camera_znear, camera_zfar);
-
-					return true;
-				} break;
-				case Key::KEY_0: {
-					ERR_FAIL_COND_V(!SceneTree::get_singleton()->get_root()->is_camera_3d_override_enabled(), false);
-					cursor.fov_scale = 1;
-					SceneTree::get_singleton()->get_root()->get_override_camera_3d()->set_perspective(camera_fov, camera_znear, camera_zfar);
-
-					return true;
-				} break;
-				default: {
-				}
-			}
-		}
-	}
-
-	// TODO: Handle magnify and pan input gestures.
-
-	return false;
-}
-
-void RuntimeNodeSelect::_set_camera_freelook_enabled(bool p_enabled) {
-	camera_freelook = p_enabled;
-
-	if (p_enabled) {
-		// Make sure eye_pos is synced, because freelook referential is eye pos rather than orbit pos
-		Vector3 forward = _get_cursor_transform().basis.xform(Vector3(0, 0, -1));
-		cursor.eye_pos = cursor.pos - cursor.distance * forward;
-
-		previous_mouse_position = SceneTree::get_singleton()->get_root()->get_mouse_position();
-
-		// Hide mouse like in an FPS (warping doesn't work).
-		Input::get_singleton()->set_mouse_mode_override(Input::MOUSE_MODE_CAPTURED);
-
-	} else {
-		// Restore mouse.
-		Input::get_singleton()->set_mouse_mode_override(Input::MOUSE_MODE_VISIBLE);
-
-		// Restore the previous mouse position when leaving freelook mode.
-		// This is done because leaving `Input.MOUSE_MODE_CAPTURED` will center the cursor
-		// due to OS limitations.
-		Input::get_singleton()->warp_mouse(previous_mouse_position);
-	}
-}
-
-void RuntimeNodeSelect::_cursor_scale_distance(real_t p_scale) {
-	ERR_FAIL_COND(!SceneTree::get_singleton()->get_root()->is_camera_3d_override_enabled());
-	real_t min_distance = MAX(camera_znear * 4, VIEW_3D_MIN_ZOOM);
-	real_t max_distance = MIN(camera_zfar / 4, VIEW_3D_MAX_ZOOM);
-	cursor.distance = CLAMP(cursor.distance * p_scale, min_distance, max_distance);
-
-	SceneTree::get_singleton()->get_root()->get_override_camera_3d()->set_transform(_get_cursor_transform());
-}
-
-void RuntimeNodeSelect::_scale_freelook_speed(real_t p_scale) {
-	real_t min_speed = MAX(camera_znear * 4, VIEW_3D_MIN_ZOOM);
-	real_t max_speed = MIN(camera_zfar / 4, VIEW_3D_MAX_ZOOM);
-	if (unlikely(min_speed > max_speed)) {
-		freelook_base_speed = (min_speed + max_speed) / 2;
-	} else {
-		freelook_base_speed = CLAMP(freelook_base_speed * p_scale, min_speed, max_speed);
-	}
-}
-
-void RuntimeNodeSelect::_cursor_look(Ref<InputEventWithModifiers> p_event) {
-	Window *root = SceneTree::get_singleton()->get_root();
-	ERR_FAIL_COND(!root->is_camera_3d_override_enabled());
-
-	const Vector2 relative = _get_warped_mouse_motion(p_event, Rect2(Vector2(), root->get_size()));
-	const Transform3D prev_camera_transform = _get_cursor_transform();
-
-	if (invert_y_axis) {
-		cursor.x_rot -= relative.y * freelook_sensitivity;
-	} else {
-		cursor.x_rot += relative.y * freelook_sensitivity;
-	}
-	// Clamp the Y rotation to roughly -90..90 degrees so the user can't look upside-down and end up disoriented.
-	cursor.x_rot = CLAMP(cursor.x_rot, -1.57, 1.57);
-
-	cursor.y_rot += relative.x * freelook_sensitivity;
-
-	// Look is like the opposite of Orbit: the focus point rotates around the camera.
-	Transform3D camera_transform = _get_cursor_transform();
-	Vector3 pos = camera_transform.xform(Vector3(0, 0, 0));
-	Vector3 prev_pos = prev_camera_transform.xform(Vector3(0, 0, 0));
-	Vector3 diff = prev_pos - pos;
-	cursor.pos += diff;
-
-	root->get_override_camera_3d()->set_transform(_get_cursor_transform());
-}
-
-void RuntimeNodeSelect::_cursor_pan(Ref<InputEventWithModifiers> p_event) {
-	Window *root = SceneTree::get_singleton()->get_root();
-	ERR_FAIL_COND(!root->is_camera_3d_override_enabled());
-
-	// Reduce all sides of the area by 1, so warping works when windows are maximized/fullscreen.
-	const Vector2 relative = _get_warped_mouse_motion(p_event, Rect2(Vector2(1, 1), root->get_size() - Vector2(2, 2)));
-	const real_t pan_speed = translation_sensitivity / 150.0;
-
-	Transform3D camera_transform;
-	camera_transform.translate_local(cursor.pos);
-	camera_transform.basis.rotate(Vector3(1, 0, 0), -cursor.x_rot);
-	camera_transform.basis.rotate(Vector3(0, 1, 0), -cursor.y_rot);
-
-	Vector3 translation(1 * -relative.x * pan_speed, relative.y * pan_speed, 0);
-	translation *= cursor.distance / 4;
-	camera_transform.translate_local(translation);
-	cursor.pos = camera_transform.origin;
-
-	root->get_override_camera_3d()->set_transform(_get_cursor_transform());
-}
-
-void RuntimeNodeSelect::_cursor_orbit(Ref<InputEventWithModifiers> p_event) {
-	Window *root = SceneTree::get_singleton()->get_root();
-	ERR_FAIL_COND(!root->is_camera_3d_override_enabled());
-
-	// Reduce all sides of the area by 1, so warping works when windows are maximized/fullscreen.
-	const Vector2 relative = _get_warped_mouse_motion(p_event, Rect2(Vector2(1, 1), root->get_size() - Vector2(2, 2)));
-
-	if (invert_y_axis) {
-		cursor.x_rot -= relative.y * orbit_sensitivity;
-	} else {
-		cursor.x_rot += relative.y * orbit_sensitivity;
-	}
-	// Clamp the Y rotation to roughly -90..90 degrees so the user can't look upside-down and end up disoriented.
-	cursor.x_rot = CLAMP(cursor.x_rot, -1.57, 1.57);
-
-	if (invert_x_axis) {
-		cursor.y_rot -= relative.x * orbit_sensitivity;
-	} else {
-		cursor.y_rot += relative.x * orbit_sensitivity;
-	}
-
-	root->get_override_camera_3d()->set_transform(_get_cursor_transform());
-}
-
-Point2 RuntimeNodeSelect::_get_warped_mouse_motion(const Ref<InputEventMouseMotion> &p_event, Rect2 p_area) const {
-	ERR_FAIL_COND_V(p_event.is_null(), Point2());
-
-	if (warped_mouse_panning_3d) {
-		return Input::get_singleton()->warp_mouse_motion(p_event, p_area);
-	}
-
-	return p_event->get_relative();
-}
-
-Transform3D RuntimeNodeSelect::_get_cursor_transform() {
-	Transform3D camera_transform;
-	camera_transform.translate_local(cursor.pos);
-	camera_transform.basis.rotate(Vector3(1, 0, 0), -cursor.x_rot);
-	camera_transform.basis.rotate(Vector3(0, 1, 0), -cursor.y_rot);
-	camera_transform.translate_local(0, 0, cursor.distance);
-
-	return camera_transform;
-}
-
-void RuntimeNodeSelect::_reset_camera_3d() {
-	camera_first_override = true;
-
-	cursor = Cursor();
-	Window *root = SceneTree::get_singleton()->get_root();
-	Camera3D *game_camera = root->is_camera_3d_override_enabled() ? root->get_overridden_camera_3d() : root->get_camera_3d();
-	if (game_camera) {
-		Transform3D transform = game_camera->get_camera_transform();
-		transform.translate_local(0, 0, -cursor.distance);
-		cursor.pos = transform.origin;
-
-		cursor.x_rot = -game_camera->get_global_rotation().x;
-		cursor.y_rot = -game_camera->get_global_rotation().y;
-
-		cursor.fov_scale = CLAMP(game_camera->get_fov() / camera_fov, CAMERA_MIN_FOV_SCALE, CAMERA_MAX_FOV_SCALE);
-	} else {
-		cursor.fov_scale = 1.0;
-	}
-
-	if (root->is_camera_3d_override_enabled()) {
-		Camera3D *override_camera = root->get_override_camera_3d();
-		override_camera->set_transform(_get_cursor_transform());
-		override_camera->set_perspective(camera_fov * cursor.fov_scale, camera_znear, camera_zfar);
-	}
-}
-#endif // _3D_DISABLED
 
 #endif // DEBUG_ENABLED
