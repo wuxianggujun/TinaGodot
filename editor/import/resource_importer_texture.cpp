@@ -673,7 +673,7 @@ void ResourceImporterTexture::_invert_y_channel(Ref<Image> &r_image) {
 void ResourceImporterTexture::_clamp_hdr_exposure(Ref<Image> &r_image) {
 	// Clamp HDR exposure following Filament's tonemapping formula.
 	// This can be used to reduce fireflies in environment maps or reduce the influence
-	// of the sun from an HDRI panorama on environment lighting (when a DirectionalLight3D is used instead).
+	// of the sun from an HDRI panorama on environment lighting.
 	const int height = r_image->get_height();
 	const int width = r_image->get_width();
 

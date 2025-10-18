@@ -910,9 +910,8 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
 	_initial_set("editors/3d/grid_xy_plane", false);
 	_initial_set("editors/3d/grid_yz_plane", false);
 
-	// Use a lower default FOV for the 3D camera compared to the
-	// Camera3D node as the 3D viewport doesn't span the whole screen.
-	// This means it's technically viewed from a further distance, which warrants a narrower FOV.
+	// 为3D相机使用较低的默认FOV,因为3D视口不占满整个屏幕
+	// 这意味着从技术上从更远的距离观看,需要更窄的FOV
 	EDITOR_SETTING_BASIC(Variant::FLOAT, PROPERTY_HINT_RANGE, "editors/3d/default_fov", 70.0, "1,179,0.1,degrees")
 	EDITOR_SETTING_BASIC(Variant::FLOAT, PROPERTY_HINT_RANGE, "editors/3d/default_z_near", 0.05, "0.01,10,0.01,or_greater,suffix:m")
 	EDITOR_SETTING_BASIC(Variant::FLOAT, PROPERTY_HINT_RANGE, "editors/3d/default_z_far", 4000.0, "0.1,4000,0.1,or_greater,suffix:m")

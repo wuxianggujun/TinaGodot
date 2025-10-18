@@ -1118,7 +1118,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
 						_put_msg("scene:transform_camera_2d", msg);
 					}
 
-					// Node3D Editor
+					// 2D场景编辑器
 				}
 
 				if (is_breaked() && can_request_idle_draw) {

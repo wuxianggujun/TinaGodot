@@ -131,9 +131,9 @@
 #include "scene/resources/mesh_data_tool.h"
 #include "scene/resources/mesh_texture.h"
 #include "scene/resources/multimesh.h"
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 #include "scene/resources/navigation_mesh.h"
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 #include "scene/resources/dpi_texture.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/particle_process_material.h"
@@ -213,9 +213,9 @@
 #endif // NAVIGATION_2D_DISABLED
 
 
-#if !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#ifndef PHYSICS_2D_DISABLED
 #include "scene/resources/physics_material.h"
-#endif // !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#endif // PHYSICS_2D_DISABLED
 
 #ifndef PHYSICS_2D_DISABLED
 #include "scene/2d/physics/animatable_body_2d.h"

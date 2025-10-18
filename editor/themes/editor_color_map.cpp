@@ -191,7 +191,7 @@ void EditorColorMap::create() {
 	// Gizmo icons displayed in the 3D editor.
 	add_conversion_exception("Gizmo3DSamplePlayer");
 	add_conversion_exception("GizmoAudioListener3D");
-	add_conversion_exception("GizmoCamera3D");
+	// GizmoCamera3D已移除
 	add_conversion_exception("GizmoCPUParticles3D");
 	add_conversion_exception("GizmoDecal");
 	add_conversion_exception("GizmoDirectionalLight");

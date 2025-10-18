@@ -372,7 +372,7 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
 
 	if (GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units")) {
 		camera_attributes = RS::get_singleton()->camera_attributes_create();
-		RS::get_singleton()->camera_attributes_set_exposure(camera_attributes, 1.0, 0.000032552); // Matches default CameraAttributesPhysical to work well with default DirectionalLight3Ds.
+		RS::get_singleton()->camera_attributes_set_exposure(camera_attributes, 1.0, 0.000032552); // 匹配默认CameraAttributesPhysical设置
 		RS::get_singleton()->camera_set_camera_attributes(camera, camera_attributes);
 	}
 
@@ -788,7 +788,7 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
 
 	if (GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units")) {
 		camera_attributes = RS::get_singleton()->camera_attributes_create();
-		RS::get_singleton()->camera_attributes_set_exposure(camera_attributes, 1.0, 0.000032552); // Matches default CameraAttributesPhysical to work well with default DirectionalLight3Ds.
+		RS::get_singleton()->camera_attributes_set_exposure(camera_attributes, 1.0, 0.000032552); // 匹配默认CameraAttributesPhysical设置
 		RS::get_singleton()->camera_set_camera_attributes(camera, camera_attributes);
 	}
 

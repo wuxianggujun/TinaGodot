@@ -272,7 +272,7 @@ TexturePreview::TexturePreview(Ref<Texture2D> p_texture, bool p_show_metadata) {
 		p_texture->connect_changed(callable_mp(this, &TexturePreview::_update_texture_display_ratio));
 	}
 
-	// Null can be passed by `Camera3DPreview` (which immediately after sets a texture anyways).
+	// Null值可能在预览时传入(会立即设置纹理)
 	const Image::Format format = p_texture.is_valid() ? get_texture_2d_format(p_texture.ptr()) : Image::FORMAT_MAX;
 	const uint32_t components_mask = format != Image::FORMAT_MAX ? Image::get_format_component_mask(format) : 0xf;
 
