@@ -45,7 +45,6 @@
 #include "scene/resources/canvas_item_material.h"
 #include "scene/resources/particle_process_material.h"
 
-// 3D classes removed in 2D Lite version
 
 Ref<ShaderMaterial> MaterialEditor::make_shader_material(const Ref<Material> &p_from, bool p_copy_params) {
 	ERR_FAIL_COND_V(p_from.is_null(), Ref<ShaderMaterial>());

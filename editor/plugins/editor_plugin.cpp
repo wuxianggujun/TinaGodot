@@ -45,17 +45,14 @@
 #include "editor/file_system/editor_file_system.h"
 #include "editor/gui/editor_bottom_panel.h"
 #include "editor/gui/editor_title_bar.h"
-// 3D import removed in 2D Lite version
 // #include "editor/import/3d/resource_importer_scene.h"
 #include "editor/import/editor_import_plugin.h"
 #include "editor/inspector/editor_inspector.h"
 #include "editor/plugins/editor_resource_conversion_plugin.h"
-// 3D editor removed in 2D Lite version
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/script/script_editor_plugin.h"
 #include "editor/settings/project_settings_editor.h"
 #include "editor/translations/editor_translation_parser.h"
-// 3D camera removed
 #include "scene/gui/popup_menu.h"
 
 // 在 2D Lite 构建下，3D 类型不会被编译进来，但本文件仍包含
@@ -426,7 +423,6 @@ void EditorPlugin::remove_export_platform(const Ref<EditorExportPlatform> &p_pla
 }
 
 
-		// 2D Lite: 3D gizmo removed
 
 
 

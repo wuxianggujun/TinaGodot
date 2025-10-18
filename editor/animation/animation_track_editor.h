@@ -33,7 +33,6 @@
 #include "editor/editor_data.h"
 #include "editor/inspector/editor_properties.h"
 #include "editor/inspector/property_selector.h"
-// 3D node removed in 2D Lite version
 // 
 #include "scene/gui/control.h"
 #include "scene/gui/menu_button.h"

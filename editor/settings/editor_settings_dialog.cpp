@@ -40,7 +40,6 @@
 #include "editor/editor_undo_redo_manager.h"
 #include "editor/inspector/editor_property_name_processor.h"
 #include "editor/inspector/editor_sectioned_inspector.h"
-// 3D editor removed in 2D Lite version
 #include "editor/settings/editor_event_search_bar.h"
 #include "editor/settings/editor_settings.h"
 #include "editor/settings/event_listener_line_edit.h"

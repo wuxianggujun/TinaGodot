@@ -35,7 +35,6 @@
 #include "editor/editor_string_names.h"
 #include "editor/editor_undo_redo_manager.h"
 #include "editor/gui/editor_spin_slider.h"
-// 3D editor removed in 2D Lite version
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"

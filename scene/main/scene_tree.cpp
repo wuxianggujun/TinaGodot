@@ -562,8 +562,6 @@ void SceneTree::set_physics_interpolation_enabled(bool p_enabled) {
 	_physics_interpolation_enabled = p_enabled;
 	RenderingServer::get_singleton()->set_physics_interpolation_enabled(p_enabled);
 
-	// SceneTreeFTI removed (3D only)
-
 	// Perform an auto reset on the root node for convenience for the user.
 	if (root) {
 		root->reset_physics_interpolation();
@@ -575,7 +573,6 @@ void SceneTree::iteration_prepare() {
 		// Make sure any pending transforms from the last tick / frame
 		// are flushed before pumping the interpolation prev and currents.
 		flush_transform_notifications();
-		// SceneTreeFTI removed (3D only)
 		RenderingServer::get_singleton()->tick();
 	}
 }
@@ -623,8 +620,6 @@ void SceneTree::iteration_end() {
 }
 
 bool SceneTree::process(double p_time) {
-	// SceneTreeFTI removed (3D only)
-
 	if (MainLoop::process(p_time)) {
 		_quit = true;
 	}
@@ -672,7 +667,6 @@ bool SceneTree::process(double p_time) {
 	// Second pass of scene tree fixed timestep interpolation.
 	// ToDo: Possibly needs another flush_transform_notifications here
 	// depending on whether there are side effects to _call_idle_callbacks().
-	// SceneTreeFTI removed (3D only)
 
 	if (_physics_interpolation_enabled) {
 		RenderingServer::get_singleton()->pre_draw(true);

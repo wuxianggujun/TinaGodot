@@ -78,8 +78,8 @@ public:
 	};
 
 protected:
-	// Hardcoded defaults for 2D Lite (removed 3D navigation constants)
-	float cell_size = 0.25f; // NavigationDefaults3D::NAV_MESH_CELL_SIZE;
+	// Hardcoded defaults for 2D Lite
+	float cell_size = 0.25f;
 	float cell_height = 0.25f; // NavigationDefaults3D::NAV_MESH_CELL_HEIGHT;
 	float border_size = 0.0f;
 	float agent_height = 1.5f;

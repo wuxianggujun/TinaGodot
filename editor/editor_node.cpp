@@ -138,7 +138,6 @@
 #include "editor/run/editor_run.h"
 #include "editor/run/editor_run_bar.h"
 #include "editor/run/game_view_plugin.h"
-// 3D editor plugins removed in 2D Lite version
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/scene/editor_scene_tabs.h"
 #include "editor/scene/material_editor_plugin.h"
