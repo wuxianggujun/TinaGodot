@@ -869,86 +869,41 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("DynamicFont", "FontFile");
 	ClassDB::add_compatibility_class("DynamicFontData", "FontFile");
 	ClassDB::add_compatibility_class("OpenSimplexNoise", "FastNoiseLite");
-	ClassDB::add_compatibility_class("ProximityGroup", "Node3D");
 	ClassDB::add_compatibility_class("ToolButton", "Button");
 	ClassDB::add_compatibility_class("YSort", "Node2D");
-	// Portal and room occlusion was replaced by raster occlusion (OccluderInstance3D node).
-	ClassDB::add_compatibility_class("Portal", "Node3D");
-	ClassDB::add_compatibility_class("Room", "Node3D");
-	ClassDB::add_compatibility_class("RoomManager", "Node3D");
-	ClassDB::add_compatibility_class("RoomGroup", "Node3D");
-	ClassDB::add_compatibility_class("Occluder", "Node3D");
 	// The OccluderShapeSphere resource (used in the old Occluder node) is not present anymore.
 	ClassDB::add_compatibility_class("OccluderShapeSphere", "Resource");
 
 	// Renamed in 4.0.
 	// Keep alphabetical ordering to easily locate classes and avoid duplicates.
 	ClassDB::add_compatibility_class("AnimatedSprite", "AnimatedSprite2D");
-	ClassDB::add_compatibility_class("ARVRCamera", "XRCamera3D");
-	ClassDB::add_compatibility_class("ARVRController", "XRController3D");
-	ClassDB::add_compatibility_class("ARVRAnchor", "XRAnchor3D");
 	ClassDB::add_compatibility_class("ARVRInterface", "XRInterface");
-	ClassDB::add_compatibility_class("ARVROrigin", "XROrigin3D");
 	ClassDB::add_compatibility_class("ARVRPositionalTracker", "XRPositionalTracker");
 	ClassDB::add_compatibility_class("ARVRServer", "XRServer");
-	ClassDB::add_compatibility_class("AStar", "AStar3D");
-	ClassDB::add_compatibility_class("BoneAttachment", "BoneAttachment3D");
-	ClassDB::add_compatibility_class("Camera", "Camera3D");
-	ClassDB::add_compatibility_class("ClippedCamera", "ClippedCamera3D");
-	ClassDB::add_compatibility_class("CSGBox", "CSGBox3D");
-	ClassDB::add_compatibility_class("CSGCombiner", "CSGCombiner3D");
-	ClassDB::add_compatibility_class("CSGCylinder", "CSGCylinder3D");
-	ClassDB::add_compatibility_class("CSGMesh", "CSGMesh3D");
-	ClassDB::add_compatibility_class("CSGPolygon", "CSGPolygon3D");
-	ClassDB::add_compatibility_class("CSGPrimitive", "CSGPrimitive3D");
-	ClassDB::add_compatibility_class("CSGShape", "CSGShape3D");
-	ClassDB::add_compatibility_class("CSGSphere", "CSGSphere3D");
-	ClassDB::add_compatibility_class("CSGTorus", "CSGTorus3D");
 	ClassDB::add_compatibility_class("CubeMesh", "BoxMesh");
 	ClassDB::add_compatibility_class("GIProbe", "VoxelGI");
 	ClassDB::add_compatibility_class("GIProbeData", "VoxelGIData");
 	ClassDB::add_compatibility_class("GradientTexture", "GradientTexture1D");
-	ClassDB::add_compatibility_class("Light", "Light3D");
 	ClassDB::add_compatibility_class("Light2D", "PointLight2D");
 	ClassDB::add_compatibility_class("LineShape2D", "WorldBoundaryShape2D");
-	ClassDB::add_compatibility_class("Listener", "AudioListener3D");
-	ClassDB::add_compatibility_class("MeshInstance", "MeshInstance3D");
-	ClassDB::add_compatibility_class("MultiMeshInstance", "MultiMeshInstance3D");
 #ifndef NAVIGATION_2D_DISABLED
 	ClassDB::add_compatibility_class("NavigationPolygonInstance", "NavigationRegion2D");
 	ClassDB::add_compatibility_class("Navigation2DServer", "NavigationServer2D");
 #endif // NAVIGATION_2D_DISABLED
-	ClassDB::add_compatibility_class("OmniLight", "OmniLight3D");
 	ClassDB::add_compatibility_class("PanoramaSky", "Sky");
-	ClassDB::add_compatibility_class("Particles", "GPUParticles3D");
 	ClassDB::add_compatibility_class("Particles2D", "GPUParticles2D");
 	ClassDB::add_compatibility_class("ParticlesMaterial", "ParticleProcessMaterial");
-	ClassDB::add_compatibility_class("Path", "Path3D");
-	ClassDB::add_compatibility_class("PathFollow", "PathFollow3D");
 	ClassDB::add_compatibility_class("Position2D", "Marker2D");
-	ClassDB::add_compatibility_class("Position3D", "Marker3D");
 	ClassDB::add_compatibility_class("ProceduralSky", "Sky");
-	ClassDB::add_compatibility_class("RemoteTransform", "RemoteTransform3D");
 	ClassDB::add_compatibility_class("ShortCut", "Shortcut");
-	ClassDB::add_compatibility_class("Skeleton", "Skeleton3D");
-	ClassDB::add_compatibility_class("SkeletonIK", "SkeletonIK3D");
-	ClassDB::add_compatibility_class("Spatial", "Node3D");
-	ClassDB::add_compatibility_class("SpatialGizmo", "Node3DGizmo");
-	ClassDB::add_compatibility_class("SpatialMaterial", "StandardMaterial3D");
-	ClassDB::add_compatibility_class("SpotLight", "SpotLight3D");
 	ClassDB::add_compatibility_class("Sprite", "Sprite2D");
-	ClassDB::add_compatibility_class("StaticBody", "StaticBody3D");
 	ClassDB::add_compatibility_class("StreamTexture", "CompressedTexture2D");
 	ClassDB::add_compatibility_class("TextureProgress", "TextureProgressBar");
 	ClassDB::add_compatibility_class("VideoPlayer", "VideoStreamPlayer");
 	ClassDB::add_compatibility_class("ViewportContainer", "SubViewportContainer");
 	ClassDB::add_compatibility_class("Viewport", "SubViewport");
-	ClassDB::add_compatibility_class("VisibilityEnabler", "VisibleOnScreenEnabler3D");
-	ClassDB::add_compatibility_class("VisibilityNotifier", "VisibleOnScreenNotifier3D");
 	ClassDB::add_compatibility_class("VisibilityNotifier2D", "VisibleOnScreenNotifier2D");
-	ClassDB::add_compatibility_class("VisibilityNotifier3D", "VisibleOnScreenNotifier3D");
 	ClassDB::add_compatibility_class("VisualServer", "RenderingServer");
-	ClassDB::add_compatibility_class("World", "World3D");
 #ifndef PHYSICS_2D_DISABLED
 	ClassDB::add_compatibility_class("Physics2DDirectBodyState", "PhysicsDirectBodyState2D");
 	ClassDB::add_compatibility_class("Physics2DDirectSpaceState", "PhysicsDirectSpaceState2D");
@@ -995,7 +950,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("StreamCubemapArray", "CompressedCubemapArray");
 	ClassDB::add_compatibility_class("StreamTexture2D", "CompressedTexture2D");
 	ClassDB::add_compatibility_class("StreamTexture2DArray", "CompressedTexture2DArray");
-	ClassDB::add_compatibility_class("StreamTexture3D", "CompressedTexture3D");
 	ClassDB::add_compatibility_class("StreamTextureLayered", "CompressedTextureLayered");
 	ClassDB::add_compatibility_class("VisualShaderNodeFloatUniform", "VisualShaderNodeFloatParameter");
 #endif /* DISABLE_DEPRECATED */

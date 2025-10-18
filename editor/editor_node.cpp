@@ -1903,8 +1903,6 @@ void EditorNode::_find_node_types(Node *p_node, int &count_2d, int &count_3d) {
 
 	if (p_node->is_class("CanvasItem")) {
 		count_2d++;
-	} else if (p_node->is_class("Node3D")) {
-		count_3d++;
 	}
 
 	for (int i = 0; i < p_node->get_child_count(); i++) {

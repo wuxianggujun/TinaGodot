@@ -239,7 +239,6 @@ private:
 	void _flush_delete_queue();
 	// Optimization.
 	friend class CanvasItem;
-	friend class Node3D;
 	friend class Viewport;
 
 	SelfList<Node>::List xform_change_list;
