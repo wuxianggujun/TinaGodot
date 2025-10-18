@@ -1715,9 +1715,7 @@ void SceneTreeDock::_notification(int p_what) {
 			if (button_2d) {
 				button_2d->set_button_icon(get_editor_theme_icon(SNAME("Node2D")));
 			}
-			if (button_3d) {
-				button_3d->set_button_icon(get_editor_theme_icon(SNAME("Node3D")));
-			}
+			// button_3d已禁用,不设置图标
 			if (button_ui) {
 				button_ui->set_button_icon(get_editor_theme_icon(SNAME("Control")));
 			}

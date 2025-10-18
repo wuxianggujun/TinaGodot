@@ -42,7 +42,7 @@
 
 #ifndef PHYSICS_2D_DISABLED
 #include "servers/physics_2d/physics_server_2d.h"
-#endif // PHYSICS_3D_DISABLED
+#endif // PHYSICS_2D_DISABLED
 
 #ifndef NAVIGATION_2D_DISABLED
 #include "servers/navigation_2d/navigation_server_2d.h"

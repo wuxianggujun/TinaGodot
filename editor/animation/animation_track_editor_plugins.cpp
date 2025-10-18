@@ -378,7 +378,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 
 	Size2 size;
 
-	if (Object::cast_to<Sprite2D>(object) /* || Object::cast_to<Sprite3D>(object) */) {
+	if (Object::cast_to<Sprite2D>(object)) {
 		Ref<Texture2D> texture = object->call("get_texture");
 		if (texture.is_null()) {
 			return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -399,7 +399,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 		if (vframes > 1) {
 			size.y /= vframes;
 		}
-	} else if (Object::cast_to<AnimatedSprite2D>(object) /* || Object::cast_to<AnimatedSprite3D>(object) */) {
+	} else if (Object::cast_to<AnimatedSprite2D>(object)) {
 		Ref<SpriteFrames> sf = object->call("get_sprite_frames");
 		if (sf.is_null()) {
 			return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -455,7 +455,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 	Ref<Texture2D> texture;
 	Rect2 region;
 
-	if (Object::cast_to<Sprite2D>(object) /* || Object::cast_to<Sprite3D>(object) */) {
+	if (Object::cast_to<Sprite2D>(object)) {
 		texture = object->call("get_texture");
 		if (texture.is_null()) {
 			AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -490,7 +490,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 		region.position.x += region.size.x * coords.x;
 		region.position.y += region.size.y * coords.y;
 
-	} else if (Object::cast_to<AnimatedSprite2D>(object) /* || Object::cast_to<AnimatedSprite3D>(object) */) {
+	} else if (Object::cast_to<AnimatedSprite2D>(object)) {
 		Ref<SpriteFrames> sf = object->call("get_sprite_frames");
 		if (sf.is_null()) {
 			AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);

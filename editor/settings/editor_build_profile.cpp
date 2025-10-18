@@ -237,7 +237,7 @@ const HashMap<EditorBuildProfile::BuildOption, LocalVector<EditorBuildProfile::B
 
 const HashMap<EditorBuildProfile::BuildOption, LocalVector<String>> EditorBuildProfile::build_option_classes = {
 	{ BUILD_OPTION_3D, {
-			"Node3D",
+			// 3D已禁用
 	} },
 	{ BUILD_OPTION_NAVIGATION_2D, {
 			"NavigationAgent2D",
@@ -264,7 +264,6 @@ const HashMap<EditorBuildProfile::BuildOption, LocalVector<String>> EditorBuildP
 			"XRHandTracker",
 			"XRInterface",
 			"XRInterfaceExtension",
-			"XRNode3D",
 			"XROrigin3D",
 			"XRPose",
 			"XRPositionalTracker",
