@@ -51,13 +51,11 @@
 #include "editor/inspector/editor_inspector.h"
 #include "editor/plugins/editor_resource_conversion_plugin.h"
 // 3D editor removed in 2D Lite version
-// #include "editor/scene/3d/node_3d_editor_plugin.h"
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/script/script_editor_plugin.h"
 #include "editor/settings/project_settings_editor.h"
 #include "editor/translations/editor_translation_parser.h"
 // 3D camera removed
-// #include "scene/3d/camera_3d.h"
 #include "scene/gui/popup_menu.h"
 
 // 在 2D Lite 构建下，3D 类型不会被编译进来，但本文件仍包含

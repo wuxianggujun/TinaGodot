@@ -39,7 +39,6 @@
 #include "scene/2d/animated_sprite_2d.h"
 #include "scene/2d/sprite_2d.h"
 // 3D sprites removed in 2D Lite
-// #include "scene/3d/sprite_3d.h"
 #include "scene/animation/animation_player.h"
 #include "servers/audio/audio_stream.h"
 

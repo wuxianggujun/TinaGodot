@@ -114,14 +114,12 @@
 #include "scene/resources/audio_stream_wav.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/bone_map.h"
-#include "scene/resources/camera_attributes.h"
 #include "scene/resources/camera_texture.h"
 #include "scene/resources/canvas_item_material.h"
 #include "scene/resources/color_palette.h"
 #include "scene/resources/compositor.h"
 #include "scene/resources/compressed_texture.h"
 #include "scene/resources/curve_texture.h"
-#include "scene/resources/environment.h"
 #include "scene/resources/external_texture.h"
 #include "scene/resources/font.h"
 #include "scene/resources/gradient.h"
@@ -144,7 +142,6 @@
 #include "scene/resources/resource_format_text.h"
 #include "scene/resources/shader_include.h"
 #include "scene/resources/skeleton_profile.h"
-#include "scene/resources/sky.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/style_box_flat.h"
 #include "scene/resources/style_box_line.h"
@@ -724,12 +721,7 @@ void register_scene_types() {
 	GDREGISTER_CLASS(PhysicsMaterial);
 #endif // !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
 	GDREGISTER_CLASS(Compositor);
-	GDREGISTER_CLASS(Environment);
-	GDREGISTER_VIRTUAL_CLASS(CameraAttributes);
-	GDREGISTER_CLASS(CameraAttributesPhysical);
-	GDREGISTER_CLASS(CameraAttributesPractical);
 	GDREGISTER_CLASS(World2D);
-	GDREGISTER_CLASS(Sky);
 	GDREGISTER_CLASS(CompressedTexture2D);
 	GDREGISTER_CLASS(PortableCompressedTexture2D);
 	GDREGISTER_CLASS(ImageTexture);

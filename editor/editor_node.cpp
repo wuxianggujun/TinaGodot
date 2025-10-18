@@ -140,10 +140,6 @@
 #include "editor/run/game_view_plugin.h"
 // 3D editor plugins removed in 2D Lite version
 // #ifndef PHYSICS_3D_DISABLED
-// #include "editor/scene/3d/material_3d_conversion_plugins.h"
-// #include "editor/scene/3d/mesh_library_editor_plugin.h"
-// #include "editor/scene/3d/node_3d_editor_plugin.h"
-// #include "editor/scene/3d/root_motion_editor_plugin.h"
 // #endif
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/scene/editor_scene_tabs.h"
@@ -184,10 +180,6 @@
 #ifndef PHYSICS_2D_DISABLED
 #include "servers/physics_2d/physics_server_2d.h"
 #endif // PHYSICS_2D_DISABLED
-
-#ifndef PHYSICS_3D_DISABLED
-#include "servers/physics_3d/physics_server_3d.h"
-#endif // PHYSICS_3D_DISABLED
 
 #ifdef ANDROID_ENABLED
 #include "editor/gui/touch_actions_panel.h"
@@ -544,18 +536,6 @@ void EditorNode::_update_from_settings() {
 	NavigationServer2D::get_singleton()->set_debug_navigation_enable_edge_lines(GLOBAL_GET("debug/shapes/navigation/2d/enable_edge_lines"));
 	NavigationServer2D::get_singleton()->set_debug_navigation_enable_geometry_face_random_color(GLOBAL_GET("debug/shapes/navigation/2d/enable_geometry_face_random_color"));
 
-#ifndef PHYSICS_3D_DISABLED
-	NavigationServer3D::get_singleton()->set_debug_navigation_edge_connection_color(GLOBAL_GET("debug/shapes/navigation/3d/edge_connection_color"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_geometry_edge_color(GLOBAL_GET("debug/shapes/navigation/3d/geometry_edge_color"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_geometry_face_color(GLOBAL_GET("debug/shapes/navigation/3d/geometry_face_color"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_geometry_edge_disabled_color(GLOBAL_GET("debug/shapes/navigation/3d/geometry_edge_disabled_color"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_geometry_face_disabled_color(GLOBAL_GET("debug/shapes/navigation/3d/geometry_face_disabled_color"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_enable_edge_connections(GLOBAL_GET("debug/shapes/navigation/3d/enable_edge_connections"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_enable_edge_connections_xray(GLOBAL_GET("debug/shapes/navigation/3d/enable_edge_connections_xray"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_enable_edge_lines(GLOBAL_GET("debug/shapes/navigation/3d/enable_edge_lines"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_enable_edge_lines_xray(GLOBAL_GET("debug/shapes/navigation/3d/enable_edge_lines_xray"));
-	NavigationServer3D::get_singleton()->set_debug_navigation_enable_geometry_face_random_color(GLOBAL_GET("debug/shapes/navigation/3d/enable_geometry_face_random_color"));
-#endif // PHYSICS_3D_DISABLED
 #endif // DEBUG_ENABLED
 }
 
@@ -849,9 +829,6 @@ void EditorNode::_notification(int p_what) {
 			_update_theme(true);
 
 			OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(int(EDITOR_GET("interface/editor/low_processor_mode_sleep_usec")));
-#ifndef PHYSICS_3D_DISABLED
-			get_tree()->get_root()->set_as_audio_listener_3d(false);
-#endif
 			get_tree()->get_root()->set_as_audio_listener_2d(false);
 			get_tree()->get_root()->set_snap_2d_transforms_to_pixel(false);
 			get_tree()->get_root()->set_snap_2d_vertices_to_pixel(false);
@@ -7525,19 +7502,7 @@ EditorNode::EditorNode() {
 
 		AudioServer::get_singleton()->set_enable_tagging_used_audio_streams(true);
 
-#ifndef NAVIGATION_3D_DISABLED
-		// No navigation by default if in editor.
-		if (NavigationServer3D::get_singleton()->get_debug_enabled()) {
-			NavigationServer3D::get_singleton()->set_active(true);
-		} else {
-			NavigationServer3D::get_singleton()->set_active(false);
-		}
-#endif // NAVIGATION_3D_DISABLED
-
 		// No physics by default if in editor.
-#ifndef PHYSICS_3D_DISABLED
-		PhysicsServer3D::get_singleton()->set_active(false);
-#endif // PHYSICS_3D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 		PhysicsServer2D::get_singleton()->set_active(false);
 #endif // PHYSICS_2D_DISABLED
@@ -8862,20 +8827,6 @@ void EditorPluginList::forward_canvas_force_draw_over_viewport(Control *p_overla
 		plugins_list[i]->forward_canvas_force_draw_over_viewport(p_overlay);
 	}
 }
-
-#ifndef _3D_DISABLED
-void EditorPluginList::forward_3d_draw_over_viewport(Control *p_overlay) {
-	for (int i = 0; i < plugins_list.size(); i++) {
-		plugins_list[i]->forward_3d_draw_over_viewport(p_overlay);
-	}
-}
-
-void EditorPluginList::forward_3d_force_draw_over_viewport(Control *p_overlay) {
-	for (int i = 0; i < plugins_list.size(); i++) {
-		plugins_list[i]->forward_3d_force_draw_over_viewport(p_overlay);
-	}
-}
-#endif // _3D_DISABLED
 
 void EditorPluginList::add_plugin(EditorPlugin *p_plugin) {
 	ERR_FAIL_COND(plugins_list.has(p_plugin));

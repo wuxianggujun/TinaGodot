@@ -42,19 +42,6 @@
 
 /* HALTON SEQUENCE */
 
-#ifndef _3D_DISABLED
-static float get_halton_value(int p_index, int p_base) {
-	float f = 1;
-	float r = 0;
-	while (p_index > 0) {
-		f = f / static_cast<float>(p_base);
-		r = r + f * (p_index % p_base);
-		p_index = p_index / p_base;
-	}
-	return r * 2.0f - 1.0f;
-}
-#endif // _3D_DISABLED
-
 /* EVENT QUEUING */
 
 void RendererSceneCull::tick() {

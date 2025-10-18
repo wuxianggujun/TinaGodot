@@ -41,7 +41,6 @@
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 // 3D skeleton removed in 2D Lite version
-// #include "scene/3d/skeleton_3d.h"
 #include "scene/gui/check_box.h"
 #include "scene/gui/grid_container.h"
 #include "scene/gui/line_edit.h"

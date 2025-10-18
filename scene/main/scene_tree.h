@@ -34,7 +34,6 @@
 #include "core/os/thread_safe.h"
 #include "core/templates/paged_allocator.h"
 #include "core/templates/self_list.h"
-#include "scene/main/scene_tree_fti.h"
 
 #undef Window
 
@@ -145,8 +144,6 @@ private:
 	// therefore we have a second bool to enable e.g. configuration warnings
 	// to only take effect when the project is using physics interpolation.
 	static bool _physics_interpolation_enabled_in_project;
-
-	SceneTreeFTI scene_tree_fti;
 
 	StringName tree_changed_name = "tree_changed";
 	StringName node_added_name = "node_added";
@@ -450,8 +447,6 @@ public:
 	// Different name to disambiguate fast static versions from the user bound versions.
 	static bool is_fti_enabled() { return _physics_interpolation_enabled; }
 	static bool is_fti_enabled_in_project() { return _physics_interpolation_enabled_in_project; }
-
-	SceneTreeFTI &get_scene_tree_fti() { return scene_tree_fti; }
 
 	SceneTree();
 	~SceneTree();

@@ -48,7 +48,6 @@
 #include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 // 3D mesh instance removed in 2D Lite
-// #include "scene/3d/mesh_instance_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/animation/tween.h"
 #include "scene/gui/check_box.h"
