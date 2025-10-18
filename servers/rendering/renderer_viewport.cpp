@@ -288,36 +288,7 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 }
 
 void RendererViewport::_draw_3d(Viewport *p_viewport) {
-#ifndef _3D_DISABLED
-	RENDER_TIMESTAMP("> Render 3D Scene");
-
-	Ref<XRInterface> xr_interface;
-#ifndef XR_DISABLED
-	if (p_viewport->use_xr && XRServer::get_singleton() != nullptr) {
-		xr_interface = XRServer::get_singleton()->get_primary_interface();
-	}
-#endif // XR_DISABLED
-
-	if (p_viewport->use_occlusion_culling) {
-		if (p_viewport->occlusion_buffer_dirty) {
-			float aspect = p_viewport->size.aspect();
-			int max_size = occlusion_rays_per_thread * WorkerThreadPool::get_singleton()->get_thread_count();
-
-			int viewport_size = p_viewport->size.width * p_viewport->size.height;
-			max_size = CLAMP(max_size, viewport_size / (32 * 32), viewport_size / (2 * 2)); // At least one depth pixel for every 16x16 region. At most one depth pixel for every 2x2 region.
-
-			float height = Math::sqrt(max_size / aspect);
-			Size2i new_size = Size2i(height * aspect, height);
-			RendererSceneOcclusionCull::get_singleton()->buffer_set_size(p_viewport->self, new_size);
-			p_viewport->occlusion_buffer_dirty = false;
-		}
-	}
-
-	float screen_mesh_lod_threshold = p_viewport->mesh_lod_threshold / float(p_viewport->size.width);
-	RSG::scene->render_camera(p_viewport->render_buffers, p_viewport->camera, p_viewport->scenario, p_viewport->self, p_viewport->internal_size, p_viewport->jitter_phase_count, screen_mesh_lod_threshold, p_viewport->shadow_atlas, xr_interface, &p_viewport->render_info);
-
-	RENDER_TIMESTAMP("< Render 3D Scene");
-#endif // _3D_DISABLED
+	// 3D渲染功能已完全移除 (TinaGodot 2D Lite)
 }
 
 void RendererViewport::_draw_viewport(Viewport *p_viewport) {
