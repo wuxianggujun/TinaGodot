@@ -717,9 +717,9 @@ void register_scene_types() {
 	GDREGISTER_CLASS(MeshDataTool);
 
 
-#if !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#ifndef PHYSICS_2D_DISABLED
 	GDREGISTER_CLASS(PhysicsMaterial);
-#endif // !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
+#endif // PHYSICS_2D_DISABLED
 	GDREGISTER_CLASS(Compositor);
 	GDREGISTER_CLASS(World2D);
 	GDREGISTER_CLASS(CompressedTexture2D);
@@ -820,9 +820,9 @@ void register_scene_types() {
 	GDREGISTER_CLASS(ConcavePolygonShape2D);
 #endif // PHYSICS_2D_DISABLED
 
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 	GDREGISTER_CLASS(NavigationMesh);
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 
 #ifndef NAVIGATION_2D_DISABLED
 	GDREGISTER_CLASS(NavigationMeshSourceGeometryData2D);
@@ -850,9 +850,9 @@ void register_scene_types() {
 #endif // NAVIGATION_2D_DISABLED
 
 
-#if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#ifndef NAVIGATION_2D_DISABLED
 	OS::get_singleton()->yield(); // may take time to init
-#endif // !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
+#endif // NAVIGATION_2D_DISABLED
 
 	GDREGISTER_ABSTRACT_CLASS(SceneState);
 	GDREGISTER_CLASS(PackedScene);
