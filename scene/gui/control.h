@@ -41,8 +41,27 @@ class Panel;
 class ThemeOwner;
 class ThemeContext;
 
+// 中文导读：
+// Control 是 Godot 引擎中所有 UI 控件的基类（2D UI），继承自 CanvasItem。
+// 它承担以下核心职责：
+// 1) 布局系统：通过锚点（anchor）、偏移（offset）、生长方向（grow direction）、尺寸标志（size flags）
+//    以及容器（Container）机制来确定控件在父控件中的位置与大小。
+// 2) 输入分发：处理鼠标、键盘、滚轮等 GUI 事件（_gui_input），支持鼠标过滤（MouseFilter）与拖放。
+// 3) 焦点与导航：维护控件的焦点状态（FocusMode）、邻接导航（focus_neighbor），用于键盘/手柄导航。
+// 4) 主题与样式：通过 Theme 系统获取 icon、stylebox、字体、颜色与常量，支持本地覆盖与缓存。
+// 5) 本地化与方向：支持 LTR/RTL 书写方向、数字本地化与工具提示文本翻译。
+// 6) 可访问性：暴露无障碍相关信息（accessibility_*）。
+// 7) 变换与绘制：继承自 CanvasItem，拥有旋转、缩放、Pivot 等 2D 变换能力。
+//
+// 建议阅读顺序：
+// - Data 结构体：收纳 Control 的状态（父子关系、布局缓存、主题缓存、输入/焦点等）。
+// - 布局相关 API：set_anchor/set_offset/set_position/set_size 与 LayoutPreset/Mode 枚举。
+// - 输入与焦点：_call_gui_input、鼠标过滤与焦点传播相关逻辑。
+// - 主题相关：_update_theme_item_cache、get_theme_*、override 机制与缓存。
+// - 国际化：LayoutDirection/TextDirection、本地化数字系统。
+//
 class Control : public CanvasItem {
-	GDCLASS(Control, CanvasItem);
+    GDCLASS(Control, CanvasItem);
 
 #ifdef TOOLS_ENABLED
 	bool saving = false;
@@ -75,15 +94,15 @@ public:
 		FOCUS_BEHAVIOR_ENABLED,
 	};
 
-	enum SizeFlags {
-		SIZE_SHRINK_BEGIN = 0,
-		SIZE_FILL = 1,
-		SIZE_EXPAND = 2,
-		SIZE_SHRINK_CENTER = 4,
-		SIZE_SHRINK_END = 8,
+    enum SizeFlags {
+        SIZE_SHRINK_BEGIN = 0,
+        SIZE_FILL = 1,
+        SIZE_EXPAND = 2,
+        SIZE_SHRINK_CENTER = 4,
+        SIZE_SHRINK_END = 8,
 
-		SIZE_EXPAND_FILL = SIZE_EXPAND | SIZE_FILL,
-	};
+        SIZE_EXPAND_FILL = SIZE_EXPAND | SIZE_FILL,
+    };
 
 	enum MouseFilter {
 		MOUSE_FILTER_STOP,
@@ -182,24 +201,28 @@ private:
 	};
 
 	// This Data struct is to avoid namespace pollution in derived classes.
-	struct Data {
-		bool initialized = false;
+    struct Data {
+        bool initialized = false;
 
-		// Global relations.
+        // Global relations.
 
-		List<Control *>::Element *RI = nullptr;
+        List<Control *>::Element *RI = nullptr;
 
-		Control *parent_control = nullptr;
-		Window *parent_window = nullptr;
-		CanvasItem *parent_canvas_item = nullptr;
-		Callable forward_drag;
-		Callable forward_can_drop;
-		Callable forward_drop;
+        Control *parent_control = nullptr;
+        Window *parent_window = nullptr;
+        CanvasItem *parent_canvas_item = nullptr;
+        Callable forward_drag;
+        Callable forward_can_drop;
+        Callable forward_drop;
 
-		// Positioning and sizing.
+        // Positioning and sizing.
+        // 中文：布局状态缓存，包含锚点、偏移、最小尺寸、旋转/缩放/枢轴等。
+        // - anchor/offset：用于相对父控件 Rect 的定位。
+        // - minimum_size_cache：控件自报的最小尺寸缓存，用于容器布局与自动拉伸。
+        // - h/v_grow、size_flags：用于 Container 分配空间时的策略信号。
 
-		LayoutMode stored_layout_mode = LayoutMode::LAYOUT_MODE_POSITION;
-		bool stored_use_custom_anchors = false;
+        LayoutMode stored_layout_mode = LayoutMode::LAYOUT_MODE_POSITION;
+        bool stored_use_custom_anchors = false;
 
 		real_t offset[4] = { 0.0, 0.0, 0.0, 0.0 };
 		real_t anchor[4] = { ANCHOR_BEGIN, ANCHOR_BEGIN, ANCHOR_BEGIN, ANCHOR_BEGIN };
@@ -225,49 +248,56 @@ private:
 
 		bool size_warning = true;
 
-		// Container sizing.
+        // Container sizing.
+        // 中文：Container 使用的尺寸标志与自定义最小尺寸。
 
-		BitField<SizeFlags> h_size_flags = SIZE_FILL;
-		BitField<SizeFlags> v_size_flags = SIZE_FILL;
-		real_t expand = 1.0;
-		Point2 custom_minimum_size;
+        BitField<SizeFlags> h_size_flags = SIZE_FILL;
+        BitField<SizeFlags> v_size_flags = SIZE_FILL;
+        real_t expand = 1.0;
+        Point2 custom_minimum_size;
 
-		// Input events and rendering.
+        // Input events and rendering.
+        // 中文：输入/渲染相关。mouse_filter 决定该控件如何拦截或透传鼠标事件；
+        // force_pass_scroll_events 可强制将滚轮事件继续传递给父级（常见于 ScrollContainer 场景）。
 
-		MouseFilter mouse_filter = MOUSE_FILTER_STOP;
-		MouseBehaviorRecursive mouse_behavior_recursive = MOUSE_BEHAVIOR_INHERITED;
-		bool parent_mouse_behavior_recursive_enabled = true;
-		bool force_pass_scroll_events = true;
+        MouseFilter mouse_filter = MOUSE_FILTER_STOP;
+        MouseBehaviorRecursive mouse_behavior_recursive = MOUSE_BEHAVIOR_INHERITED;
+        bool parent_mouse_behavior_recursive_enabled = true;
+        bool force_pass_scroll_events = true;
 
-		bool clip_contents = false;
-		bool disable_visibility_clip = false;
+        bool clip_contents = false;
+        bool disable_visibility_clip = false;
 
-		CursorShape default_cursor = CURSOR_ARROW;
+        CursorShape default_cursor = CURSOR_ARROW;
 
-		// Focus.
+        // Focus.
+        // 中文：焦点导航相关数据，包括上下左右邻居、前后切换顺序等。
 
-		NodePath focus_neighbor[4];
-		NodePath focus_next;
-		NodePath focus_prev;
+        NodePath focus_neighbor[4];
+        NodePath focus_next;
+        NodePath focus_prev;
 
-		ObjectID shortcut_context;
+        ObjectID shortcut_context;
 
-		// Accessibility.
+        // Accessibility.
+        // 中文：无障碍（辅助技术）上下文信息与关联关系。
 
-		String accessibility_name;
-		String accessibility_description;
-		DisplayServer::AccessibilityLiveMode accessibility_live = DisplayServer::AccessibilityLiveMode::LIVE_OFF;
+        String accessibility_name;
+        String accessibility_description;
+        DisplayServer::AccessibilityLiveMode accessibility_live = DisplayServer::AccessibilityLiveMode::LIVE_OFF;
 
 		TypedArray<NodePath> accessibility_controls_nodes;
 		TypedArray<NodePath> accessibility_described_by_nodes;
 		TypedArray<NodePath> accessibility_labeled_by_nodes;
 		TypedArray<NodePath> accessibility_flow_to_nodes;
 
-		// Theming.
+        // Theming.
+        // 中文：主题引用、变体类型与覆盖缓存。控件优先查询自身覆盖，
+        // 然后向上查询 ThemeOwner/父控件/默认主题，结果会被缓存以减少重复查找。
 
-		ThemeOwner *theme_owner = nullptr;
-		Ref<Theme> theme;
-		StringName theme_type_variation;
+        ThemeOwner *theme_owner = nullptr;
+        Ref<Theme> theme;
+        StringName theme_type_variation;
 
 		bool bulk_theme_override = false;
 		Theme::ThemeIconMap theme_icon_override;
@@ -284,20 +314,22 @@ private:
 		mutable HashMap<StringName, Theme::ThemeColorMap> theme_color_cache;
 		mutable HashMap<StringName, Theme::ThemeConstantMap> theme_constant_cache;
 
-		// Internationalization.
+        // Internationalization.
+        // 中文：布局方向（Rtl/Ltr）与数字本地化。
 
-		LayoutDirection layout_dir = LAYOUT_DIRECTION_INHERITED;
-		mutable bool is_rtl_dirty = true;
-		mutable bool is_rtl = false;
+        LayoutDirection layout_dir = LAYOUT_DIRECTION_INHERITED;
+        mutable bool is_rtl_dirty = true;
+        mutable bool is_rtl = false;
 
 		bool localize_numeral_system = true;
 
-		// Extra properties.
+        // Extra properties.
+        // 中文：工具提示与翻译模式等附加属性。
 
-		String tooltip;
-		AutoTranslateMode tooltip_auto_translate_mode = AUTO_TRANSLATE_MODE_INHERIT;
+        String tooltip;
+        AutoTranslateMode tooltip_auto_translate_mode = AUTO_TRANSLATE_MODE_INHERIT;
 
-	} data;
+    } data;
 
 	// Dynamic properties.
 
@@ -308,10 +340,11 @@ private:
 
 	friend class Viewport;
 
-	// Positioning and sizing.
+    // Positioning and sizing.
+    // 中文：以下内部方法用于维护布局模式与变换，同步锚点/偏移与最终变换矩阵。
 
-	void _update_canvas_item_transform();
-	Transform2D _get_internal_transform() const;
+    void _update_canvas_item_transform();
+    Transform2D _get_internal_transform() const;
 
 	void _set_anchor(Side p_side, real_t p_anchor);
 	void _set_position(const Point2 &p_point);
@@ -337,30 +370,34 @@ private:
 
 	void _clear_size_warning();
 
-	// Input events.
+    // Input events.
+    // 中文：分派 GUI 输入事件（如鼠标/键盘），外部入口为 _gui_input 虚函数。
 
-	void _call_gui_input(const Ref<InputEvent> &p_event);
+    void _call_gui_input(const Ref<InputEvent> &p_event);
 
-	// Mouse Filter.
+    // Mouse Filter.
+    // 中文：根据 mouse_filter 与递归行为，决定是否消费事件或向父控件继续传递。
 
-	bool _is_mouse_filter_enabled() const;
-	void _update_mouse_behavior_recursive();
-	void _propagate_mouse_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited);
+    bool _is_mouse_filter_enabled() const;
+    void _update_mouse_behavior_recursive();
+    void _propagate_mouse_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited);
 
-	// Focus.
+    // Focus.
+    // 中文：焦点可达性与邻接搜索（方向键/手柄导航）。
 
-	bool _is_focusable() const;
-	void _window_find_focus_neighbor(const Vector2 &p_dir, Node *p_at, const Rect2 &p_rect, const Rect2 &p_clamp, real_t p_min, real_t &r_closest_dist_squared, Control **r_closest);
-	Control *_get_focus_neighbor(Side p_side, int p_count = 0);
-	bool _is_focus_mode_enabled() const;
-	void _update_focus_behavior_recursive();
-	void _propagate_focus_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited);
+    bool _is_focusable() const;
+    void _window_find_focus_neighbor(const Vector2 &p_dir, Node *p_at, const Rect2 &p_rect, const Rect2 &p_clamp, real_t p_min, real_t &r_closest_dist_squared, Control **r_closest);
+    Control *_get_focus_neighbor(Side p_side, int p_count = 0);
+    bool _is_focus_mode_enabled() const;
+    void _update_focus_behavior_recursive();
+    void _propagate_focus_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited);
 
-	// Theming.
+    // Theming.
+    // 中文：主题变化通知、覆盖变更与缓存失效。
 
-	void _theme_changed();
-	void _notify_theme_override_changed();
-	void _invalidate_theme_cache();
+    void _theme_changed();
+    void _notify_theme_override_changed();
+    void _invalidate_theme_cache();
 
 	// Extra properties.
 

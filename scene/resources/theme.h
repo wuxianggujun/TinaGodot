@@ -36,8 +36,8 @@
 #include "scene/resources/texture.h"
 
 class Theme : public Resource {
-	GDCLASS(Theme, Resource);
-	RES_BASE_EXTENSION("theme");
+    GDCLASS(Theme, Resource);
+    RES_BASE_EXTENSION("theme");
 
 #ifdef TOOLS_ENABLED
 	friend class ThemeItemImportTree;
@@ -46,12 +46,22 @@ class Theme : public Resource {
 #endif
 
 public:
-	using ThemeIconMap = HashMap<StringName, Ref<Texture2D>>;
-	using ThemeStyleMap = HashMap<StringName, Ref<StyleBox>>;
-	using ThemeFontMap = HashMap<StringName, Ref<Font>>;
-	using ThemeFontSizeMap = HashMap<StringName, int>;
-	using ThemeColorMap = HashMap<StringName, Color>;
-	using ThemeConstantMap = HashMap<StringName, int>;
+    using ThemeIconMap = HashMap<StringName, Ref<Texture2D>>;
+    using ThemeStyleMap = HashMap<StringName, Ref<StyleBox>>;
+    using ThemeFontMap = HashMap<StringName, Ref<Font>>;
+    using ThemeFontSizeMap = HashMap<StringName, int>;
+    using ThemeColorMap = HashMap<StringName, Color>;
+    using ThemeConstantMap = HashMap<StringName, int>;
+
+    // 中文导读：
+    // Theme 资源用于向 Control 提供 UI 外观数据：
+    // - 图标 Icon（Texture2D）
+    // - 风格 StyleBox（边框/背景/圆角/拉伸）
+    // - 字体 Font 与字体大小 FontSize
+    // - 颜色 Color 与常量 Constant（如内边距/间距）
+    // 主题按类型（theme_type）组织，例如 "Button"、"Label"，并支持“类型变体”（type variation），
+    // 可通过 set_type_variation 指定某类型继承自基础类型的查找链。
+    // Control 侧查询顺序通常为：控件覆盖 -> ThemeOwner/父级 -> 项目默认主题 -> 引擎默认主题。
 
 	enum DataType {
 		DATA_TYPE_COLOR,
@@ -88,23 +98,25 @@ private:
 	Vector<String> _get_type_list() const;
 
 protected:
-	bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+    bool _set(const StringName &p_name, const Variant &p_value);
+    bool _get(const StringName &p_name, Variant &r_ret) const;
+    void _get_property_list(List<PropertyInfo> *p_list) const;
 
-	// Default values configurable for each individual theme.
-	float default_base_scale = 0.0;
-	Ref<Font> default_font;
-	int default_font_size = -1;
+    // Default values configurable for each individual theme.
+    float default_base_scale = 0.0;
+    Ref<Font> default_font;
+    int default_font_size = -1;
+    // 中文：默认缩放、默认字体及字体大小。若具体条目未命中，将回退到默认值。
 
-	HashMap<StringName, ThemeIconMap> icon_map;
-	HashMap<StringName, ThemeStyleMap> style_map;
-	HashMap<StringName, ThemeFontMap> font_map;
-	HashMap<StringName, ThemeFontSizeMap> font_size_map;
-	HashMap<StringName, ThemeColorMap> color_map;
-	HashMap<StringName, ThemeConstantMap> constant_map;
-	HashMap<StringName, StringName> variation_map;
-	HashMap<StringName, List<StringName>> variation_base_map;
+    HashMap<StringName, ThemeIconMap> icon_map;
+    HashMap<StringName, ThemeStyleMap> style_map;
+    HashMap<StringName, ThemeFontMap> font_map;
+    HashMap<StringName, ThemeFontSizeMap> font_size_map;
+    HashMap<StringName, ThemeColorMap> color_map;
+    HashMap<StringName, ThemeConstantMap> constant_map;
+    HashMap<StringName, StringName> variation_map;
+    HashMap<StringName, List<StringName>> variation_base_map;
+    // 中文：各数据类型按主题类型组织的查找表；variation_map/variation_base_map 维护类型变体继承关系。
 
 	static void _bind_methods();
 

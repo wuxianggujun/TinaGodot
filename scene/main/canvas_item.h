@@ -40,8 +40,25 @@ class StyleBox;
 class Window;
 class World2D;
 
+// 中文导读：
+// CanvasItem 是 2D 渲染树中可绘制节点的基类，Control、Node2D 等都直接或间接继承它。
+// 核心职责：
+// - 2D 变换：本地/全局/屏幕变换（Transform2D），支持 z_index 与 y_sort。
+// - 可见性：visible、visibility_layer 与剪裁子节点（ClipChildrenMode）。
+// - 绘制 API：提供 draw_* 系列函数，最终通过 RenderingServer 提交绘制命令。
+// - 材质与 Instance 参数：支持 per-instance 着色器参数与父材质继承。
+// - 事件坐标：提供全局/本地鼠标位置与坐标系变换辅助方法。
+// - 画布层：位于某个 CanvasLayer/Viewport 之下，控制渲染顺序。
+//
+// 建议阅读顺序：
+// 1) 可见性/顺序：set_visible / set_z_index / set_z_as_relative。
+// 2) 绘制 API：draw_line/draw_rect/draw_texture 等，了解如何发起 2D 绘制。
+// 3) 变换 API：get_transform/get_global_transform/get_screen_transform。
+// 4) 坐标变换与输入辅助：make_input_local/make_canvas_position_local。
+// 5) 剪裁与材质：clip_children_mode、set_material/use_parent_material。
+//
 class CanvasItem : public Node {
-	GDCLASS(CanvasItem, Node);
+    GDCLASS(CanvasItem, Node);
 
 	friend class CanvasLayer;
 
@@ -112,9 +129,9 @@ private:
 	bool use_parent_material = false;
 	bool notify_local_transform = false;
 	bool notify_transform = false;
-	bool hide_clip_children = false;
+    bool hide_clip_children = false;
 
-	ClipChildrenMode clip_children_mode = CLIP_CHILDREN_DISABLED;
+    ClipChildrenMode clip_children_mode = CLIP_CHILDREN_DISABLED;
 
 	mutable RS::CanvasItemTextureFilter texture_filter_cache = RS::CANVAS_ITEM_TEXTURE_FILTER_LINEAR;
 	mutable RS::CanvasItemTextureRepeat texture_repeat_cache = RS::CANVAS_ITEM_TEXTURE_REPEAT_DISABLED;
@@ -175,12 +192,12 @@ protected:
 		}
 	}
 
-	void item_rect_changed(bool p_size_changed = true);
+    void item_rect_changed(bool p_size_changed = true);
 
-	void set_canvas_item_use_identity_transform(bool p_enable);
+    void set_canvas_item_use_identity_transform(bool p_enable);
 
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 #ifndef DISABLE_DEPRECATED
 	void _draw_string_bind_compat_104872(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, HorizontalAlignment p_alignment = HORIZONTAL_ALIGNMENT_LEFT, float p_width = -1, int p_font_size = Font::DEFAULT_FONT_SIZE, const Color &p_modulate = Color(1.0, 1.0, 1.0), BitField<TextServer::JustificationFlag> p_jst_flags = TextServer::JUSTIFICATION_KASHIDA | TextServer::JUSTIFICATION_WORD_BOUND, TextServer::Direction p_direction = TextServer::DIRECTION_AUTO, TextServer::Orientation p_orientation = TextServer::ORIENTATION_HORIZONTAL) const;
@@ -197,11 +214,11 @@ protected:
 	static void _bind_compatibility_methods();
 #endif // DISABLE_DEPRECATED
 
-	void _validate_property(PropertyInfo &p_property) const;
+    void _validate_property(PropertyInfo &p_property) const;
 
-	_FORCE_INLINE_ void set_hide_clip_children(bool p_value) { hide_clip_children = p_value; }
+    _FORCE_INLINE_ void set_hide_clip_children(bool p_value) { hide_clip_children = p_value; }
 
-	GDVIRTUAL0(_draw)
+    GDVIRTUAL0(_draw)
 
 public:
 	enum {
@@ -259,19 +276,20 @@ public:
 
 	void update_draw_order();
 
-	/* VISIBILITY */
+    /* VISIBILITY */
+    // 中文：可见性控制与重绘请求。queue_redraw 会在下一帧触发 NOTIFICATION_DRAW，调用 _draw。
 
-	void set_visible(bool p_visible);
-	bool is_visible() const;
-	bool is_visible_in_tree() const;
-	void show();
-	void hide();
+    void set_visible(bool p_visible);
+    bool is_visible() const;
+    bool is_visible_in_tree() const;
+    void show();
+    void hide();
 
-	void queue_redraw();
-	void move_to_front();
+    void queue_redraw();
+    void move_to_front();
 
-	void set_clip_children_mode(ClipChildrenMode p_clip_mode);
-	ClipChildrenMode get_clip_children_mode() const;
+    void set_clip_children_mode(ClipChildrenMode p_clip_mode);
+    ClipChildrenMode get_clip_children_mode() const;
 
 	virtual void set_light_mask(int p_light_mask);
 	int get_light_mask() const;
@@ -289,11 +307,12 @@ public:
 	void set_visibility_layer_bit(uint32_t p_visibility_layer, bool p_enable);
 	bool get_visibility_layer_bit(uint32_t p_visibility_layer) const;
 
-	/* ORDERING */
+    /* ORDERING */
+    // 中文：渲染顺序（z_index）与相对父节点的合成规则（z_relative）。
 
-	virtual void set_z_index(int p_z);
-	int get_z_index() const;
-	int get_effective_z_index() const;
+    virtual void set_z_index(int p_z);
+    int get_z_index() const;
+    int get_effective_z_index() const;
 
 	void set_z_as_relative(bool p_enabled);
 	bool is_z_relative() const;
@@ -301,12 +320,14 @@ public:
 	virtual void set_y_sort_enabled(bool p_enabled);
 	virtual bool is_y_sort_enabled() const;
 
-	/* DRAWING API */
+    /* DRAWING API */
+    // 中文：2D 绘制接口，提交到 RenderingServer。大多数 Control 的主题绘制（StyleBox/Font/Icon）
+    // 最终也通过这些接口完成。使用这些 API 需要在 _draw 或收到 NOTIFICATION_DRAW 的回调中进行。
 
-	void draw_dashed_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, real_t p_width = -1.0, real_t p_dash = 2.0, bool p_aligned = true, bool p_antialiased = false);
-	void draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
-	void draw_polyline(const Vector<Point2> &p_points, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
-	void draw_polyline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, real_t p_width = -1.0, bool p_antialiased = false);
+    void draw_dashed_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, real_t p_width = -1.0, real_t p_dash = 2.0, bool p_aligned = true, bool p_antialiased = false);
+    void draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
+    void draw_polyline(const Vector<Point2> &p_points, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
+    void draw_polyline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, real_t p_width = -1.0, bool p_antialiased = false);
 	void draw_ellipse_arc(const Vector2 &p_center, real_t p_major, real_t p_minor, real_t p_start_angle, real_t p_end_angle, int p_point_count, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
 	void draw_arc(const Vector2 &p_center, real_t p_radius, real_t p_start_angle, real_t p_end_angle, int p_point_count, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
 	void draw_multiline(const Vector<Point2> &p_points, const Color &p_color, real_t p_width = -1.0, bool p_antialiased = false);
@@ -353,12 +374,13 @@ public:
 
 	CanvasItem *get_parent_item() const;
 
-	virtual Transform2D get_transform() const = 0;
+    virtual Transform2D get_transform() const = 0;
 
-	virtual Transform2D get_global_transform() const;
-	virtual Transform2D get_global_transform_const() const;
-	virtual Transform2D get_global_transform_with_canvas() const;
-	virtual Transform2D get_screen_transform() const;
+    virtual Transform2D get_global_transform() const;
+    virtual Transform2D get_global_transform_const() const;
+    virtual Transform2D get_global_transform_with_canvas() const;
+    virtual Transform2D get_screen_transform() const;
+    // 中文：以上提供了从本地到全局/屏幕空间的多级变换，用于坐标换算与正确绘制。
 
 	CanvasItem *get_top_level() const;
 	_FORCE_INLINE_ RID get_canvas_item() const {
@@ -385,8 +407,9 @@ public:
 	virtual void set_use_parent_material(bool p_use_parent_material);
 	bool get_use_parent_material() const;
 
-	Ref<InputEvent> make_input_local(const Ref<InputEvent> &p_event) const;
-	Vector2 make_canvas_position_local(const Vector2 &screen_point) const;
+    Ref<InputEvent> make_input_local(const Ref<InputEvent> &p_event) const;
+    Vector2 make_canvas_position_local(const Vector2 &screen_point) const;
+    // 中文：将输入事件或屏幕坐标转换为本地空间，常用于命中测试或交互逻辑。
 
 	Vector2 get_global_mouse_position() const;
 	Vector2 get_local_mouse_position() const;

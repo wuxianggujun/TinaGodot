@@ -40,11 +40,18 @@ class Container : public Control {
 	void _child_minsize_changed();
 
 protected:
-	enum class SortableVisibilityMode {
-		VISIBLE,
-		VISIBLE_IN_TREE,
-		IGNORE,
-	};
+    // 中文导读：
+    // Container 是用于对子控件进行自动布局的基类（如 BoxContainer、GridContainer）。
+    // 核心点：
+    // - 当子控件增删/移动/最小尺寸变化时，触发排序（queue_sort -> _sort_children）。
+    // - 子控件通过 size flags/expand/minimum size 影响分配策略。
+    // - fit_child_in_rect 将子控件约束在计算出的矩形内。
+    // - 仅可见（或在树中可见）的子控件参与布局，可通过可见性模式调整。
+    enum class SortableVisibilityMode {
+        VISIBLE,
+        VISIBLE_IN_TREE,
+        IGNORE,
+    };
 
 	void queue_sort();
 	Control *as_sortable_control(Node *p_node, SortableVisibilityMode p_visibility_mode = SortableVisibilityMode::VISIBLE_IN_TREE) const;
@@ -65,7 +72,9 @@ public:
 		NOTIFICATION_SORT_CHILDREN = 51,
 	};
 
-	void fit_child_in_rect(Control *p_child, const Rect2 &p_rect);
+    void fit_child_in_rect(Control *p_child, const Rect2 &p_rect);
+    // 中文：将子控件放入给定矩形，一般由派生容器在
+    // _notification(NOTIFICATION_SORT_CHILDREN) 中按策略计算后调用。
 
 	virtual Vector<int> get_allowed_size_flags_horizontal() const;
 	virtual Vector<int> get_allowed_size_flags_vertical() const;
