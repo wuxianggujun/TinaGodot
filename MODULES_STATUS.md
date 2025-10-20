@@ -281,6 +281,13 @@ scons tinagodot_profiler=yes
 
 **模块代码减少**: 约7.7MB
 
+已执行（本分支第二阶段进展）：
+- 已物理删除以下模块代码目录：`modules/enet`、`modules/multiplayer`、`modules/websocket`、`modules/upnp`、`modules/mbedtls`、`modules/navigation_2d`、`modules/meshoptimizer`、`modules/xatlas_unwrap`、`modules/noise`、`modules/jsonrpc`
+- 第三方依赖清理建议使用脚本（需本地执行）：
+  - `tools/purge_second_stage.bat` 或 `tools/purge_second_stage.ps1`
+  - 将删除：`thirdparty/enet`、`thirdparty/mbedtls`、`thirdparty/miniupnpc`、`thirdparty/wslay`、`thirdparty/meshoptimizer`、`thirdparty/xatlas`、`thirdparty/recastnavigation`、`thirdparty/rvo2`
+  - 提交命令：`git add -A && git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖"`
+
 #### 第三方依赖库删除清单
 
 | 依赖库 | 路径 | 用途 | 大小 | 状态 |
