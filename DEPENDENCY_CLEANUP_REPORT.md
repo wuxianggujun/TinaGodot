@@ -49,36 +49,35 @@
 
 **已完成**: 10个模块，约7.7MB
 
-### 待清理的第三方依赖（thirdparty/）🔄
+### 已清理的第三方依赖（thirdparty/）✅
 
 **网络相关**（4个依赖）：
-- 🔄 enet - ENet网络库实现 (0.2MB)
-- 🔄 miniupnpc - UPnP端口映射库 (0.3MB)
-- 🔄 wslay - WebSocket实现 (0.1MB)
-- 🔄 mbedtls - TLS/SSL加密库 (7.7MB)
+- ✅ enet - ENet网络库实现 (0.2MB) - 已删除
+- ✅ miniupnpc - UPnP端口映射库 (0.3MB) - 已删除
+- ✅ wslay - WebSocket实现 (0.1MB) - 已删除
+- ✅ mbedtls - TLS/SSL加密库 (7.7MB) - 已删除
 
 **导航相关**（2个依赖）：
-- 🔄 recastnavigation - 寻路网格 (0.7MB)
-- 🔄 rvo2 - 动态避障算法 (0.8MB)
+- ✅ recastnavigation - 寻路网格 (0.7MB) - 已删除
+- ✅ rvo2 - 动态避障算法 (0.8MB) - 已删除
 
 **3D工具**（2个依赖）：
-- 🔄 meshoptimizer - 网格优化库 (0.5MB)
-- 🔄 xatlas - UV展开库 (0.3MB)
+- ✅ meshoptimizer - 网格优化库 (0.5MB) - 已删除
+- ✅ xatlas - UV展开库 (0.3MB) - 已删除
 
-**说明**: 这些依赖库需要运行清理脚本后手动提交：
+**额外清理**：
+- ✅ amd-fsr/amd-fsr2 - AMD FSR缩放技术 - 已删除
+- ✅ certs - CA证书包 - 已删除
+- ✅ doctest - 测试框架 - 已删除
+
+**已清理体积**: ~10.8MB
+
+**提交信息**：
 ```bash
-# Windows
-tools\purge_second_stage.bat
-
-# 或使用 PowerShell
-.\tools\purge_second_stage.ps1
-
-# 提交变更
-git add -A
-git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖"
+git commit b3899885e9
+chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
+1139 files changed, 602 insertions(+), 600708 deletions(-)
 ```
-
-**待清理体积**: ~10.8MB
 
 ---
 
@@ -137,13 +136,18 @@ git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖
 |---------|---------|---------|------|
 | 第一阶段 | 3D功能和相关库 | ~258MB | ✅ 完成 |
 | 第二阶段-模块 | 网络/导航/工具模块 | ~7.7MB | ✅ 完成 |
-| 第二阶段-依赖 | 对应第三方库 | ~10.8MB | 🔄 待执行 |
-| **已完成总计** | | **~266MB** | |
+| 第二阶段-依赖 | 对应第三方库 | ~10.8MB | ✅ 完成 |
+| **已完成总计** | | **~276.5MB** | ✅ |
 | 可选模块（待宏化） | 音频+图像+分析 | ~44MB | 📋 计划中 |
 
+**最新提交**：`b3899885e9` (2025-10-20)
+- 删除1139个文件
+- 删除约600,708行代码
+- 包含mbedtls、音频模块(ogg/vorbis/minimp3/theora)、基础图像模块(bmp/tga/webp)等
+
 **当前状态**：
-- thirdparty/ 目录: ~110MB（待执行清理脚本后将减少至~99MB）
-- modules/ 目录: 保留核心模块和待宏化模块
+- thirdparty/ 目录: 107MB（已完成第三方依赖清理）
+- modules/ 目录: 2.2MB（保留核心模块）
 
 ---
 

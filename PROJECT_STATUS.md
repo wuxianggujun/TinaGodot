@@ -71,34 +71,31 @@
 - `fc52d4760e` - 添加第三方清理脚本
 - `adaf072206` - 标注第二阶段已删除模块
 
-#### 子阶段 2.2：第三方依赖清理 🔄（待执行）
+#### 子阶段 2.2：第三方依赖清理 ✅（已完成 - 2025-10-20）
 
-**待清理的第三方库**（8个）：
-| 依赖库 | 大小 | 用途 |
-|--------|------|------|
-| thirdparty/enet | 0.2MB | ENet网络库 |
-| thirdparty/mbedtls | 7.7MB | TLS/SSL加密 |
-| thirdparty/wslay | 0.1MB | WebSocket实现 |
-| thirdparty/miniupnpc | 0.3MB | UPnP端口映射 |
-| thirdparty/rvo2 | 0.8MB | 动态避障算法 |
-| thirdparty/recastnavigation | ~0.7MB | 寻路网格 |
-| thirdparty/meshoptimizer | 0.5MB | 网格优化 |
-| thirdparty/xatlas | 0.3MB | UV展开 |
+**已删除的第三方库**（8个 + 额外清理）：
+| 依赖库 | 大小 | 用途 | 状态 |
+|--------|------|------|------|
+| thirdparty/enet | 0.2MB | ENet网络库 | ✅ 已删除 |
+| thirdparty/mbedtls | 7.7MB | TLS/SSL加密 | ✅ 已删除 |
+| thirdparty/wslay | 0.1MB | WebSocket实现 | ✅ 已删除 |
+| thirdparty/miniupnpc | 0.3MB | UPnP端口映射 | ✅ 已删除 |
+| thirdparty/rvo2 | 0.8MB | 动态避障算法 | ✅ 已删除 |
+| thirdparty/recastnavigation | ~0.7MB | 寻路网格 | ✅ 已删除 |
+| thirdparty/meshoptimizer | 0.5MB | 网格优化 | ✅ 已删除 |
+| thirdparty/xatlas | 0.3MB | UV展开 | ✅ 已删除 |
+
+**额外清理**：
+- amd-fsr/amd-fsr2 - AMD FSR缩放
+- certs - CA证书包
+- doctest - 测试框架
 
 **总计减少**: ~10.8MB（第三方依赖）
 
-**执行方式**：
-```bash
-# Windows
-tools\purge_second_stage.bat
-
-# 或使用 PowerShell
-.\tools\purge_second_stage.ps1
-
-# 提交变更
-git add -A
-git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖"
-```
+**相关提交**：
+- `b3899885e9` - 移除mbedtls和其他网络依赖
+  - 1139个文件变更
+  - 删除约600,708行代码
 
 #### 子阶段 2.3：音频系统宏化 📋（计划中）
 
@@ -159,8 +156,8 @@ git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖
 |---------|---------|------|
 | 3D功能删除 | ~258MB | ✅ 完成 |
 | 网络/导航模块删除 | ~7.7MB | ✅ 完成 |
-| 第三方依赖清理 | ~10.8MB | 🔄 待执行 |
-| **当前总计** | **~276.5MB** | |
+| 第三方依赖清理 | ~10.8MB | ✅ 完成 |
+| **当前总计** | **~276.5MB** | ✅ |
 
 ### 待实现优化（可选）
 | 优化项目 | 可减少体积 | 状态 |
