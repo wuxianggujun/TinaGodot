@@ -81,23 +81,40 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 
 ---
 
+## 📋 第三阶段：音频系统完全删除 ✅（已完成 - 2025-10-20）
+
+**删除的音频代码**（123个文件）：
+
+**Scene层**：
+- scene/audio/ - 音频播放器场景节点（6个文件）
+- scene/2d/audio_*.* - 2D音频监听器和播放器（5个文件）
+
+**Servers层**：
+- servers/audio/ - 音频服务器核心（59个文件）
+  - 音频驱动、重采样、音频流
+  - 所有音效（Amplify、Chorus、Compressor、Delay、Distortion、EQ、Filter、Limiter、Panner、Phaser、PitchShift、Record、Reverb、SpectrumAnalyzer等）
+
+**Editor层**：
+- editor/audio/ - 音频编辑器插件（9个文件）
+- editor/import/audio_stream_import_settings.* - 音频导入设置（2个文件）
+
+**文档**：
+- doc/classes/Audio*.xml - 所有音频相关API文档（42个文件）
+
+**已删除代码**: 约19,194行
+
+**相关提交**：
+- `8ce31bdcae` - 完全删除音频系统
+  - 123个文件
+  - 19,194行代码
+
+**说明**：TinaGodot作为纯UI框架，不需要音频功能。用户可通过操作系统或外部媒体库处理音频需求。
+
+---
+
 ## 📋 可选模块（计划宏化控制）
 
 以下模块计划通过编译宏控制，暂未删除：
-
-### 音频系统（计划通过 `TINAGODOT_ENABLE_AUDIO` 控制）
-**模块**：
-- ogg - OGG容器格式
-- vorbis - Vorbis音频编解码
-- minimp3 - MP3音频解码
-- interactive_music - 交互式音乐
-
-**第三方依赖**：
-- thirdparty/libogg
-- thirdparty/libvorbis
-- thirdparty/minimp3
-
-**体积**: ~6.4MB（模块3MB + 依赖3.4MB）
 
 ### 扩展图像格式（计划通过 `TINAGODOT_ENABLE_ADVANCED_IMAGE` 控制）
 **模块**：
@@ -137,17 +154,20 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 | 第一阶段 | 3D功能和相关库 | ~258MB | ✅ 完成 |
 | 第二阶段-模块 | 网络/导航/工具模块 | ~7.7MB | ✅ 完成 |
 | 第二阶段-依赖 | 对应第三方库 | ~10.8MB | ✅ 完成 |
-| **已完成总计** | | **~276.5MB** | ✅ |
-| 可选模块（待宏化） | 音频+图像+分析 | ~44MB | 📋 计划中 |
+| 第三阶段-音频 | 音频系统完全删除 | ~600KB（代码） | ✅ 完成 |
+| **已完成总计** | | **~277MB** | ✅ |
+| 可选模块（待宏化） | 扩展图像格式 | ~37MB | 📋 计划中 |
 
-**最新提交**：`b3899885e9` (2025-10-20)
-- 删除1139个文件
-- 删除约600,708行代码
-- 包含mbedtls、音频模块(ogg/vorbis/minimp3/theora)、基础图像模块(bmp/tga/webp)等
+**最新提交**：`8ce31bdcae` (2025-10-20)
+- 删除123个音频文件
+- 删除约19,194行代码
+- 包含scene/audio、servers/audio、editor/audio等
 
 **当前状态**：
-- thirdparty/ 目录: 107MB（已完成第三方依赖清理）
+- thirdparty/ 目录: 107MB（已完成所有依赖清理）
 - modules/ 目录: 2.2MB（保留核心模块）
+- scene/ 目录: 无音频代码
+- servers/ 目录: 无音频服务器
 
 ---
 
