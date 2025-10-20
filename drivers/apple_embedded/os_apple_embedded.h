@@ -35,9 +35,7 @@
 #import "apple_embedded.h"
 
 #import "drivers/apple/joypad_apple.h"
-#import "drivers/coreaudio/audio_driver_coreaudio.h"
 #include "drivers/unix/os_unix.h"
-#include "servers/audio/audio_server.h"
 #include "servers/rendering/renderer_compositor.h"
 
 #if defined(RD_ENABLED)
@@ -52,8 +50,6 @@ class OS_AppleEmbedded : public OS_Unix {
 private:
 	static HashMap<String, void *> dynamic_symbol_lookup_table;
 	friend void register_dynamic_symbol(char *name, void *address);
-
-	AudioDriverCoreAudio audio_driver;
 
 	AppleEmbedded *apple_embedded = nullptr;
 
