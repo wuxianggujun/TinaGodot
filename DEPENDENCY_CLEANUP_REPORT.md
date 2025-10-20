@@ -232,3 +232,11 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 
 **报告生成时间**: 2025-10-20
 **维护者**: TinaGodot Team
+
+---
+
+## 变更记录（近期）
+
+- 2025-10-20：恢复 Android 帧律库 thirdparty/swappy-frame-pacing（含 arm64-v8a/armeabi-v7a/x86/x86_64 的 libswappy_static.a）。
+  - 构建 Android 时可通过 `swappy=yes` 启用；默认不启用则不链接该库。
+  - Windows 编辑器与导出不受影响。
