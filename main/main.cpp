@@ -66,8 +66,6 @@
 #include "scene/register_scene_types.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/theme/theme_db.h"
-#include "servers/audio/audio_driver_dummy.h"
-#include "servers/audio/audio_server.h"
 #include "servers/camera/camera_server.h"
 #include "servers/display/display_server.h"
 #include "servers/movie_writer/movie_writer.h"
@@ -156,7 +154,6 @@ static SteamTracker *steam_tracker = nullptr;
 #endif
 
 // Initialized in setup2()
-static AudioServer *audio_server = nullptr;
 static CameraServer *camera_server = nullptr;
 static DisplayServer *display_server = nullptr;
 static RenderingServer *rendering_server = nullptr;
@@ -177,7 +174,6 @@ String text_driver = "";
 String rendering_driver = "";
 String rendering_method = "";
 static int text_driver_idx = -1;
-static int audio_driver_idx = -1;
 
 // Engine config/tools
 
@@ -245,11 +241,9 @@ static bool debug_paths = false;
 static bool debug_navigation = false;
 static bool debug_avoidance = false;
 static bool debug_canvas_item_redraw = false;
-static bool debug_mute_audio = false;
 #endif
 static int max_fps = -1;
 static int frame_delay = 0;
-static int audio_output_latency = 0;
 static bool disable_render_loop = false;
 static int fixed_fps = -1;
 static MovieWriter *movie_writer = nullptr;
@@ -269,7 +263,6 @@ bool profile_gpu = false;
 
 static const String NULL_DISPLAY_DRIVER("headless");
 static const String EMBEDDED_DISPLAY_DRIVER("embedded");
-static const String NULL_AUDIO_DRIVER("Dummy");
 
 // The length of the longest column in the command-line help we should align to
 // (excluding the 2-space left and right margins).
@@ -528,15 +521,6 @@ void Main::print_help(const char *p_binary) {
 	print_help_option("--remote-fs-password <password>", "Password for remote filesystem.\n");
 #endif // OVERRIDE_ENABLED
 
-	print_help_option("--audio-driver <driver>", "Audio driver [");
-	for (int i = 0; i < AudioDriverManager::get_driver_count(); i++) {
-		if (i > 0) {
-			OS::get_singleton()->print(", ");
-		}
-		OS::get_singleton()->print("\"%s\"", AudioDriverManager::get_driver(i)->get_name());
-	}
-	OS::get_singleton()->print("].\n");
-
 	print_help_option("--display-driver <driver>", "Display driver (and rendering driver) [");
 	for (int i = 0; i < DisplayServer::get_create_function_count(); i++) {
 		if (i > 0) {
@@ -553,15 +537,13 @@ void Main::print_help(const char *p_binary) {
 		OS::get_singleton()->print(")");
 	}
 	OS::get_singleton()->print("].\n");
-	print_help_option("--audio-output-latency <ms>", "Override audio output latency in milliseconds (default is 15 ms).\n");
-	print_help_option("", "Lower values make sound playback more reactive but increase CPU usage, and may result in audio cracking if the CPU can't keep up.\n");
 
 	print_help_option("--rendering-method <renderer>", "Renderer name. Requires driver support.\n");
 	print_help_option("--rendering-driver <driver>", "Rendering driver (depends on display driver).\n");
 	print_help_option("--gpu-index <device_index>", "Use a specific GPU (run with --verbose to get a list of available devices).\n");
 	print_help_option("--text-driver <driver>", "Text driver (used for font rendering, bidirectional support and shaping).\n");
 	print_help_option("--tablet-driver <driver>", "Pen tablet input driver.\n");
-	print_help_option("--headless", "Enable headless mode (--display-driver headless --audio-driver Dummy). Useful for servers and with --script.\n");
+	print_help_option("--headless", "Enable headless mode (--display-driver headless). Useful for servers and with --script.\n");
 	print_help_option("--log-file <file>", "Write output/error log to the specified path instead of the default location defined by the project.\n");
 	print_help_option("", "<file> path should be absolute or relative to the project directory.\n");
 	print_help_option("--write-movie <file>", "Write a video to the specified path (usually with .avi or .png extension).\n");
@@ -962,7 +944,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		I = I->next();
 	}
 
-	String audio_driver = "";
 	String project_path = ".";
 	bool upwards = false;
 	String debug_uri = "";
@@ -1033,8 +1014,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		if (arg == "--single-window") {
 			forwardable_cli_arguments[CLI_SCOPE_TOOL].push_back(arg);
 		}
-		if (arg == "--audio-driver" ||
-				arg == "--display-driver" ||
+		if (arg == "--display-driver" ||
 				arg == "--rendering-method" ||
 				arg == "--rendering-driver" ||
 				arg == "--xr-mode" ||
@@ -1080,50 +1060,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		} else if (arg == "--no-header") {
 			Engine::get_singleton()->_print_header = false;
 
-		} else if (arg == "--audio-driver") { // audio driver
-
-			if (N) {
-				audio_driver = N->get();
-
-				bool found = false;
-				for (int i = 0; i < AudioDriverManager::get_driver_count(); i++) {
-					if (audio_driver == AudioDriverManager::get_driver(i)->get_name()) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					OS::get_singleton()->print("Unknown audio driver '%s', aborting.\nValid options are ",
-							audio_driver.utf8().get_data());
-
-					for (int i = 0; i < AudioDriverManager::get_driver_count(); i++) {
-						if (i == AudioDriverManager::get_driver_count() - 1) {
-							OS::get_singleton()->print(" and ");
-						} else if (i != 0) {
-							OS::get_singleton()->print(", ");
-						}
-
-						OS::get_singleton()->print("'%s'", AudioDriverManager::get_driver(i)->get_name());
-					}
-
-					OS::get_singleton()->print(".\n");
-
-					goto error;
-				}
-
-				N = N->next();
-			} else {
-				OS::get_singleton()->print("Missing audio driver argument, aborting.\n");
-				goto error;
-			}
-		} else if (arg == "--audio-output-latency") {
-			if (N) {
-				audio_output_latency = N->get().to_int();
-				N = N->next();
-			} else {
-				OS::get_singleton()->print("Missing audio output latency argument, aborting.\n");
-				goto error;
-			}
 		} else if (arg == "--text-driver") {
 			if (N) {
 				text_driver = N->get();
@@ -1341,9 +1277,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 				goto error;
 			}
 
-		} else if (arg == "--headless") { // enable headless mode (no audio, no rendering).
+		} else if (arg == "--headless") { // enable headless mode (no rendering).
 
-			audio_driver = NULL_AUDIO_DRIVER;
 			display_driver = NULL_DISPLAY_DRIVER;
 
 		} else if (arg == "--embedded") { // Enable embedded mode.
@@ -1562,7 +1497,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
 			// `--doctool` implies `--headless` to avoid spawning an unnecessary window
 			// and speed up class reference generation.
-			audio_driver = NULL_AUDIO_DRIVER;
 			display_driver = NULL_DISPLAY_DRIVER;
 			main_args.push_back(arg);
 #ifdef MODULE_GDSCRIPT_ENABLED
@@ -1695,8 +1629,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			debug_canvas_item_redraw = true;
 		} else if (arg == "--debug-stringnames") {
 			StringName::set_debug_stringnames(true);
-		} else if (arg == "--debug-mute-audio") {
-			debug_mute_audio = true;
 #endif
 #if defined(TOOLS_ENABLED) && (defined(WINDOWS_ENABLED) || defined(LINUXBSD_ENABLED))
 		} else if (arg == "--test-rd-support") {
@@ -2024,7 +1956,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	ResourceUID::get_singleton()->load_from_cache(true); // load UUIDs from cache.
 
 	if (ProjectSettings::get_singleton()->has_custom_feature("dedicated_server")) {
-		audio_driver = NULL_AUDIO_DRIVER;
 		display_driver = NULL_DISPLAY_DRIVER;
 	}
 
@@ -2518,7 +2449,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 #endif
 	OS::get_singleton()->_separate_thread_render = separate_thread_render;
 
-	/* Determine audio and video drivers */
+	/* Determine video driver */
 
 	// Display driver, e.g. X11, Wayland.
 	// Make sure that headless is the last one, which it is assumed to be by design.
@@ -2532,39 +2463,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.visionos", PROPERTY_HINT_ENUM_SUGGESTION, "default,visionOS,headless"), "default");
 	GLOBAL_DEF_NOVAL(PropertyInfo(Variant::STRING, "display/display_server/driver.macos", PROPERTY_HINT_ENUM_SUGGESTION, "default,macos,headless"), "default");
 
-	GLOBAL_DEF_RST_NOVAL("audio/driver/driver", AudioDriverManager::get_driver(0)->get_name());
-	if (audio_driver.is_empty()) { // Specified in project.godot.
-		if (project_manager) {
-			// The project manager doesn't need to play sound (TTS audio output is not emitted by Godot, but by the system itself).
-			// Disable audio output so it doesn't appear in the list of applications outputting sound in the OS.
-			// On macOS, this also prevents the project manager from inhibiting suspend.
-			audio_driver = "Dummy";
-		} else {
-			audio_driver = GLOBAL_GET("audio/driver/driver");
-		}
-	}
-
-	// Make sure that dummy is the last one, which it is assumed to be by design.
-	DEV_ASSERT(NULL_AUDIO_DRIVER == AudioDriverManager::get_driver(AudioDriverManager::get_driver_count() - 1)->get_name());
-	for (int i = 0; i < AudioDriverManager::get_driver_count(); i++) {
-		if (audio_driver == AudioDriverManager::get_driver(i)->get_name()) {
-			audio_driver_idx = i;
-			break;
-		}
-	}
-
-	if (audio_driver_idx < 0) {
-		// If the requested driver wasn't found, pick the first entry.
-		// If all else failed it would be the dummy driver (no sound).
-		audio_driver_idx = 0;
-	}
-
-	if (Engine::get_singleton()->get_write_movie_path() != String()) {
-		// Always use dummy driver for audio driver (which is last), also in no threaded mode.
-		audio_driver_idx = AudioDriverManager::get_driver_count() - 1;
-		AudioDriverDummy::get_dummy_singleton()->set_use_threads(false);
-	}
-
 	{
 		window_orientation = DisplayServer::ScreenOrientation(int(GLOBAL_DEF_BASIC("display/window/handheld/orientation", DisplayServer::ScreenOrientation::SCREEN_LANDSCAPE)));
 	}
@@ -2575,12 +2473,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		}
 	}
 
-	GLOBAL_DEF_RST(PropertyInfo(Variant::INT, "audio/driver/output_latency", PROPERTY_HINT_RANGE, "1,100,1"), 15);
-	// Use a safer default output_latency for web to avoid audio cracking on low-end devices, especially mobile.
-	GLOBAL_DEF_RST("audio/driver/output_latency.web", 50);
-
-	Engine::get_singleton()->set_audio_output_latency(GLOBAL_GET("audio/driver/output_latency"));
-
 #if defined(MACOS_ENABLED) || defined(IOS_ENABLED)
 	OS::get_singleton()->set_environment("MVK_CONFIG_LOG_LEVEL", OS::get_singleton()->_verbose_stdout ? "3" : "1"); // 1 = Errors only, 3 = Info
 #endif
@@ -2590,10 +2482,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		if (Engine::get_singleton()->is_editor_hint()) {
 			frame_delay = 0;
 		}
-	}
-
-	if (audio_output_latency >= 1) {
-		Engine::get_singleton()->set_audio_output_latency(audio_output_latency);
 	}
 
 	GLOBAL_DEF("display/window/ios/allow_high_refresh_rate", true);
@@ -2629,7 +2517,6 @@ error:
 
 	text_driver = "";
 	display_driver = "";
-	audio_driver = "";
 	tablet_driver = "";
 	Engine::get_singleton()->set_write_movie_path(String());
 	project_path = "";
@@ -3190,25 +3077,11 @@ Error Main::setup2(bool p_show_boot_logo) {
 	}
 
 #ifdef UNIX_ENABLED
-	// Print warning after initializing the renderer but before initializing audio.
+	// Print warning after initializing the renderer.
 	if (OS::get_singleton()->get_environment("USER") == "root" && !OS::get_singleton()->has_environment("GODOT_SILENCE_ROOT_WARNING")) {
-		WARN_PRINT("Started the engine as `root`/superuser. This is a security risk, and subsystems like audio may not work correctly.\nSet the environment variable `GODOT_SILENCE_ROOT_WARNING` to 1 to silence this warning.");
+		WARN_PRINT("Started the engine as `root`/superuser. This is a security risk.\nSet the environment variable `GODOT_SILENCE_ROOT_WARNING` to 1 to silence this warning.");
 	}
 #endif
-
-	/* Initialize Audio Driver */
-
-	{
-		OS::get_singleton()->benchmark_begin_measure("Servers", "Audio");
-
-		AudioDriverManager::initialize(audio_driver_idx);
-
-		// Right moment to create and initialize the audio server.
-		audio_server = memnew(AudioServer);
-		audio_server->init();
-
-		OS::get_singleton()->benchmark_end_measure("Servers", "Audio");
-	}
 
 	OS::get_singleton()->benchmark_end_measure("Startup", "Servers");
 
@@ -3477,7 +3350,6 @@ Error Main::setup2(bool p_show_boot_logo) {
 #endif
 
 	theme_db->initialize_theme();
-	audio_server->load_default_bus_layout();
 
 #if defined(MODULE_MONO_ENABLED) && defined(TOOLS_ENABLED)
 	// Hacky to have it here, but we don't have good facility yet to let modules
@@ -4049,10 +3921,6 @@ int Main::start() {
 		if (debug_canvas_item_redraw) {
 			RenderingServer::get_singleton()->canvas_item_set_debug_redraw(true);
 		}
-
-		if (debug_mute_audio) {
-			AudioServer::get_singleton()->set_debug_mute(true);
-		}
 #endif
 
 		if (single_threaded_scene) {
@@ -4430,8 +4298,8 @@ int Main::start() {
 
 /* Main iteration
  *
- * This is the iteration of the engine's game loop, advancing the state of physics,
- * rendering and audio.
+ * This is the iteration of the engine's game loop, advancing the state of physics
+ * and rendering.
  * It's called directly by the platform's OS::run method, where the loop is created
  * and monitored.
  *
@@ -4602,8 +4470,6 @@ bool Main::iteration() {
 	for (int i = 0; i < ScriptServer::get_language_count(); i++) {
 		ScriptServer::get_language(i)->frame();
 	}
-
-	AudioServer::get_singleton()->update();
 
 	if (EngineDebugger::is_active()) {
 		EngineDebugger::get_singleton()->iteration(frame_time, process_ticks, physics_process_ticks, physics_step);
@@ -4790,11 +4656,6 @@ void Main::cleanup(bool p_force) {
 	unregister_server_types();
 
 	EngineDebugger::deinitialize();
-
-	if (audio_server) {
-		audio_server->finish();
-		memdelete(audio_server);
-	}
 
 	if (camera_server) {
 		memdelete(camera_server);

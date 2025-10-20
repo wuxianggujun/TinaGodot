@@ -2763,13 +2763,6 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
 
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
-#ifdef WASAPI_ENABLED
-	AudioDriverManager::add_driver(&driver_wasapi);
-#endif
-#ifdef XAUDIO2_ENABLED
-	AudioDriverManager::add_driver(&driver_xaudio2);
-#endif
-
 	DisplayServerWindows::register_windows_driver();
 
 	// Enable ANSI escape code support on Windows 10 v1607 (Anniversary Update) and later.
