@@ -32,7 +32,6 @@
 
 #include "core/io/image.h"
 #include "core/templates/local_vector.h"
-#include "servers/audio/audio_server.h"
 
 class MovieWriter : public Object {
 	GDCLASS(MovieWriter, Object);
