@@ -1040,6 +1040,14 @@ def generate_vs_project(env, original_args, project_name="godot"):
             return v[0] if len(v) == 1 else f"{v[0]}={v[1]}"
         return v
 
+    # 说明（中文）：MSBuild 属性名不允许包含 '.' '-' 等字符，
+    # 我们用该函数将目录路径映射为安全的属性键，避免诸如 "3.31.6-msvc6" 导致的
+    # $([System.String].Contains()) 解析错误（如 System.String.31）。
+    def _sanitize_msbuild_key_from_dir(path_str: str) -> str:
+        base = os.path.dirname(path_str).replace("\\", "_")
+        # 仅允许 [A-Za-z0-9_]，其余全部替换为下划线。
+        return re.sub(r"[^A-Za-z0-9_]", "_", base)
+
     def get_dependencies(file, env, exts, headers, sources, others):
         for child in file.children():
             if isinstance(child, str):
@@ -1247,7 +1255,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
     set_sources = set(sources_active)
     set_others = set(others_active)
     for file in headers:
-        base_path = os.path.dirname(file).replace("\\", "_")
+        base_path = _sanitize_msbuild_key_from_dir(file)
         all_items.append(f'<ClInclude Include="{file}">')
         all_items.append(
             f"  <ExcludedFromBuild Condition=\"!$(ActiveProjectItemList_{base_path}.Contains(';{file};'))\">true</ExcludedFromBuild>"
@@ -1257,7 +1265,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
             activeItems.append(file)
 
     for file in sources:
-        base_path = os.path.dirname(file).replace("\\", "_")
+        base_path = _sanitize_msbuild_key_from_dir(file)
         all_items.append(f'<ClCompile Include="{file}">')
         all_items.append(
             f"  <ExcludedFromBuild Condition=\"!$(ActiveProjectItemList_{base_path}.Contains(';{file};'))\">true</ExcludedFromBuild>"
@@ -1267,7 +1275,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
             activeItems.append(file)
 
     for file in others:
-        base_path = os.path.dirname(file).replace("\\", "_")
+        base_path = _sanitize_msbuild_key_from_dir(file)
         all_items.append(f'<None Include="{file}">')
         all_items.append(
             f"  <ExcludedFromBuild Condition=\"!$(ActiveProjectItemList_{base_path}.Contains(';{file};'))\">true</ExcludedFromBuild>"
@@ -1286,7 +1294,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
         condition = "'$(GodotConfiguration)|$(GodotPlatform)'=='" + vsconf + "'"
         itemlist = {}
         for item in activeItems:
-            key = os.path.dirname(item).replace("\\", "_")
+            key = _sanitize_msbuild_key_from_dir(item)
             if key not in itemlist:
                 itemlist[key] = [item]
             else:

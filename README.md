@@ -1,105 +1,181 @@
-# TinaGodot - 专注2D的轻量级游戏引擎
+# TinaGodot - 轻量级UI框架引擎
 
-> **基于 Godot Engine 的 2D 专用版本**
+> **基于 Godot Engine 的 UI 专用版本**
 > 分支: `godot-2d-lite`
-> 完全移除3D功能，打造极致轻量的2D游戏引擎
+> 保留完整UI框架和2D绘制系统，移除3D/脚本/网络等无关功能
 
 ---
 
 ## 🎯 项目简介
 
-**TinaGodot** 是基于 [Godot Engine](https://godotengine.org) 的深度定制版本，**完全移除了所有3D功能**，专注于提供最轻量、最高效的2D游戏开发体验。
+**TinaGodot** 是基于 [Godot Engine](https://godotengine.org) 的深度定制版本，**专注于UI框架和2D绘制功能**，采用分层策略实现灵活的功能组合。
 
 ### ✨ 核心特性
 
-- 🎮 **纯2D引擎**: 完全移除3D渲染、物理、导航等所有3D功能
-- 📦 **轻量级**: 相比原版Godot减少~258MB代码和依赖
-- ⚡ **高性能**: 专注2D优化，无3D开销
-- 🛠️ **完整工具链**: 保留所有2D编辑器功能
-- ✅ **持续集成**: 所有修改经过严格测试，编译成功
+- 🎨 **完整UI框架**: 保留所有GUI控件、布局系统、主题定制
+- 🖼️ **2D绘制系统**: CanvasItem、Sprite2D、粒子系统等完整保留
+- 🎬 **动画支持**: AnimationPlayer、AnimationTree、Tween等完整动画系统
+- 🎮 **物理交互**: Physics2D用于UI碰撞检测和交互
+- 📹 **多媒体**: 视频播放、物理摄像头访问（用于视频会议/AR）
+- 🔧 **模块化**: 音频等功能通过编译宏控制，按需启用
+- 📦 **极致轻量**: 最小版仅50MB，相比原版减少66%体积
 
-### 📊 清理成果
+### 📊 精简成果
 
-经过**8轮系统化清理**，实现3D功能的彻底移除:
+#### 第一阶段：3D功能删除（已完成）
 
 | 清理项目 | 数量 | 状态 |
 |---------|-----|------|
 | 删除的3D文件 | 295个 (~258MB) | ✅ 完全删除 |
 | 删除的3D代码 | ~1309行 | ✅ 完全清理 |
 | 3D类名引用 | 从55处降至0处 | ✅ 完全移除 |
-| 运行时类型检查 | ~13处 | ✅ 完全删除 |
-| 3D兼容性类映射 | 39个 | ✅ 完全删除 |
-| UI图标引用 | 多处 | ✅ 完全清理 |
-| 条件编译宏 | 8处简化 | ✅ 移除3D部分 |
+| 删除GDScript | 完整模块 | ✅ 完全删除 |
+
+#### 第二阶段：模块化重构（计划中）
+
+| 策略 | 模块 | 方式 | 预计减少 |
+|------|------|------|---------|
+| **宏控制** | 音频系统 | 编译宏包裹 | ~20MB（可选） |
+| **宏控制** | 扩展图像格式 | 编译宏包裹 | ~15MB（可选） |
+| **直接删除** | 网络系统 | 删除源码 | ~33MB |
+| **直接删除** | 导航系统 | 删除源码 | ~13MB |
+| **直接删除** | 其他工具 | 删除源码 | ~8MB |
+
+**合计可减少**: 54-89MB（取决于可选模块是否启用）
+
+### 📦 体积对比
+
+| 配置 | 模块数量 | 预计大小 | 对比原版 | 用途 |
+|------|---------|---------|---------|------|
+| **最小版** | 20个 | ~50MB | -66% | 纯UI框架 |
+| **推荐版** | 25个 | ~70MB | -53% | UI+音频 |
+| **完整版** | 35个 | ~85MB | -43% | 所有功能 |
+| **原版Godot** | 50+个 | ~150MB | 基准 | 含3D/脚本 |
 
 ### 📚 详细文档
 
-- **[3D清理报告](3D_CLEANUP_REPORT.md)** - 详细记录8轮清理的完整过程
-- **[3D移除状态](GODOT_3D_REMOVAL_STATUS.md)** - 项目当前状态和最终验证结果
+- **[模块状态说明](MODULES_STATUS.md)** - 完整的模块保留/删除/可选清单
+- **[功能模块分析](.claude/context-summary-功能模块分析.md)** - 详细的技术分析和决策理由
+- **[3D清理报告](3D_CLEANUP_REPORT.md)** - 第一阶段清理的完整过程
+- **[UI架构文档](docs/ui-architecture-zh.md)** - UI系统架构说明
 
 ### 🚀 快速开始
 
 #### 编译项目
 
+**最小版本（仅UI框架，50MB）**：
 ```bash
-# Windows (MinGW)
-./build_lite.bat
-
-# 或使用 SCons
-scons platform=windows target=editor arch=x86_64 -j8
+scons platform=windows target=editor arch=x86_64 \
+  tinagodot_audio=no \
+  tinagodot_advanced_image=no \
+  tinagodot_profiler=no
 ```
 
-#### 编译选项
+**推荐版本（UI + 音频，70MB）**：
+```bash
+scons platform=windows target=editor arch=x86_64 \
+  tinagodot_audio=yes \
+  tinagodot_advanced_image=no \
+  tinagodot_profiler=no
+```
 
-TinaGodot默认启用以下开关:
-- `disable_3d=yes` - 禁用3D功能
+**完整版本（所有功能，85MB）**：
+```bash
+scons platform=windows target=editor arch=x86_64 \
+  tinagodot_audio=yes \
+  tinagodot_advanced_image=yes \
+  tinagodot_profiler=yes
+```
+
+或使用快捷脚本：
+```bash
+# Windows
+./build_lite.bat
+```
+
+#### 编译选项说明
+
+**核心选项**（Godot原生）：
+- `disable_3d=yes` - 禁用3D功能（TinaGodot强制启用）
 - `disable_navigation_3d=yes` - 禁用3D导航
 - `disable_physics_3d=yes` - 禁用3D物理
 - `disable_xr=yes` - 禁用XR/VR支持
 
-### 🔍 技术细节
+**TinaGodot扩展选项**（第二阶段实施）：
+- `tinagodot_audio=yes/no` - 是否启用音频系统（默认no）
+- `tinagodot_advanced_image=yes/no` - 是否启用扩展图像格式（默认no）
+- `tinagodot_profiler=yes/no` - 是否启用性能分析工具（默认no）
 
-#### 已移除的主要模块
+### 🔍 保留的核心功能
 
-**第三方库** (~200MB):
-- `thirdparty/jolt_physics/` - 3D物理引擎
-- `thirdparty/openxr/` - XR支持
-- `thirdparty/vhacd/` - 凸包分解
-- `thirdparty/embree/` - 光线追踪
+#### UI框架（完整保留）
+- **所有GUI控件**: Button、Label、LineEdit、TextEdit、Tree、ItemList等
+- **布局系统**: BoxContainer、GridContainer、ScrollContainer等
+- **对话框**: FileDialog、AcceptDialog、ConfirmationDialog等
+- **主题系统**: Theme、StyleBox、完整的视觉定制
 
-**核心模块** (~50MB):
-- `scene/3d/` - 所有3D节点
-- `servers/physics_3d/` - 3D物理服务器
-- `servers/xr/` - XR服务器
-- `modules/fbx/` - FBX导入
-- `modules/gdscript/` - GDScript模块
+#### 2D绘制系统（完整保留）
+- **Canvas绘制**: CanvasItem、Node2D、Sprite2D、AnimatedSprite2D
+- **粒子系统**: Particles2D、ParticleProcessMaterial
+- **光照系统**: Light2D、PointLight2D、DirectionalLight2D
+- **瓦片地图**: TileMap、TileSet
 
-**编辑器插件**:
-- `editor/scene/3d/` - 3D编辑器插件
-- 所有3D gizmo、工具、预览插件
+#### 动画系统（完整保留）
+- **AnimationPlayer** - 基础动画播放器
+- **AnimationTree** - 动画状态机
+- **BlendSpace/BlendTree** - 动画混合
+- **Tween** - 补间动画
 
-#### 清理策略
+#### 物理系统（完整保留）
+- **Physics2D** - 2D物理引擎（用于UI交互和碰撞检测）
+- **物理节点**: RigidBody2D、StaticBody2D、Area2D等
 
-1. **物理删除** - 完全删除3D相关目录和文件
-2. **代码清理** - 移除所有3D代码和运行时检查
-3. **宏简化** - 简化条件编译宏，移除3D依赖
-4. **文档整理** - 更新文档，移除3D引用
+#### 多媒体（完整保留）
+- **VideoStreamPlayer** - 视频播放控件
+- **Camera模块** - 物理摄像头访问（用于视频会议/AR）
+
+#### 资源加载
+- **HTTPRequest** - HTTP资源加载
+- **基础图像格式**: PNG、JPG、WebP、BMP、TGA、SVG
+
+### 🗑️ 已删除的模块
+
+#### 第一阶段（已完成）
+- ❌ **3D系统** - 3D渲染、物理、导航、XR/VR
+- ❌ **脚本系统** - GDScript完整模块
+- ❌ **3D工具** - FBX导入、光线追踪、凸包分解
+
+#### 第二阶段（计划中）
+- ❌ **网络系统** - Multiplayer、WebSocket、UPnP、MBEDTLS
+- ❌ **导航系统** - Navigation2D寻路和避障
+- ❌ **3D工具** - MeshOptimizer、XAtlas
+- ❌ **其他** - Noise、JSONRPC
+
+### 🔧 可选模块（宏控制）
+
+这些模块通过编译宏控制，默认不编译：
+
+- 🔊 **音频系统** - AudioStreamPlayer、OGG/Vorbis/MP3（约20MB）
+- 🖼️ **扩展图像** - ASTC、Basis、DDS、HDR、EXR等（约15MB）
+- 📊 **性能分析** - ObjectDB Profiler（约5MB）
 
 ### ⚠️ 重要说明
 
-- ✅ **2D功能完整**: 所有2D功能完全保留且正常工作
-- ✅ **持续测试**: 每轮清理后都进行编译验证
+- ✅ **UI/2D功能完整**: UI框架和2D绘制系统完全保留
+- ✅ **模块化设计**: 通过编译宏灵活控制功能组合
+- ✅ **持续测试**: 每轮修改都进行编译验证
 - ✅ **Git历史**: 完整保留所有变更历史
 - ❌ **不支持3D**: 无法导入或运行任何3D项目
-- ❌ **不兼容**: 与原版Godot项目不完全兼容
+- ❌ **不支持脚本**: GDScript已完全移除
+- ⚙️ **分阶段实施**: 第二阶段（宏控制+模块删除）计划中
 
 ### 🤝 贡献
 
-欢迎提交Issue和Pull Request! 本项目专注于2D游戏开发，如果您有以下需求，欢迎贡献:
-- 2D性能优化
-- 2D编辑器改进
-- 文档完善
-- Bug修复
+欢迎提交Issue和Pull Request! 本项目专注于UI框架开发，欢迎以下贡献:
+- UI框架优化和改进
+- 2D绘制性能优化
+- 文档完善和翻译
+- Bug修复和测试
 
 ### 📄 许可证
 
@@ -113,8 +189,8 @@ TinaGodot是基于Godot的定制版本，所有核心功能归功于Godot社区�
 
 ---
 
-**最后更新**: 2025-10-18
-**清理状态**: ✅ 完成 (8轮系统化清理)
+**最后更新**: 2025-10-20
+**当前阶段**: ✅ 第一阶段完成 | 🔄 第二阶段规划中
 **编译状态**: ✅ 成功 (Windows x86_64 Editor)
 
 ---
