@@ -3,6 +3,7 @@ from misc.utility.scons_hints import *
 
 Import("env")
 
-env.add_source_files(env.servers_sources, "*.cpp")
-
-SConscript("effects/SCsub")
+# TinaGodot：按需编译音频服务器
+if env.get("tinagodot_audio", False):
+    env.add_source_files(env.servers_sources, "*.cpp")
+    SConscript("effects/SCsub")

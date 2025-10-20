@@ -3,4 +3,6 @@ from misc.utility.scons_hints import *
 
 Import("env")
 
-env.add_source_files(env.scene_sources, "*.cpp")
+# TinaGodot：按需编译音频场景节点
+if env.get("tinagodot_audio", False):
+    env.add_source_files(env.scene_sources, "*.cpp")

@@ -306,6 +306,12 @@ opts.Add(BoolVariable("builtin_xatlas", "Use the built-in xatlas library", True)
 opts.Add(BoolVariable("builtin_zlib", "Use the built-in zlib library", True))
 opts.Add(BoolVariable("builtin_zstd", "Use the built-in Zstd library", True))
 
+# TinaGodot 定制选项（UI 精简配置）
+# 本分支默认精简（恒为开启，见下方无条件裁剪逻辑），音频/高级图像/Profiler作为可选开关。
+opts.Add(BoolVariable("tinagodot_audio", "Enable TinaGodot audio nodes/modules", False))
+opts.Add(BoolVariable("tinagodot_advanced_image", "Enable advanced image/texture modules (ASTC/KTX/EXR/etc)", False))
+opts.Add(BoolVariable("tinagodot_profiler", "Enable TinaGodot debugging/profiler modules", False))
+
 # Compilation environment setup
 # CXX, CC, and LINK directly set the equivalent `env` values (which may still
 # be overridden for a specific platform), the lowercase ones are appended.
@@ -457,6 +463,78 @@ env.modules_detected = modules_detected
 # Update the environment again after all the module options are added.
 opts.Update(env, {**ARGUMENTS, **env.Dictionary()})
 Help(opts.GenerateHelpText(env))
+
+# TinaGodot: 应用精简/可选模块配置到模块与第三方依赖开关。
+def _disable_module(name: str):
+    key = f"module_{name}_enabled"
+    if key in env:
+        env[key] = False
+
+def _enable_module(name: str):
+    key = f"module_{name}_enabled"
+    if key in env:
+        env[key] = True
+
+# 默认精简：禁用网络/导航/3D 工具等（本分支恒生效）。
+for m in [
+    "enet",
+    "multiplayer",
+    "websocket",
+    "upnp",
+    "mbedtls",
+    "navigation_2d",
+    "meshoptimizer",
+    "xatlas_unwrap",
+    "noise",
+    "jsonrpc",
+]:
+    _disable_module(m)
+
+# 同步第三方依赖库开关
+if "builtin_enet" in env:
+    env["builtin_enet"] = False
+if "builtin_mbedtls" in env:
+    env["builtin_mbedtls"] = False
+if "builtin_wslay" in env:
+    env["builtin_wslay"] = False
+if "builtin_miniupnpc" in env:
+    env["builtin_miniupnpc"] = False
+if "builtin_recastnavigation" in env:
+    env["builtin_recastnavigation"] = False
+if "builtin_rvo2_2d" in env:
+    env["builtin_rvo2_2d"] = False
+if "builtin_xatlas" in env:
+    env["builtin_xatlas"] = False
+
+# 关闭 2D 导航服务器
+env["disable_navigation_2d"] = True
+
+# 音频可选模块
+if not env.get("tinagodot_audio", False):
+    for m in ["ogg", "vorbis", "minimp3", "interactive_music"]:
+        _disable_module(m)
+    # 关闭 Windows XAudio2 驱动
+    env["xaudio2"] = False
+
+# 高级图像格式可选模块
+if not env.get("tinagodot_advanced_image", False):
+    for m in [
+        "astcenc",
+        "basis_universal",
+        "bcdec",
+        "betsy",
+        "cvtt",
+        "dds",
+        "etcpak",
+        "ktx",
+        "hdr",
+        "tinyexr",
+    ]:
+        _disable_module(m)
+
+# 调试/分析可选模块
+if not env.get("tinagodot_profiler", False):
+    _disable_module("objectdb_profiler")
 
 
 # FIXME: Tool assignment happening at this stage is a direct consequence of getting the platform logic AFTER the SCons
