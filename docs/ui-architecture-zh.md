@@ -12,6 +12,131 @@
 
 > 说明：本仓库剔除了 3D 功能，但 UI 完全工作在 2D Canvas 流程中，几乎不受影响。
 
+## 可视化流程图
+
+以下使用 Mermaid 语法描述关键流程与关系。若本地预览不渲染，可在 GitHub 打开或使用支持 Mermaid 的 Markdown 预览插件。
+
+### 渲染流程（从重绘请求到屏幕合成）
+
+```mermaid
+flowchart TD
+    EV[queue_redraw/属性变化] -->|下一帧| ND[CanvasItem NOTIFICATION_DRAW]
+    ND --> DRA[_draw()]
+    DRA --> API{{draw_* 调用}}
+    API --> RS[RenderingServer 命令队列]
+    RS --> CL[CanvasLayer/Canvas]
+    CL --> VP[Viewport]
+    VP --> OUT[屏幕合成]
+
+    subgraph 顺序控制
+      ZI[z_index / z_relative]
+      LY[CanvasLayer]
+    end
+    API -. 受影响 .-> ZI
+    API -. 受影响 .-> LY
+```
+
+要点：`queue_redraw()` 触发下一帧 `NOTIFICATION_DRAW`，在 `_draw()` 中调用 `draw_*` API，指令进入 `RenderingServer`，按 `CanvasLayer` 与 `z_index` 合成到屏幕。
+
+### 输入事件分发（命中测试与鼠标过滤）
+
+```mermaid
+sequenceDiagram
+    participant DS as DisplayServer
+    participant WIN as Window
+    participant VP as Viewport
+    participant CT as Control
+    participant PC as Parent Control
+
+    DS->>WIN: 原始输入事件
+    WIN->>VP: 窗口坐标事件
+    VP->>CT: 命中测试(_has_point)
+    alt 命中且 MOUSE_FILTER_STOP
+      CT->>CT: _gui_input(e)
+      note right of CT: 消费事件，停止冒泡
+    else 命中且 MOUSE_FILTER_PASS
+      CT->>CT: _gui_input(e)
+      CT->>PC: 继续向父级传播
+    else MOUSE_FILTER_IGNORE 或未命中
+      VP->>PC: 交由父级/下层处理
+    end
+    VP->>CT: 焦点键盘事件按 Focus 分发
+```
+
+说明：鼠标命中由 `_has_point()` 判定；`MouseFilter` 决定事件是否拦截或透传；键盘/手柄输入遵循焦点分发（可结合邻接导航）。
+
+### 布局决策流程（单节点与容器）
+
+```mermaid
+flowchart TD
+    PRECT[父 Anchorable Rect] --> ANC[Anchors 锚点]
+    ANC --> OFF[Offsets 偏移]
+    OFF --> LM{LayoutMode}
+    LM -->|POSITION| POS[set_position / set_size]
+    LM -->|ANCHORS| CALC[按锚点/偏移计算 Rect]
+    LM -->|CONTAINER| CON[Container 分配]
+    CON --> FIT[fit_child_in_rect]
+    SFLAGS[SizeFlags/expand/custom_min] --> CON
+```
+
+要点：单节点通过 `anchor/offset/grow` 得到最终 Rect；容器通过 `_sort_children()` 与子项最小尺寸和 `SizeFlags/expand` 进行空间分配，并调用 `fit_child_in_rect()`。
+
+### 主题查找与回退链
+
+```mermaid
+flowchart LR
+    REQ[请求 get_theme_* (name,type)] --> OV[控件覆盖]
+    OV -- miss --> OWN[ThemeOwner/Control.theme]
+    OWN -- miss --> PARENT[父控件/窗口]
+    PARENT -- miss --> PROJ[项目默认主题]
+    PROJ -- miss --> ENG[引擎默认主题]
+    ENG --> HIT[返回命中项]
+
+    subgraph 变体
+      VARI[Type Variation: FlatButton->Button]
+    end
+    REQ -. 类型解析 .-> VARI
+```
+
+要点：Control 会对各级查找结果做缓存；类型变体（variation）允许在类型层面建立继承/回退。
+
+### 类关系与职责
+
+```mermaid
+classDiagram
+    class Node
+    class CanvasItem{
+        +queue_redraw()
+        +_draw()
+        +draw_* API
+        +z_index / CanvasLayer
+        +get_*_transform()
+    }
+    Node <|-- CanvasItem
+
+    class Control{
+        +_gui_input()
+        +anchor/offset/grow
+        +size_flags/expand
+        +get_theme_*()
+        +focus/tooltip/RTL
+    }
+    CanvasItem <|-- Control
+
+    class Container{
+        +_sort_children()
+        +fit_child_in_rect()
+        +get_allowed_size_flags_*()
+    }
+    Control <|-- Container
+
+    class Theme{
+        +get/set Icon/Style/Font/Color/Constant
+        +type_variation()
+        +default_font/size/base_scale
+    }
+```
+
 ## 关键类与文件
 
 - `scene/main/canvas_item.h`：2D 可绘制节点基类，提供绘制 API、可见性、Z 顺序与 2D 变换。
@@ -96,4 +221,3 @@
 ---
 
 如需我继续为特定控件/容器补充更细的注释或绘制/输入流程图，请告知关注的文件或类名。 
-
