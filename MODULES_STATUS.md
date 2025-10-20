@@ -260,55 +260,54 @@ scons tinagodot_profiler=yes
 | GDScript | `modules/gdscript/` | 移除脚本系统 | ✅ 已删除 |
 | FBX导入 | `modules/fbx/` | 3D格式 | ✅ 已删除 |
 
-### 计划删除（第二阶段清理）
+### 已删除（第二阶段清理）✅
 
 #### 模块删除清单
 
-| 模块 | 路径 | 删除理由 | 模块大小 |
-|------|------|---------|---------|
-| ENet | `modules/enet/` | UI不需要网络库 | ~0.2MB |
-| Multiplayer | `modules/multiplayer/` | UI不需要多人游戏 | ~2MB |
-| WebSocket | `modules/websocket/` | UI不需要WebSocket | ~0.5MB |
-| UPnP | `modules/upnp/` | UI不需要端口映射 | ~0.3MB |
-| MBEDTLS | `modules/mbedtls/` | UI不需要TLS加密 | ~1MB |
-| Navigation2D | `modules/navigation_2d/` | UI不需要寻路 | ~1.5MB |
-| Navigation节点 | `scene/2d/navigation/` | UI不需要导航 | ~0.5MB |
-| Navigation服务器 | `servers/navigation_2d/` | UI不需要导航服务 | ~0.8MB |
-| MeshOptimizer | `modules/meshoptimizer/` | 3D工具 | ~0.3MB |
-| XAtlas | `modules/xatlas_unwrap/` | 3D UV展开 | ~0.2MB |
-| Noise | `modules/noise/` | UI不需要噪声生成 | ~0.2MB |
-| JSONRPC | `modules/jsonrpc/` | UI不需要远程调用 | ~0.2MB |
+| 模块 | 路径 | 删除理由 | 模块大小 | 状态 |
+|------|------|---------|---------|------|
+| ENet | `modules/enet/` | UI不需要网络库 | ~0.2MB | ✅ 已删除 |
+| Multiplayer | `modules/multiplayer/` | UI不需要多人游戏 | ~2MB | ✅ 已删除 |
+| WebSocket | `modules/websocket/` | UI不需要WebSocket | ~0.5MB | ✅ 已删除 |
+| UPnP | `modules/upnp/` | UI不需要端口映射 | ~0.3MB | ✅ 已删除 |
+| MBEDTLS | `modules/mbedtls/` | UI不需要TLS加密 | ~1MB | ✅ 已删除 |
+| Navigation2D | `modules/navigation_2d/` | UI不需要寻路 | ~1.5MB | ✅ 已删除 |
+| MeshOptimizer | `modules/meshoptimizer/` | 3D工具 | ~0.3MB | ✅ 已删除 |
+| XAtlas | `modules/xatlas_unwrap/` | 3D UV展开 | ~0.2MB | ✅ 已删除 |
+| Noise | `modules/noise/` | UI不需要噪声生成 | ~0.2MB | ✅ 已删除 |
+| JSONRPC | `modules/jsonrpc/` | UI不需要远程调用 | ~0.2MB | ✅ 已删除 |
 
-**模块代码减少**: 约7.7MB
+**模块代码减少**: 约7.7MB（已完成）
 
-已执行（本分支第二阶段进展）：
-- 已物理删除以下模块代码目录：`modules/enet`、`modules/multiplayer`、`modules/websocket`、`modules/upnp`、`modules/mbedtls`、`modules/navigation_2d`、`modules/meshoptimizer`、`modules/xatlas_unwrap`、`modules/noise`、`modules/jsonrpc`
-- 第三方依赖清理建议使用脚本（需本地执行）：
+**执行情况**：
+- ✅ 已物理删除所有模块代码目录（提交：b4248e7843）
+- ✅ 已创建第三方依赖清理脚本（提交：fc52d4760e）
   - `tools/purge_second_stage.bat` 或 `tools/purge_second_stage.ps1`
   - 将删除：`thirdparty/enet`、`thirdparty/mbedtls`、`thirdparty/miniupnpc`、`thirdparty/wslay`、`thirdparty/meshoptimizer`、`thirdparty/xatlas`、`thirdparty/recastnavigation`、`thirdparty/rvo2`
-  - 提交命令：`git add -A && git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖"`
+  - **使用方法**：本地运行脚本后提交
+  - **提交命令**：`git add -A && git commit -m "chore(purge-thirdparty): 移除网络/导航/3D工具相关依赖"`
 
 #### 第三方依赖库删除清单
 
 | 依赖库 | 路径 | 用途 | 大小 | 状态 |
 |--------|------|------|------|------|
 | **网络相关** | | | **8.3MB** | |
-| enet | `thirdparty/enet/` | ENet网络库 | 0.2MB | 计划删除 |
-| mbedtls | `thirdparty/mbedtls/` | TLS/SSL加密（最大） | 7.7MB | 计划删除 |
-| wslay | `thirdparty/wslay/` | WebSocket实现 | 0.1MB | 计划删除 |
-| miniupnpc | `thirdparty/miniupnpc/` | UPnP端口映射 | 0.3MB | 计划删除 |
+| enet | `thirdparty/enet/` | ENet网络库 | 0.2MB | 🔄 待清理 |
+| mbedtls | `thirdparty/mbedtls/` | TLS/SSL加密（最大） | 7.7MB | 🔄 待清理 |
+| wslay | `thirdparty/wslay/` | WebSocket实现 | 0.1MB | 🔄 待清理 |
+| miniupnpc | `thirdparty/miniupnpc/` | UPnP端口映射 | 0.3MB | 🔄 待清理 |
 | **导航相关** | | | **1.5MB** | |
-| rvo2 | `thirdparty/rvo2/` | 动态避障算法 | 0.8MB | 计划删除 |
-| recastnavigation | `thirdparty/recastnavigation/` | 寻路网格（如存在） | ~0.7MB | 计划删除 |
+| rvo2 | `thirdparty/rvo2/` | 动态避障算法 | 0.8MB | 🔄 待清理 |
+| recastnavigation | `thirdparty/recastnavigation/` | 寻路网格 | ~0.7MB | 🔄 待清理 |
 | **3D工具** | | | **0.8MB** | |
-| meshoptimizer | `thirdparty/meshoptimizer/` | 网格优化 | 0.5MB | 计划删除 |
-| xatlas | `thirdparty/xatlas/` | UV展开 | 0.3MB | 计划删除 |
-| **其他** | | | **0.2MB** | |
-| noise | `thirdparty/noise/` | 噪声生成 | 0.2MB | 计划删除 |
+| meshoptimizer | `thirdparty/meshoptimizer/` | 网格优化 | 0.5MB | 🔄 待清理 |
+| xatlas | `thirdparty/xatlas/` | UV展开 | 0.3MB | 🔄 待清理 |
 
-**依赖库减少**: 约10.8MB
+**说明**：第三方依赖库需要本地运行清理脚本后手动提交，避免误删共享依赖。
 
-**第二阶段总计减少**: 约18.5MB（模块7.7MB + 依赖库10.8MB）
+**依赖库减少**: 约10.8MB（待清理脚本执行）
+
+**第二阶段已完成减少**: 约7.7MB（模块代码） + 待清理10.8MB（依赖库）= **总计18.5MB**
 
 ---
 
@@ -377,14 +376,15 @@ scons platform=windows target=editor \
 
 ## 📝 实施状态
 
-| 阶段 | 任务 | 状态 | 预计时间 |
+| 阶段 | 任务 | 状态 | 完成时间 |
 |------|------|------|---------|
-| ✅ 阶段0 | 3D功能删除 | 完成 | - |
-| 🔄 阶段1 | 建立宏控制框架 | 计划中 | 1-2天 |
-| 📋 阶段2 | 音频系统宏化 | 计划中 | 2-3天 |
-| 📋 阶段3 | 扩展图像格式宏化 | 计划中 | 1-2天 |
-| 📋 阶段4 | 删除无用模块 | 计划中 | 1天 |
-| 📋 阶段5 | 文档更新 | 进行中 | 1天 |
+| ✅ 阶段0 | 3D功能删除 | 完成 | 2025-10-18 |
+| ✅ 阶段1 | 物理删除网络/导航模块 | 完成 | 2025-10-20 |
+| 🔄 阶段2 | 第三方依赖清理（脚本） | 待执行 | 待定 |
+| 📋 阶段3 | 建立宏控制框架 | 计划中 | 1-2天 |
+| 📋 阶段4 | 音频系统宏化 | 计划中 | 2-3天 |
+| 📋 阶段5 | 扩展图像格式宏化 | 计划中 | 1-2天 |
+| 🔄 阶段6 | 文档更新和中文注释 | 进行中 | 1-2天 |
 
 ---
 

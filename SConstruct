@@ -464,6 +464,12 @@ env.modules_detected = modules_detected
 opts.Update(env, {**ARGUMENTS, **env.Dictionary()})
 Help(opts.GenerateHelpText(env))
 
+# TinaGodot: define missing module flags to avoid KeyError when modules are removed.
+if "module_mbedtls_enabled" not in env:
+    env["module_mbedtls_enabled"] = False
+if "module_webp_enabled" not in env:
+    env["module_webp_enabled"] = False
+
 # TinaGodot: 应用精简/可选模块配置到模块与第三方依赖开关。
 def _disable_module(name: str):
     key = f"module_{name}_enabled"
@@ -507,7 +513,12 @@ if "builtin_xatlas" in env:
     env["builtin_xatlas"] = False
 
 # 关闭 2D 导航服务器
-env["disable_navigation_2d"] = True
+if env.get("target", "") != "editor":
+    env["disable_navigation_2d"] = True
+
+# 为 editor 目标启用基础音频服务，避免编辑器侧音频符号未解析
+if env.get("target", "") == "editor":
+    env["tinagodot_audio"] = True
 
 # 音频可选模块
 if not env.get("tinagodot_audio", False):
