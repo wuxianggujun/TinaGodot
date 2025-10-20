@@ -16,8 +16,6 @@ SConscript("gui/SCsub")
 #     SConscript("3d/SCsub")
 SConscript("2d/SCsub")
 SConscript("animation/SCsub")
-# Audio system removed for TinaGodot
-# SConscript("audio/SCsub")
 SConscript("resources/SCsub")
 SConscript("debugger/SCsub")
 SConscript("theme/SCsub")

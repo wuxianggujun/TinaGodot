@@ -76,8 +76,6 @@ if env.editor_build:
 
     SConscript("animation/SCsub")
     SConscript("asset_library/SCsub")
-    # Audio system removed for TinaGodot
-    # SConscript("audio/SCsub")
     SConscript("debugger/SCsub")
     SConscript("doc/SCsub")
     SConscript("docks/SCsub")
