@@ -55,11 +55,12 @@ if env.editor_build:
     # To limit it, we only include translations with a high enough completion
     # ratio (20% for the editor UI, 10% for the class reference).
     # Generated with `make include-list` for each resource.
-
+    
+    # TinaGodot: Only include Chinese translations to reduce binary size (~98MB -> ~15MB)
     translation_targets = {
-        "#editor/translations/editor_translations.gen.cpp": Glob("#editor/translations/editor/*"),
-        "#editor/translations/property_translations.gen.cpp": Glob("#editor/translations/properties/*"),
-        "#editor/translations/doc_translations.gen.cpp": Glob("#doc/translations/*"),
+        "#editor/translations/editor_translations.gen.cpp": Glob("#editor/translations/editor/zh_CN.po"),
+        "#editor/translations/property_translations.gen.cpp": Glob("#editor/translations/properties/zh_CN.po"),
+        "#editor/translations/doc_translations.gen.cpp": Glob("#doc/translations/zh_CN.po"),
         "#editor/translations/extractable_translations.gen.cpp": Glob("#editor/translations/extractable/*"),
     }
     for target_cpp, sources in translation_targets.items():
