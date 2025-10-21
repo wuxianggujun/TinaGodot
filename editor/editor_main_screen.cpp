@@ -41,12 +41,7 @@
 void EditorMainScreen::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
-			if (EDITOR_3D < buttons.size() && buttons[EDITOR_3D]->is_visible()) {
-				// If the 3D editor is enabled, use this as the default.
-				select(EDITOR_3D);
-				return;
-			}
-
+			// Note: 3D editor removed - TinaGodot is 2D only, default to 2D editor
 			// Switch to the first main screen plugin that is enabled. Usually this is
 			// 2D, but may be subsequent ones if 2D is disabled in the feature profile.
 			for (int i = 0; i < buttons.size(); i++) {

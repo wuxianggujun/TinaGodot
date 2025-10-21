@@ -73,8 +73,6 @@
 
 #include "editor/animation/animation_player_editor_plugin.h"
 #include "editor/asset_library/asset_library_editor_plugin.h"
-#include "editor/audio/audio_stream_preview.h"
-#include "editor/audio/editor_audio_buses.h"
 #include "editor/debugger/debugger_editor_plugin.h"
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/debugger/script_editor_debugger.h"
@@ -109,7 +107,6 @@
 #include "editor/gui/editor_toaster.h"
 #include "editor/gui/progress_dialog.h"
 #include "editor/gui/window_wrapper.h"
-#include "editor/import/audio_stream_import_settings.h"
 #include "editor/import/dynamic_font_import_settings.h"
 #include "editor/import/fbx_importer_manager.h"
 #include "editor/import/resource_importer_bitmask.h"
@@ -123,7 +120,6 @@
 #include "editor/import/resource_importer_svg.h"
 #include "editor/import/resource_importer_texture.h"
 #include "editor/import/resource_importer_texture_atlas.h"
-#include "editor/import/resource_importer_wav.h"
 #include "editor/inspector/editor_inspector.h"
 #include "editor/inspector/editor_preview_plugins.h"
 #include "editor/inspector/editor_properties.h"
@@ -389,8 +385,6 @@ void EditorNode::shortcut_input(const Ref<InputEvent> &p_event) {
 			FileSystemDock::get_singleton()->focus_on_filter();
 		} else if (ED_IS_SHORTCUT("editor/editor_2d", p_event)) {
 			editor_main_screen->select(EditorMainScreen::EDITOR_2D);
-		} else if (ED_IS_SHORTCUT("editor/editor_3d", p_event)) {
-			editor_main_screen->select(EditorMainScreen::EDITOR_3D);
 		} else if (ED_IS_SHORTCUT("editor/editor_script", p_event)) {
 			editor_main_screen->select(EditorMainScreen::EDITOR_SCRIPT);
 		} else if (ED_IS_SHORTCUT("editor/editor_game", p_event)) {
@@ -826,7 +820,6 @@ void EditorNode::_notification(int p_what) {
 			_update_theme(true);
 
 			OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(int(EDITOR_GET("interface/editor/low_processor_mode_sleep_usec")));
-			get_tree()->get_root()->set_as_audio_listener_2d(false);
 			get_tree()->get_root()->set_snap_2d_transforms_to_pixel(false);
 			get_tree()->get_root()->set_snap_2d_vertices_to_pixel(false);
 			get_tree()->set_auto_accept_quit(false);
@@ -7186,7 +7179,7 @@ void EditorNode::_feature_profile_changed() {
 		editor_dock_manager->set_dock_enabled(ImportDock::get_singleton(), !fs_dock_disabled && !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_IMPORT_DOCK));
 		editor_dock_manager->set_dock_enabled(history_dock, !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_HISTORY_DOCK));
 
-		editor_main_screen->set_button_enabled(EditorMainScreen::EDITOR_3D, !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D));
+		// Note: EDITOR_3D removed - TinaGodot is 2D only
 		editor_main_screen->set_button_enabled(EditorMainScreen::EDITOR_SCRIPT, !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT));
 		if (!Engine::get_singleton()->is_recovery_mode_hint()) {
 			editor_main_screen->set_button_enabled(EditorMainScreen::EDITOR_GAME, !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_GAME));
@@ -7199,7 +7192,7 @@ void EditorNode::_feature_profile_changed() {
 		editor_dock_manager->set_dock_enabled(NodeDock::get_singleton(), true);
 		editor_dock_manager->set_dock_enabled(FileSystemDock::get_singleton(), true);
 		editor_dock_manager->set_dock_enabled(history_dock, true);
-		editor_main_screen->set_button_enabled(EditorMainScreen::EDITOR_3D, true);
+		// Note: EDITOR_3D removed - TinaGodot is 2D only
 		editor_main_screen->set_button_enabled(EditorMainScreen::EDITOR_SCRIPT, true);
 		if (!Engine::get_singleton()->is_recovery_mode_hint()) {
 			editor_main_screen->set_button_enabled(EditorMainScreen::EDITOR_GAME, true);
@@ -7495,8 +7488,6 @@ EditorNode::EditorNode() {
 		PortableCompressedTexture2D::set_keep_all_compressed_buffers(true);
 		RenderingServer::get_singleton()->set_debug_generate_wireframes(true);
 
-		AudioServer::get_singleton()->set_enable_tagging_used_audio_streams(true);
-
 		// No physics by default if in editor.
 #ifndef PHYSICS_2D_DISABLED
 		PhysicsServer2D::get_singleton()->set_active(false);
@@ -7673,10 +7664,6 @@ EditorNode::EditorNode() {
 		Ref<ResourceImporterCSVTranslation> import_csv_translation;
 		import_csv_translation.instantiate();
 		ResourceFormatImporter::get_singleton()->add_importer(import_csv_translation);
-
-		Ref<ResourceImporterWAV> import_wav;
-		import_wav.instantiate();
-		ResourceFormatImporter::get_singleton()->add_importer(import_wav);
 
 		Ref<ResourceImporterShaderFile> import_shader_file;
 		import_shader_file.instantiate();
@@ -7920,7 +7907,6 @@ EditorNode::EditorNode() {
 	scene_root->set_embedding_subwindows(true);
 	// 2D Lite: 全局禁用 3D，无需调用 SubViewport::set_disable_3d。
 	scene_root->set_disable_input(true);
-	scene_root->set_as_audio_listener_2d(true);
 
 	bool global_menu = !bool(EDITOR_GET("interface/editor/use_embedded_menu")) && NativeMenu::get_singleton()->has_feature(NativeMenu::FEATURE_GLOBAL_MENU);
 	bool dark_mode = DisplayServer::get_singleton()->is_dark_mode_supported() && DisplayServer::get_singleton()->is_dark_mode();
@@ -7961,9 +7947,6 @@ EditorNode::EditorNode() {
 
 	project_settings_editor = memnew(ProjectSettingsEditor(&editor_data));
 	gui_base->add_child(project_settings_editor);
-
-	audio_stream_import_settings = memnew(AudioStreamImportSettingsDialog);
-	gui_base->add_child(audio_stream_import_settings);
 
 	fontdata_import_settings = memnew(DynamicFontImportSettingsDialog);
 	gui_base->add_child(fontdata_import_settings);
@@ -8452,9 +8435,6 @@ EditorNode::EditorNode() {
 	file->connect("file_selected", callable_mp(this, &EditorNode::_dialog_action));
 	file_templates->connect("file_selected", callable_mp(this, &EditorNode::_dialog_action));
 
-	audio_preview_gen = memnew(AudioStreamPreviewGenerator);
-	add_child(audio_preview_gen);
-
 	add_editor_plugin(memnew(DebuggerEditorPlugin(debug_menu)));
 
 	disk_changed = memnew(ConfirmationDialog);
@@ -8504,8 +8484,6 @@ EditorNode::EditorNode() {
 		add_editor_plugin(get_game_view_plugin());
 	}
 
-	EditorAudioBuses *audio_bus_editor = EditorAudioBuses::register_editor();
-
 	ScriptTextEditor::register_editor(); // Register one for text scripts.
 	TextEditor::register_editor();
 
@@ -8526,8 +8504,6 @@ EditorNode::EditorNode() {
 	vcs_actions_menu->add_item(TTRC("Version Control Settings..."), VCS_SETTINGS);
 	project_menu->set_item_submenu_node(project_menu->get_item_index(PROJECT_VERSION_CONTROL), vcs_actions_menu);
 
-	add_editor_plugin(memnew(AudioBusesEditorPlugin(audio_bus_editor)));
-
 	for (int i = 0; i < EditorPlugins::get_plugin_count(); i++) {
 		add_editor_plugin(EditorPlugins::create(i));
 	}
@@ -8547,7 +8523,6 @@ EditorNode::EditorNode() {
 	resource_preview->add_preview_generator(Ref<EditorPackedScenePreviewPlugin>(memnew(EditorPackedScenePreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorMaterialPreviewPlugin>(memnew(EditorMaterialPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorScriptPreviewPlugin>(memnew(EditorScriptPreviewPlugin)));
-	resource_preview->add_preview_generator(Ref<EditorAudioStreamPreviewPlugin>(memnew(EditorAudioStreamPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorMeshPreviewPlugin>(memnew(EditorMeshPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorBitmapPreviewPlugin>(memnew(EditorBitmapPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorFontPreviewPlugin>(memnew(EditorFontPreviewPlugin)));

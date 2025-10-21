@@ -68,7 +68,9 @@ void PluginConfigDialog::_on_confirmed() {
 	cf->set_value("plugin", "version", version_edit->get_text());
 	// Language-specific settings.
 	int lang_index = script_option_edit->get_selected();
-	_create_script_for_plugin(path, cf, lang_index);
+	if (lang_index >= 0 && lang_index < ScriptServer::get_language_count()) {
+		_create_script_for_plugin(path, cf, lang_index);
+	}
 	// Save and inform the editor.
 	cf->save(path.path_join("plugin.cfg"));
 	EditorNode::get_singleton()->get_project_settings()->update_plugins();
@@ -123,6 +125,9 @@ void PluginConfigDialog::_on_required_text_changed() {
 	}
 	// Language and script validation.
 	int lang_idx = script_option_edit->get_selected();
+	if (lang_idx < 0 || lang_idx >= ScriptServer::get_language_count()) {
+		return;
+	}
 	ScriptLanguage *language = ScriptServer::get_language(lang_idx);
 	if (language == nullptr) {
 		return;
