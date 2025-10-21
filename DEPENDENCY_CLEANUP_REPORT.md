@@ -307,6 +307,21 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 
 ## 变更记录（近期）
 
+- 2025-10-21：**翻译文件大幅削减** - 只保留中文翻译减小二进制体积
+  - ✅ 编辑器UI翻译：42种语言 → 1种(zh_CN)
+  - ✅ 属性翻译：25种语言 → 1种(zh_CN)
+  - ✅ 文档翻译：11种语言 → 1种(zh_CN)
+  - 体积减少：~98MB → ~15MB（减少约83MB）
+  - 说明：英文作为后备语言始终可用
+  - 提交：待推送 - Reduce binary size by limiting translations
+
+- 2025-10-21：**引擎更新检查功能禁用** - 修复HTTPS删除后的问题
+  - ✅ 注释掉项目管理器中的EngineUpdateLabel
+  - ✅ 禁用快速设置中的更新检查选项
+  - ✅ 修复EDITOR_3D枚举值冲突（保持显式值以兼容）
+  - 修复错误：HTTPS不可用、OptionButton索引越界、按钮索引3越界
+  - 提交：`3bc6158aa4` - Disable engine update check and fix EDITOR_3D enum
+
 - 2025-10-21：**编辑器运行时错误修复** - 修复3D编辑器删除后的遗留问题
   - ✅ 修复 `spatial_editor/tool_select` 快捷键错误（替换为canvas_item_editor快捷键）
   - ✅ 修复 `EDITOR_3D` 按钮索引越界错误（删除相关调用）
