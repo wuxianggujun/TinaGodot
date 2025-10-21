@@ -30,6 +30,7 @@
 
 #include "animation_blend_tree.h"
 
+#include "core/config/engine.h"
 #include "scene/resources/animation.h"
 
 void AnimationNodeAnimation::set_animation(const StringName &p_name) {

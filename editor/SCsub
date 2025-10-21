@@ -28,6 +28,8 @@ if env.editor_build:
         env.add_source_files(env.editor_sources, f"../platform/{e}/export/*.cpp")
 
     # TinaGodot: Documentation generation completely disabled to reduce binary size by ~70MB
+    # 额外通过编译宏在代码层面屏蔽编辑器文档生成与清理调用。
+    env.AppendUnique(CPPDEFINES=["TINAGODOT_NO_DOCS"])  # 全局关闭编辑器文档功能入口
     # Users can refer to online documentation at https://docs.godotengine.org
 
     # Editor interface and class reference translations incur a significant size
@@ -59,7 +61,6 @@ if env.editor_build:
     SConscript("animation/SCsub")
     SConscript("asset_library/SCsub")
     SConscript("debugger/SCsub")
-    SConscript("doc/SCsub")
     SConscript("docks/SCsub")
     SConscript("export/SCsub")
     SConscript("file_system/SCsub")

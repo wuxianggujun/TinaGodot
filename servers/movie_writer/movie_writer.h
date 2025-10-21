@@ -37,16 +37,12 @@ class MovieWriter : public Object {
 	GDCLASS(MovieWriter, Object);
 
 	uint64_t fps = 0;
-	uint64_t mix_rate = 0;
-	uint32_t audio_channels = 0;
 
 	float cpu_time = 0.0f;
 	float gpu_time = 0.0f;
 	uint64_t encoding_time_usec = 0;
 
 	String project_name;
-
-	LocalVector<int32_t> audio_mix_buffer;
 
 	enum {
 		MAX_WRITERS = 8
@@ -55,21 +51,15 @@ class MovieWriter : public Object {
 	static uint32_t writer_count;
 
 protected:
-	virtual uint32_t get_audio_mix_rate() const;
-	virtual AudioServer::SpeakerMode get_audio_speaker_mode() const;
-
 	virtual Error write_begin(const Size2i &p_movie_size, uint32_t p_fps, const String &p_base_path);
-	virtual Error write_frame(const Ref<Image> &p_image, const int32_t *p_audio_data);
+	virtual Error write_frame(const Ref<Image> &p_image);
 	virtual void write_end();
-
-	GDVIRTUAL0RC_REQUIRED(uint32_t, _get_audio_mix_rate)
-	GDVIRTUAL0RC_REQUIRED(AudioServer::SpeakerMode, _get_audio_speaker_mode)
 
 	GDVIRTUAL1RC_REQUIRED(bool, _handles_file, const String &)
 	GDVIRTUAL0RC_REQUIRED(Vector<String>, _get_supported_extensions)
 
 	GDVIRTUAL3R_REQUIRED(Error, _write_begin, const Size2i &, uint32_t, const String &)
-	GDVIRTUAL2R_REQUIRED(Error, _write_frame, const Ref<Image> &, GDExtensionConstPtr<int32_t>)
+	GDVIRTUAL1R_REQUIRED(Error, _write_frame, const Ref<Image> &)
 	GDVIRTUAL0_REQUIRED(_write_end)
 
 	static void _bind_methods();

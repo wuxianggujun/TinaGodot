@@ -94,9 +94,7 @@
 #ifdef TOOLS_ENABLED
 #include "editor/debugger/debug_adapter/debug_adapter_server.h"
 #include "editor/debugger/editor_debugger_node.h"
-#include "editor/doc/doc_data_class_path.gen.h"
-#include "editor/doc/doc_tools.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已完全移除
 #include "editor/editor_node.h"
 #include "editor/file_system/editor_file_system.h"
 #include "editor/file_system/editor_paths.h"
@@ -3498,7 +3496,6 @@ int Main::start() {
 #ifdef TOOLS_ENABLED
 	String doc_tool_path;
 	bool doc_tool_implicit_cwd = false;
-	BitField<DocTools::GenerateFlags> gen_flags = {};
 	String _export_preset;
 	Vector<String> patches;
 	bool export_debug = false;
@@ -3526,10 +3523,9 @@ int Main::start() {
 			check_only = true;
 #ifdef TOOLS_ENABLED
 		} else if (E->get() == "--no-docbase") {
-			gen_flags.set_flag(DocTools::GENERATE_FLAG_SKIP_BASIC_TYPES);
+			// TinaGodot: 文档生成已禁用，忽略此参数
 		} else if (E->get() == "--gdextension-docs") {
-			gen_flags.set_flag(DocTools::GENERATE_FLAG_SKIP_BASIC_TYPES);
-			gen_flags.set_flag(DocTools::GENERATE_FLAG_EXTENSION_CLASSES_ONLY);
+			// TinaGodot: 文档生成已禁用，忽略此参数
 #ifndef DISABLE_DEPRECATED
 		} else if (E->get() == "--convert-3to4") {
 			converting_project = true;
@@ -3640,104 +3636,12 @@ int Main::start() {
 	}
 
 #ifdef TOOLS_ENABLED
-#ifdef MODULE_GDSCRIPT_ENABLED
-	if (!doc_tool_path.is_empty() && gdscript_docs_path.is_empty()) {
-#else
+	// TinaGodot: 文档生成功能已完全移除
+	// --doctool 参数已禁用
 	if (!doc_tool_path.is_empty()) {
-#endif
-		// Needed to instance editor-only classes for their default values
-		Engine::get_singleton()->set_editor_hint(true);
-
-		// Translate the class reference only when `-l LOCALE` parameter is given.
-		if (!locale.is_empty() && locale != "en") {
-			load_doc_translations(locale);
-		}
-
-		{
-			Ref<DirAccess> da = DirAccess::open(doc_tool_path);
-			ERR_FAIL_COND_V_MSG(da.is_null(), EXIT_FAILURE, "Argument supplied to --doctool must be a valid directory path.");
-			// Ensure that doctool is running in the root dir, but only if
-			// user did not manually specify a path as argument.
-			if (doc_tool_implicit_cwd) {
-				ERR_FAIL_COND_V_MSG(!da->dir_exists("doc"), EXIT_FAILURE, "--doctool must be run from the Godot repository's root folder, or specify a path that points there.");
-			}
-		}
-
-#ifndef MODULE_MONO_ENABLED
-		// Hack to define .NET-specific project settings even on non-.NET builds,
-		// so that we don't lose their descriptions and default values in DocTools.
-		// Default values should be synced with mono_gd/gd_mono.cpp.
-		GLOBAL_DEF("dotnet/project/assembly_name", "");
-		GLOBAL_DEF("dotnet/project/solution_directory", "");
-		GLOBAL_DEF(PropertyInfo(Variant::INT, "dotnet/project/assembly_reload_attempts", PROPERTY_HINT_RANGE, "1,16,1,or_greater"), 3);
-#endif
-
-		Error err;
-		DocTools doc;
-		doc.generate(gen_flags);
-
-		DocTools docsrc;
-		HashMap<String, String> doc_data_classes;
-		HashSet<String> checked_paths;
-		print_line("Loading docs...");
-
-		const bool gdextension_docs = gen_flags.has_flag(DocTools::GENERATE_FLAG_EXTENSION_CLASSES_ONLY);
-
-		if (!gdextension_docs) {
-			for (int i = 0; i < _doc_data_class_path_count; i++) {
-				// Custom modules are always located by absolute path.
-				String path = _doc_data_class_paths[i].path;
-				if (path.is_relative_path()) {
-					path = doc_tool_path.path_join(path);
-				}
-				String name = _doc_data_class_paths[i].name;
-				doc_data_classes[name] = path;
-				if (!checked_paths.has(path)) {
-					checked_paths.insert(path);
-
-					// Create the module documentation directory if it doesn't exist
-					Ref<DirAccess> da = DirAccess::create_for_path(path);
-					err = da->make_dir_recursive(path);
-					ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error: Can't create directory: " + path + ": " + itos(err));
-
-					print_line("Loading docs from: " + path);
-					err = docsrc.load_classes(path);
-					ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error loading docs from: " + path + ": " + itos(err));
-				}
-			}
-		}
-
-		// For GDExtension docs, use a path that is compatible with Godot modules.
-		String index_path = gdextension_docs ? doc_tool_path.path_join("doc_classes") : doc_tool_path.path_join("doc/classes");
-		// Create the main documentation directory if it doesn't exist
-		Ref<DirAccess> da = DirAccess::create_for_path(index_path);
-		err = da->make_dir_recursive(index_path);
-		ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error: Can't create index directory: " + index_path + ": " + itos(err));
-
-		print_line("Loading classes from: " + index_path);
-		err = docsrc.load_classes(index_path);
-		ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error loading classes from: " + index_path + ": " + itos(err));
-		checked_paths.insert(index_path);
-
-		print_line("Merging docs...");
-		doc.merge_from(docsrc);
-
-		for (const String &E : checked_paths) {
-			print_line("Erasing old docs at: " + E);
-			err = DocTools::erase_classes(E);
-			ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error erasing old docs at: " + E + ": " + itos(err));
-		}
-
-		print_line("Generating new docs...");
-		err = doc.save_classes(index_path, doc_data_classes, !gdextension_docs);
-		ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error saving new docs:" + itos(err));
-
-		print_line("Deleting docs cache...");
-		if (FileAccess::exists(EditorHelp::get_cache_full_path())) {
-			DirAccess::remove_file_or_error(EditorHelp::get_cache_full_path());
-		}
-
-		return EXIT_SUCCESS;
+		print_line("TinaGodot: Documentation generation has been removed.");
+		print_line("This build does not support --doctool parameter.");
+		return EXIT_FAILURE;
 	}
 
 	// GDExtension API and interface.
@@ -4009,36 +3913,7 @@ int Main::start() {
 		}
 
 #ifdef TOOLS_ENABLED
-#ifdef MODULE_GDSCRIPT_ENABLED
-		if (!doc_tool_path.is_empty() && !gdscript_docs_path.is_empty()) {
-			DocTools docs;
-			Error err;
-
-			Vector<String> paths = get_files_with_extension(gdscript_docs_path, "gd");
-			ERR_FAIL_COND_V_MSG(paths.is_empty(), EXIT_FAILURE, "Couldn't find any GDScript files under the given directory: " + gdscript_docs_path);
-
-			for (const String &path : paths) {
-				Ref<GDScript> gdscript = ResourceLoader::load(path);
-				for (const DocData::ClassDoc &class_doc : gdscript->get_documentation()) {
-					docs.add_doc(class_doc);
-				}
-			}
-
-			if (doc_tool_implicit_cwd) {
-				doc_tool_path = "./docs";
-			}
-
-			Ref<DirAccess> da = DirAccess::create_for_path(doc_tool_path);
-			err = da->make_dir_recursive(doc_tool_path);
-			ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error: Can't create GDScript docs directory: " + doc_tool_path + ": " + itos(err));
-
-			HashMap<String, String> doc_data_classes;
-			err = docs.save_classes(doc_tool_path, doc_data_classes, false);
-			ERR_FAIL_COND_V_MSG(err != OK, EXIT_FAILURE, "Error saving GDScript docs:" + itos(err));
-
-			return EXIT_SUCCESS;
-		}
-#endif // MODULE_GDSCRIPT_ENABLED
+	// TinaGodot: GDScript 文档生成功能已移除
 
 		EditorNode *editor_node = nullptr;
 		if (editor) {

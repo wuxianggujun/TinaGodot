@@ -34,7 +34,7 @@
 #include "core/io/resource_loader.h"
 #include "core/os/keyboard.h"
 #include "editor/debugger/editor_debugger_inspector.h"
-#include "editor/doc/doc_tools.h"
+// TinaGodot: 文档功能已移除
 #include "editor/docks/inspector_dock.h"
 #include "editor/editor_main_screen.h"
 #include "editor/editor_node.h"
@@ -1338,7 +1338,8 @@ Control *EditorProperty::make_custom_tooltip(const String &p_text) const {
 	}
 
 	if (!symbol.is_empty() || !prologue.is_empty()) {
-		return EditorHelpBitTooltip::show_tooltip(const_cast<EditorProperty *>(this), symbol, prologue);
+		// TinaGodot: 文档功能已移除
+		return nullptr; // EditorHelpBitTooltip::show_tooltip(const_cast<EditorProperty *>(this), symbol, prologue);
 	}
 
 	return nullptr;
@@ -1714,7 +1715,8 @@ Control *EditorInspectorCategory::make_custom_tooltip(const String &p_text) cons
 		return nullptr;
 	}
 
-	return EditorHelpBitTooltip::show_tooltip(const_cast<EditorInspectorCategory *>(this), p_text);
+	// TinaGodot: 文档功能已移除
+	return nullptr; // EditorHelpBitTooltip::show_tooltip(const_cast<EditorInspectorCategory *>(this), p_text);
 }
 
 void EditorInspectorCategory::set_as_favorite() {
@@ -1784,7 +1786,8 @@ void EditorInspectorCategory::_popup_context_menu(const Point2i &p_position) {
 			menu->add_item(TTRC("Unfavorite All"), MENU_UNFAVORITE_ALL);
 		} else {
 			menu->add_item(TTRC("Open Documentation"), MENU_OPEN_DOCS);
-			menu->set_item_disabled(-1, !EditorHelp::get_doc_data()->class_list.has(doc_class_name));
+			// TinaGodot: 文档功能已移除
+			menu->set_item_disabled(-1, true); // !EditorHelp::get_doc_data()->class_list.has(doc_class_name);
 		}
 
 		menu->connect(SceneStringName(id_pressed), callable_mp(this, &EditorInspectorCategory::_handle_menu_option));
@@ -2210,7 +2213,8 @@ Control *EditorInspectorSection::make_custom_tooltip(const String &p_text) const
 	}
 
 	if (!symbol.is_empty() || !prologue.is_empty()) {
-		return EditorHelpBitTooltip::show_tooltip(const_cast<EditorInspectorSection *>(this), symbol, prologue);
+		// TinaGodot: 文档功能已移除
+		return nullptr; // EditorHelpBitTooltip::show_tooltip(const_cast<EditorInspectorSection *>(this), symbol, prologue);
 	}
 
 	return nullptr;
@@ -3879,7 +3883,8 @@ void EditorInspector::update_tree() {
 				if (!EditorNode::get_editor_data().is_type_recognized(p.name) && ResourceLoader::exists(p.hint_string, "Script")) {
 					Ref<Script> scr = ResourceLoader::load(p.hint_string, "Script");
 					if (scr.is_valid()) {
-						doc_name = scr->get_doc_class_name();
+						// TinaGodot: 文档功能已移除
+						doc_name = ""; // scr->get_doc_class_name();
 
 						// Property favorites aren't compatible with built-in scripts.
 						if (scr->is_built_in()) {
@@ -4256,16 +4261,15 @@ void EditorInspector::update_tree() {
 				classname = object->get_class_name();
 				Resource *res = Object::cast_to<Resource>(object);
 				if (res && !res->get_script().is_null()) {
+					// TinaGodot: 文档功能已移除
 					// Grab the script of this resource to get the evaluated script class.
-					Ref<Script> scr = res->get_script();
-					if (scr.is_valid()) {
-						Vector<DocData::ClassDoc> docs = scr->get_documentation();
-						if (!docs.is_empty()) {
-							// The documentation of a GDScript's main class is at the end of the array.
-							// Hacky because this isn't necessarily always guaranteed.
-							classname = docs[docs.size() - 1].name;
-						}
-					}
+					// Ref<Script> scr = res->get_script();
+					// if (scr.is_valid()) {
+					// 	Vector<DocData::ClassDoc> docs = scr->get_documentation();
+					// 	if (!docs.is_empty()) {
+					// 		classname = docs[docs.size() - 1].name;
+					// 	}
+					// }
 				}
 			}
 
@@ -4297,44 +4301,39 @@ void EditorInspector::update_tree() {
 			}
 
 			if (!found) {
-				DocTools *dd = EditorHelp::get_doc_data();
-				// Do not cache the doc path information of scripts.
-				bool is_native_class = ClassDB::class_exists(classname);
-
-				HashMap<String, DocData::ClassDoc>::ConstIterator F = dd->class_list.find(classname);
-				while (F) {
-					Vector<String> slices = propname.operator String().split("/");
-					// Check if it's a theme item first.
-					if (slices.size() == 2 && slices[0].begins_with("theme_override_")) {
-						for (int i = 0; i < F->value.theme_properties.size(); i++) {
-							String doc_path_current = "class_theme_item:" + F->value.name + ":" + F->value.theme_properties[i].name;
-							if (F->value.theme_properties[i].name == slices[1]) {
-								doc_path = doc_path_current;
-								theme_item_name = F->value.theme_properties[i].name;
-							}
-						}
-					} else {
-						for (int i = 0; i < F->value.properties.size(); i++) {
-							String doc_path_current = "class_property:" + F->value.name + ":" + F->value.properties[i].name;
-							if (F->value.properties[i].name == propname.operator String()) {
-								doc_path = doc_path_current;
-							}
-						}
-					}
-
-					if (is_native_class) {
-						DocCacheInfo cache_info;
-						cache_info.doc_path = doc_path;
-						cache_info.theme_item_name = theme_item_name;
-						doc_cache[classname][propname] = cache_info;
-					}
-
-					if (!doc_path.is_empty() || F->value.inherits.is_empty()) {
-						break;
-					}
-					// Couldn't find the doc path in the class itself, try its super class.
-					F = dd->class_list.find(F->value.inherits);
-				}
+				// TinaGodot: 文档功能已移除 - 完全跳过文档查询
+				// DocTools *dd = EditorHelp::get_doc_data();
+				// bool is_native_class = ClassDB::class_exists(classname);
+				// HashMap<String, DocData::ClassDoc>::ConstIterator F = dd->class_list.find(classname);
+				// while (F) {
+				// 	Vector<String> slices = propname.operator String().split("/");
+				// 	if (slices.size() == 2 && slices[0].begins_with("theme_override_")) {
+				// 		for (int i = 0; i < F->value.theme_properties.size(); i++) {
+				// 			String doc_path_current = "class_theme_item:" + F->value.name + ":" + F->value.theme_properties[i].name;
+				// 			if (F->value.theme_properties[i].name == slices[1]) {
+				// 				doc_path = doc_path_current;
+				// 				theme_item_name = F->value.theme_properties[i].name;
+				// 			}
+				// 		}
+				// 	} else {
+				// 		for (int i = 0; i < F->value.properties.size(); i++) {
+				// 			String doc_path_current = "class_property:" + F->value.name + ":" + F->value.properties[i].name;
+				// 			if (F->value.properties[i].name == propname.operator String()) {
+				// 				doc_path = doc_path_current;
+				// 			}
+				// 		}
+				// 	}
+				// 	if (is_native_class) {
+				// 		DocCacheInfo cache_info;
+				// 		cache_info.doc_path = doc_path;
+				// 		cache_info.theme_item_name = theme_item_name;
+				// 		doc_cache[classname][propname] = cache_info;
+				// 	}
+				// 	if (!doc_path.is_empty() || F->value.inherits.is_empty()) {
+				// 		break;
+				// 	}
+				// 	F = dd->class_list.find(F->value.inherits);
+				// }
 			}
 
 			// `|` separators used in `EditorHelpBit`.
@@ -5380,15 +5379,16 @@ void EditorInspector::_set_property_favorited(const String &p_path, bool p_favor
 
 		if (!theme_property.is_empty()) { // Deal with theme properties.
 			bool found = false;
-			HashMap<String, DocData::ClassDoc>::ConstIterator F = EditorHelp::get_doc_data()->class_list.find(class_name);
-			if (F) {
-				for (const DocData::ThemeItemDoc &prop : F->value.theme_properties) {
-					if (prop.name == theme_property) {
-						found = true;
-						break;
-					}
-				}
-			}
+			// TinaGodot: 文档功能已移除 - 完全跳过主题属性文档查询
+			// HashMap<String, DocData::ClassDoc>::ConstIterator F = EditorHelp::get_doc_data()->class_list.find(class_name);
+			// if (F) {
+			// 	for (const DocData::ThemeItemDoc &prop : F->value.theme_properties) {
+			// 		if (prop.name == theme_property) {
+			// 			found = true;
+			// 			break;
+			// 		}
+			// 	}
+			// }
 
 			if (found) {
 				break;

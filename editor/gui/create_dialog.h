@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "scene/gui/button.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/item_list.h"
@@ -64,7 +64,8 @@ class CreateDialog : public ConfirmationDialog {
 	Vector<String> favorite_list;
 	Tree *favorites = nullptr;
 	ItemList *recent = nullptr;
-	EditorHelpBit *help_bit = nullptr;
+	// TinaGodot: 文档功能已移除
+	// EditorHelpBit *help_bit = nullptr;
 
 	HashMap<String, TreeItem *> search_options_types;
 	HashMap<String, String> custom_type_parents;

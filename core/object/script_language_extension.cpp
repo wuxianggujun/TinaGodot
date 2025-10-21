@@ -51,9 +51,10 @@ void ScriptExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_set_source_code, "code");
 	GDVIRTUAL_BIND(_reload, "keep_state");
 
-	GDVIRTUAL_BIND(_get_doc_class_name);
-	GDVIRTUAL_BIND(_get_documentation);
-	GDVIRTUAL_BIND(_get_class_icon_path);
+	// TinaGodot: 文档功能已移除
+	// GDVIRTUAL_BIND(_get_doc_class_name);
+	// GDVIRTUAL_BIND(_get_documentation);
+	// GDVIRTUAL_BIND(_get_class_icon_path);
 
 	GDVIRTUAL_BIND(_has_method, "method");
 	GDVIRTUAL_BIND(_has_static_method, "method");

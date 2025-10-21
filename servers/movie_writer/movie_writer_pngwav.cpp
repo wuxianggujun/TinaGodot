@@ -33,13 +33,6 @@
 #include "core/io/dir_access.h"
 #include "core/io/file_access.h"
 
-uint32_t MovieWriterPNGWAV::get_audio_mix_rate() const {
-	return mix_rate;
-}
-AudioServer::SpeakerMode MovieWriterPNGWAV::get_audio_speaker_mode() const {
-	return speaker_mode;
-}
-
 void MovieWriterPNGWAV::get_supported_extensions(List<String> *r_extensions) const {
 	r_extensions->push_back("png");
 }
@@ -82,72 +75,16 @@ Error MovieWriterPNGWAV::write_begin(const Size2i &p_movie_size, uint32_t p_fps,
 		}
 	}
 
-	f_wav = FileAccess::open(base_path + ".wav", FileAccess::WRITE_READ);
-	ERR_FAIL_COND_V(f_wav.is_null(), ERR_CANT_OPEN);
-
 	fps = p_fps;
-
-	f_wav->store_buffer((const uint8_t *)"RIFF", 4);
-	int total_size = 4 /* WAVE */ + 8 /* fmt+size */ + 16 /* format */ + 8 /* data+size */;
-	f_wav->store_32(total_size); //will store final later
-	f_wav->store_buffer((const uint8_t *)"WAVE", 4);
-
-	/* FORMAT CHUNK */
-
-	f_wav->store_buffer((const uint8_t *)"fmt ", 4);
-
-	uint32_t channels = 2;
-	switch (speaker_mode) {
-		case AudioServer::SPEAKER_MODE_STEREO:
-			channels = 2;
-			break;
-		case AudioServer::SPEAKER_SURROUND_31:
-			channels = 4;
-			break;
-		case AudioServer::SPEAKER_SURROUND_51:
-			channels = 6;
-			break;
-		case AudioServer::SPEAKER_SURROUND_71:
-			channels = 8;
-			break;
-	}
-
-	f_wav->store_32(16); //standard format, no extra fields
-	f_wav->store_16(1); // compression code, standard PCM
-	f_wav->store_16(channels); //CHANNELS: 2
-
-	f_wav->store_32(mix_rate);
-
-	/* useless stuff the format asks for */
-
-	int bits_per_sample = 32;
-	int blockalign = bits_per_sample / 8 * channels;
-	int bytes_per_sec = mix_rate * blockalign;
-
-	audio_block_size = (mix_rate / fps) * blockalign;
-
-	f_wav->store_32(bytes_per_sec);
-	f_wav->store_16(blockalign); // block align (unused)
-	f_wav->store_16(bits_per_sample);
-
-	/* DATA CHUNK */
-
-	f_wav->store_buffer((const uint8_t *)"data", 4);
-
-	f_wav->store_32(0); //data size... wooh
-	wav_data_size_pos = f_wav->get_position();
 
 	return OK;
 }
 
-Error MovieWriterPNGWAV::write_frame(const Ref<Image> &p_image, const int32_t *p_audio_data) {
-	ERR_FAIL_COND_V(f_wav.is_null(), ERR_UNCONFIGURED);
-
+Error MovieWriterPNGWAV::write_frame(const Ref<Image> &p_image) {
 	Vector<uint8_t> png_buffer = p_image->save_png_to_buffer();
 
 	Ref<FileAccess> fi = FileAccess::open(base_path + zeros_str(frame_count) + ".png", FileAccess::WRITE);
 	fi->store_buffer(png_buffer.ptr(), png_buffer.size());
-	f_wav->store_buffer((const uint8_t *)p_audio_data, audio_block_size);
 
 	frame_count++;
 
@@ -155,17 +92,8 @@ Error MovieWriterPNGWAV::write_frame(const Ref<Image> &p_image, const int32_t *p
 }
 
 void MovieWriterPNGWAV::write_end() {
-	if (f_wav.is_valid()) {
-		uint32_t total_size = 4 /* WAVE */ + 8 /* fmt+size */ + 16 /* format */ + 8 /* data+size */;
-		uint32_t datasize = f_wav->get_position() - wav_data_size_pos;
-		f_wav->seek(4);
-		f_wav->store_32(total_size + datasize);
-		f_wav->seek(0x28);
-		f_wav->store_32(datasize);
-	}
+	// Nothing to do - PNG files are already saved
 }
 
 MovieWriterPNGWAV::MovieWriterPNGWAV() {
-	mix_rate = GLOBAL_GET("editor/movie_writer/mix_rate");
-	speaker_mode = AudioServer::SpeakerMode(int(GLOBAL_GET("editor/movie_writer/speaker_mode")));
 }

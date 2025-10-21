@@ -1,0 +1,15 @@
+Disable engine update check and fix EDITOR_3D enum issues
+
+1. Disable engine update check feature (HTTPS removed)
+   - Comment out EngineUpdateLabel in project_manager
+   - Disable update check options in quick_settings_dialog
+   - Remove update check setting from editor_settings
+
+2. Fix EDITOR_3D enum value conflicts
+   - Keep enum values explicit (EDITOR_2D=0, EDITOR_SCRIPT=2, etc)
+   - Skip EDITOR_3D=1 to maintain compatibility
+
+This fixes:
+- "HTTPS is not available" error
+- OptionButton index out of bounds error  
+- EditorMainScreen button index 3 out of bounds error

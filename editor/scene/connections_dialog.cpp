@@ -32,7 +32,7 @@
 
 #include "core/config/project_settings.h"
 #include "core/templates/hash_set.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "editor/docks/node_dock.h"
 #include "editor/docks/scene_tree_dock.h"
 #include "editor/editor_main_screen.h"
@@ -966,7 +966,8 @@ Control *ConnectionsDockTree::make_custom_tooltip(const String &p_text) const {
 		return nullptr;
 	}
 
-	return EditorHelpBitTooltip::show_tooltip(const_cast<ConnectionsDockTree *>(this), p_text);
+	// TinaGodot: 文档功能已移除
+	return nullptr; // EditorHelpBitTooltip::show_tooltip(const_cast<ConnectionsDockTree *>(this), p_text);
 }
 
 struct _ConnectionsDockMethodInfoSort {
@@ -1527,7 +1528,8 @@ void ConnectionsDock::update_tree() {
 	}
 
 	TreeItem *root = tree->create_item();
-	DocTools *doc_data = EditorHelp::get_doc_data();
+	// TinaGodot: 文档功能已移除
+	// DocTools *doc_data = nullptr; // EditorHelp::get_doc_data();
 	EditorData &editor_data = EditorNode::get_editor_data();
 	StringName native_base = selected_node->get_class();
 	Ref<Script> script_base = selected_node->get_script();
@@ -1548,9 +1550,10 @@ void ConnectionsDock::update_tree() {
 			if (doc_class_name.is_empty()) {
 				doc_class_name = script_base->get_path().trim_prefix("res://").quote();
 			}
-			if (!doc_class_name.is_empty() && !doc_data->class_list.find(doc_class_name)) {
-				doc_class_name = String();
-			}
+			// TinaGodot: 文档功能已移除
+			// if (!doc_class_name.is_empty() && !doc_data->class_list.find(doc_class_name)) {
+			// 	doc_class_name = String();
+			// }
 
 			class_icon = editor_data.get_script_icon(script_base->get_path());
 			if (class_icon.is_null() && has_theme_icon(native_base, EditorStringName(EditorIcons))) {
@@ -1582,9 +1585,10 @@ void ConnectionsDock::update_tree() {
 			class_name = native_base;
 			doc_class_name = native_base;
 
-			if (!doc_data->class_list.find(doc_class_name)) {
-				doc_class_name = String();
-			}
+			// TinaGodot: 文档功能已移除
+			// if (!doc_data->class_list.find(doc_class_name)) {
+			// 	doc_class_name = String();
+			// }
 
 			if (has_theme_icon(native_base, EditorStringName(EditorIcons))) {
 				class_icon = get_editor_theme_icon(native_base);

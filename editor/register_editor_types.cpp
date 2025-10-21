@@ -32,8 +32,6 @@
 
 #include "core/object/script_language.h"
 #include "editor/animation/animation_tree_editor_plugin.h"
-#include "editor/audio/audio_stream_editor_plugin.h"
-#include "editor/audio/audio_stream_randomizer_editor_plugin.h"
 #include "editor/debugger/debug_adapter/debug_adapter_server.h"
 #include "editor/debugger/editor_debugger_plugin.h"
 #include "editor/docks/filesystem_dock.h"
@@ -64,7 +62,6 @@
 #include "editor/import/resource_importer_svg.h"
 #include "editor/import/resource_importer_texture.h"
 #include "editor/import/resource_importer_texture_atlas.h"
-#include "editor/import/resource_importer_wav.h"
 #include "editor/inspector/editor_context_menu_plugin.h"
 #include "editor/inspector/editor_resource_picker.h"
 #include "editor/inspector/editor_resource_preview.h"
@@ -182,12 +179,9 @@ void register_editor_types() {
 	GDREGISTER_CLASS(ResourceImporterShaderFile);
 	GDREGISTER_CLASS(ResourceImporterTexture);
 	GDREGISTER_CLASS(ResourceImporterTextureAtlas);
-	GDREGISTER_CLASS(ResourceImporterWAV);
 
 	// This list is alphabetized, and plugins that depend on Node2D are in their own section below.
 	EditorPlugins::add_by_type<AnimationTreeEditorPlugin>();
-	EditorPlugins::add_by_type<AudioStreamEditorPlugin>();
-	EditorPlugins::add_by_type<AudioStreamRandomizerEditorPlugin>();
 	EditorPlugins::add_by_type<BitMapEditorPlugin>();
 	EditorPlugins::add_by_type<ControlEditorPlugin>();
 	EditorPlugins::add_by_type<CurveEditorPlugin>();
@@ -264,9 +258,12 @@ EditorPlugins::add_by_type<ToolButtonEditorPlugin>();
 		TexturePreview::init_shaders();
 	}
 
-	// Required as GDExtensions can register docs at init time way before this
-	// class is actually instantiated.
-	EditorHelp::init_gdext_pointers();
+    // Required as GDExtensions can register docs at init time way before this
+    // class is actually instantiated.
+#ifndef TINAGODOT_NO_DOCS
+    // TinaGodot: 文档功能已移除
+    // EditorHelp::init_gdext_pointers();
+#endif
 
 	OS::get_singleton()->benchmark_end_measure("Editor", "Register Types");
 }

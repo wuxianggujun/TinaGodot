@@ -39,7 +39,7 @@
 #include "texture.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 
 #include "modules/modules_enabled.gen.h" // For regex.
 #ifdef MODULE_REGEX_ENABLED
@@ -154,11 +154,12 @@ void Shader::get_shader_uniform_list(List<PropertyInfo> *p_params, bool p_get_gr
 	List<PropertyInfo> local;
 	RenderingServer::get_singleton()->get_shader_parameter_list(shader_rid, &local);
 
-#ifdef TOOLS_ENABLED
-	DocData::ClassDoc class_doc;
-	class_doc.name = get_path();
-	class_doc.is_script_doc = true;
-#endif
+// TinaGodot: 文档功能已移除
+// #ifdef TOOLS_ENABLED
+// 	DocData::ClassDoc class_doc;
+// 	class_doc.name = get_path();
+// 	class_doc.is_script_doc = true;
+// #endif
 
 	for (PropertyInfo &pi : local) {
 		bool is_group = pi.usage == PROPERTY_USAGE_GROUP || pi.usage == PROPERTY_USAGE_SUBGROUP;
@@ -175,33 +176,32 @@ void Shader::get_shader_uniform_list(List<PropertyInfo> *p_params, bool p_get_gr
 			if (pi.type == Variant::RID) {
 				pi.type = Variant::OBJECT;
 			}
-#ifdef TOOLS_ENABLED
-			if (Engine::get_singleton()->is_editor_hint()) {
-				DocData::PropertyDoc prop_doc;
-				prop_doc.name = "shader_parameter/" + pi.name;
-#ifdef MODULE_REGEX_ENABLED
-				const RegEx pattern("/\\*\\*\\s([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/\\s*uniform\\s+\\w+\\s+" + pi.name + "(?=[\\s:;=])");
-				Ref<RegExMatch> pattern_ref = pattern.search(code);
-				if (pattern_ref.is_valid()) {
-					RegExMatch *match = pattern_ref.ptr();
-					const RegEx pattern_tip("\\/\\*\\*([\\s\\S]*?)\\*/");
-					Ref<RegExMatch> pattern_tip_ref = pattern_tip.search(match->get_string(0));
-					RegExMatch *match_tip = pattern_tip_ref.ptr();
-					const RegEx pattern_stripped("\\n\\s*\\*\\s*");
-					prop_doc.description = pattern_stripped.sub(match_tip->get_string(1), "\n", true);
-				}
-#endif
-				class_doc.properties.push_back(prop_doc);
-			}
-#endif
+// TinaGodot: 文档功能已移除
+// #ifdef TOOLS_ENABLED
+// 			if (Engine::get_singleton()->is_editor_hint()) {
+// 				DocData::PropertyDoc prop_doc;
+// 				prop_doc.name = "shader_parameter/" + pi.name;
+// #ifdef MODULE_REGEX_ENABLED
+// 				const RegEx pattern("/\\*\\*\\s([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/\\s*uniform\\s+\\w+\\s+" + pi.name + "(?=[\\s:;=])");
+// 				Ref<RegExMatch> pattern_ref = pattern.search(code);
+// 				if (pattern_ref.is_valid()) {
+// 					RegExMatch *match = pattern_ref.ptr();
+// 					const RegEx pattern_tip("\\/\\*\\*([\\s\\S]*?)\\*/");
+// 					Ref<RegExMatch> pattern_tip_ref = pattern_tip.search(match->get_string(0));
+// 					RegExMatch *match_tip = pattern_tip_ref.ptr();
+// 					const RegEx pattern_stripped("\\n\\s*\\*\\s*");
+// 					prop_doc.description = pattern_stripped.sub(match_tip->get_string(1), "\n", true);
+// 				}
+// #endif
+// 				class_doc.properties.push_back(prop_doc);
+// 			}
+// #endif
 			p_params->push_back(pi);
 		}
 	}
-#ifdef TOOLS_ENABLED
-	if (Engine::get_singleton()->is_editor_hint() && !class_doc.name.is_empty() && p_params) {
-		EditorHelp::add_doc(class_doc);
-	}
-#endif
+// TinaGodot: 文档功能已移除
+// #ifdef TOOLS_ENABLED
+// #endif
 }
 
 RID Shader::get_rid() const {

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/object/ref_counted.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tree.h"
 
@@ -158,7 +158,8 @@ class EditorBuildProfileManager : public AcceptDialog {
 	Button *profile_actions[ACTION_MAX];
 
 	Tree *class_list = nullptr;
-	EditorHelpBit *description_bit = nullptr;
+	// TinaGodot: 文档功能已移除
+	// EditorHelpBit *description_bit = nullptr;
 
 	EditorFileDialog *import_profile = nullptr;
 	EditorFileDialog *export_profile = nullptr;

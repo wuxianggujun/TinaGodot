@@ -36,7 +36,7 @@
 #include "core/math/expression.h"
 #include "core/os/keyboard.h"
 #include "editor/debugger/editor_debugger_node.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "editor/docks/filesystem_dock.h"
 #include "editor/editor_interface.h"
 #include "editor/editor_node.h"
@@ -1280,7 +1280,8 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
 	} else if (lc_error == OK) {
 		_goto_line(p_row);
 
-		if (!result.class_name.is_empty() && EditorHelp::get_doc_data()->class_list.has(result.class_name) && !EditorHelp::get_doc_data()->class_list[result.class_name].is_script_doc) {
+		// TinaGodot: 文档功能已移除
+		if (false) { // (!result.class_name.is_empty() && EditorHelp::get_doc_data()->class_list.has(result.class_name) && !EditorHelp::get_doc_data()->class_list[result.class_name].is_script_doc) {
 			switch (result.type) {
 				case ScriptLanguage::LOOKUP_RESULT_CLASS: {
 					emit_signal(SNAME("go_to_help"), "class_name:" + result.class_name);
@@ -1408,7 +1409,8 @@ void ScriptTextEditor::_show_symbol_tooltip(const String &p_symbol, int p_row, i
 	}
 
 	if (p_symbol.begins_with("res://") || p_symbol.begins_with("uid://")) {
-		EditorHelpBitTooltip::show_tooltip(code_editor->get_text_editor(), "resource||" + p_symbol);
+		// TinaGodot: 文档功能已移除
+		// EditorHelpBitTooltip::show_tooltip(code_editor->get_text_editor(), "resource||" + p_symbol);
 		return;
 	}
 
@@ -1518,7 +1520,8 @@ void ScriptTextEditor::_show_symbol_tooltip(const String &p_symbol, int p_row, i
 	}
 
 	if (!doc_symbol.is_empty() || !debug_value.is_empty()) {
-		EditorHelpBitTooltip::show_tooltip(code_editor->get_text_editor(), doc_symbol, debug_value, true);
+		// TinaGodot: 文档功能已移除
+		// EditorHelpBitTooltip::show_tooltip(code_editor->get_text_editor(), doc_symbol, debug_value, true);
 	}
 }
 

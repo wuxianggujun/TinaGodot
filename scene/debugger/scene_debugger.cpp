@@ -47,7 +47,6 @@
 #include "scene/main/window.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/theme/theme_db.h"
-#include "servers/audio/audio_server.h"
 
 #ifndef PHYSICS_2D_DISABLED
 #include "scene/2d/physics/collision_object_2d.h"
@@ -207,8 +206,7 @@ Error SceneDebugger::_msg_speed_changed(const Array &p_args) {
 
 Error SceneDebugger::_msg_debug_mute_audio(const Array &p_args) {
 	ERR_FAIL_COND_V(p_args.is_empty(), ERR_INVALID_DATA);
-	bool do_mute = p_args[0];
-	AudioServer::get_singleton()->set_debug_mute(do_mute);
+	// Audio disabled - no mute functionality
 	return OK;
 }
 

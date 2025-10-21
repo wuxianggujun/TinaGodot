@@ -71,27 +71,6 @@ uint8_t script_encryption_key[32] = {{
         )
 
 
-def make_certs_header(target, source, env):
-    buffer = methods.get_buffer(str(source[0]))
-    decomp_size = len(buffer)
-    buffer = methods.compress_buffer(buffer)
-
-    with methods.generated_wrapper(str(target[0])) as file:
-        # System certs path. Editor will use them if defined. (for package maintainers)
-        file.write(f'#define _SYSTEM_CERTS_PATH "{source[2]}"\n')
-        if source[1].read():
-            # Defined here and not in env so changing it does not trigger a full rebuild.
-            file.write(f"""\
-#define BUILTIN_CERTS_ENABLED
-
-inline constexpr int _certs_compressed_size = {len(buffer)};
-inline constexpr int _certs_uncompressed_size = {decomp_size};
-inline constexpr unsigned char _certs_compressed[] = {{
-	{methods.format_buffer(buffer, 1)}
-}};
-""")
-
-
 def make_authors_header(target, source, env):
     SECTIONS = {
         "Project Founders": "AUTHORS_FOUNDERS",

@@ -30,7 +30,7 @@
 
 #include "theme_editor_plugin.h"
 
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "editor/docks/filesystem_dock.h"
 #include "editor/docks/inspector_dock.h"
 #include "editor/editor_node.h"
@@ -2336,7 +2336,8 @@ ThemeTypeDialog::ThemeTypeDialog() {
 ///////////////////////
 
 Control *ThemeItemLabel::make_custom_tooltip(const String &p_text) const {
-	return EditorHelpBitTooltip::show_tooltip(const_cast<ThemeItemLabel *>(this), p_text);
+	// TinaGodot: 文档功能已移除
+	return nullptr; // EditorHelpBitTooltip::show_tooltip(const_cast<ThemeItemLabel *>(this), p_text);
 }
 
 VBoxContainer *ThemeTypeEditor::_create_item_list(Theme::DataType p_data_type) {

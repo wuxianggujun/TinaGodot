@@ -178,7 +178,6 @@ public:
 	};
 
 	PackedByteArray get_entropy(int p_bytes);
-	String get_system_ca_certificates();
 
 	enum StdHandleType {
 		STD_HANDLE_INVALID,

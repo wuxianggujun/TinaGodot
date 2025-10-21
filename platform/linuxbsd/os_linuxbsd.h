@@ -136,8 +136,6 @@ public:
 
 	virtual Error move_to_trash(const String &p_path) override;
 
-	virtual String get_system_ca_certificates() override;
-
 #ifdef TOOLS_ENABLED
 	virtual bool _test_create_rendering_device_and_gl(const String &p_display_driver) const override;
 	virtual bool _test_create_rendering_device(const String &p_display_driver) const override;

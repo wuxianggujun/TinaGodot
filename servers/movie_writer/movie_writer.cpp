@@ -33,7 +33,6 @@
 #include "core/io/dir_access.h"
 #include "core/os/time.h"
 #include "scene/main/window.h"
-#include "servers/audio/audio_driver_dummy.h"
 #include "servers/display/display_server.h"
 #include "servers/rendering/rendering_server.h"
 
@@ -54,26 +53,15 @@ MovieWriter *MovieWriter::find_writer_for_file(const String &p_file) {
 	return nullptr;
 }
 
-uint32_t MovieWriter::get_audio_mix_rate() const {
-	uint32_t ret = 48000;
-	GDVIRTUAL_CALL(_get_audio_mix_rate, ret);
-	return ret;
-}
-AudioServer::SpeakerMode MovieWriter::get_audio_speaker_mode() const {
-	AudioServer::SpeakerMode ret = AudioServer::SPEAKER_MODE_STEREO;
-	GDVIRTUAL_CALL(_get_audio_speaker_mode, ret);
-	return ret;
-}
-
 Error MovieWriter::write_begin(const Size2i &p_movie_size, uint32_t p_fps, const String &p_base_path) {
 	Error ret = ERR_UNCONFIGURED;
 	GDVIRTUAL_CALL(_write_begin, p_movie_size, p_fps, p_base_path, ret);
 	return ret;
 }
 
-Error MovieWriter::write_frame(const Ref<Image> &p_image, const int32_t *p_audio_data) {
+Error MovieWriter::write_frame(const Ref<Image> &p_image) {
 	Error ret = ERR_UNCONFIGURED;
-	GDVIRTUAL_CALL(_write_frame, p_image, p_audio_data, ret);
+	GDVIRTUAL_CALL(_write_frame, p_image, ret);
 	return ret;
 }
 
@@ -127,17 +115,7 @@ void MovieWriter::begin(const Size2i &p_movie_size, uint32_t p_fps, const String
 	cpu_time = 0.0f;
 	gpu_time = 0.0f;
 	encoding_time_usec = 0;
-
-	mix_rate = get_audio_mix_rate();
-	AudioDriverDummy::get_dummy_singleton()->set_mix_rate(mix_rate);
-	AudioDriverDummy::get_dummy_singleton()->set_speaker_mode(AudioDriver::SpeakerMode(get_audio_speaker_mode()));
 	fps = p_fps;
-	if ((mix_rate % fps) != 0) {
-		WARN_PRINT("MovieWriter's audio mix rate (" + itos(mix_rate) + ") can not be divided by the recording FPS (" + itos(fps) + "). Audio may go out of sync over time.");
-	}
-
-	audio_channels = AudioDriverDummy::get_dummy_singleton()->get_channels();
-	audio_mix_buffer.resize(mix_rate * audio_channels / fps);
 
 	write_begin(actual_movie_size, p_fps, p_base_path);
 }
@@ -145,21 +123,13 @@ void MovieWriter::begin(const Size2i &p_movie_size, uint32_t p_fps, const String
 void MovieWriter::_bind_methods() {
 	ClassDB::bind_static_method("MovieWriter", D_METHOD("add_writer", "writer"), &MovieWriter::add_writer);
 
-	GDVIRTUAL_BIND(_get_audio_mix_rate)
-	GDVIRTUAL_BIND(_get_audio_speaker_mode)
-
 	GDVIRTUAL_BIND(_handles_file, "path")
 
 	GDVIRTUAL_BIND(_write_begin, "movie_size", "fps", "base_path")
-	GDVIRTUAL_BIND(_write_frame, "frame_image", "audio_frame_block")
+	GDVIRTUAL_BIND(_write_frame, "frame_image")
 	GDVIRTUAL_BIND(_write_end)
 
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "editor/movie_writer/mix_rate", PROPERTY_HINT_RANGE, "8000,192000,1,suffix:Hz"), 48000);
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "editor/movie_writer/speaker_mode", PROPERTY_HINT_ENUM, "Stereo,3.1,5.1,7.1"), 0);
 	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "editor/movie_writer/video_quality", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), 0.75);
-	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "editor/movie_writer/ogv/audio_quality", PROPERTY_HINT_RANGE, "-0.1,1.0,0.01"), 0.5);
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "editor/movie_writer/ogv/encoding_speed", PROPERTY_HINT_ENUM, "Fastest (Lowest Efficiency):4,Fast (Low Efficiency):3,Slow (High Efficiency):2,Slowest (Highest Efficiency):1"), 4);
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "editor/movie_writer/ogv/keyframe_interval", PROPERTY_HINT_RANGE, "1,1024,1"), 64);
 
 	// Used by the editor.
 	GLOBAL_DEF_BASIC("editor/movie_writer/movie_file", "");
@@ -215,10 +185,8 @@ void MovieWriter::add_frame() {
 	cpu_time += RenderingServer::get_singleton()->get_frame_setup_time_cpu();
 	gpu_time += RenderingServer::get_singleton()->viewport_get_measured_render_time_gpu(main_vp_rid);
 
-	AudioDriverDummy::get_dummy_singleton()->mix_audio(mix_rate / fps, audio_mix_buffer.ptr());
-
 	uint64_t encoding_start_usec = Time::get_singleton()->get_ticks_usec();
-	write_frame(vp_tex, audio_mix_buffer.ptr());
+	write_frame(vp_tex);
 	uint64_t encoding_end_usec = Time::get_singleton()->get_ticks_usec();
 	encoding_time_usec += encoding_end_usec - encoding_start_usec;
 }

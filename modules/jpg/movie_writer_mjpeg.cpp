@@ -32,13 +32,6 @@
 #include "core/config/project_settings.h"
 #include "core/io/file_access.h"
 
-uint32_t MovieWriterMJPEG::get_audio_mix_rate() const {
-	return mix_rate;
-}
-AudioServer::SpeakerMode MovieWriterMJPEG::get_audio_speaker_mode() const {
-	return speaker_mode;
-}
-
 bool MovieWriterMJPEG::handles_file(const String &p_path) const {
 	return p_path.get_extension().to_lower() == "avi";
 }
@@ -132,57 +125,6 @@ Error MovieWriterMJPEG::write_begin(const Size2i &p_movie_size, uint32_t p_fps, 
 	total_frames_ofs3 = f->get_position();
 	f->store_32(0); // Number of frames (to be updated later)
 
-	// Audio //
-
-	const uint32_t bit_depth = 32;
-	uint32_t channels = 2;
-	switch (speaker_mode) {
-		case AudioServer::SPEAKER_MODE_STEREO:
-			channels = 2;
-			break;
-		case AudioServer::SPEAKER_SURROUND_31:
-			channels = 4;
-			break;
-		case AudioServer::SPEAKER_SURROUND_51:
-			channels = 6;
-			break;
-		case AudioServer::SPEAKER_SURROUND_71:
-			channels = 8;
-			break;
-	}
-	uint32_t blockalign = bit_depth / 8 * channels;
-
-	f->store_buffer((const uint8_t *)"LIST", 4);
-	f->store_32(84); // 4 + 4 + 4 + 48 + 4 + 4 + 16
-	f->store_buffer((const uint8_t *)"strl", 4);
-	f->store_buffer((const uint8_t *)"strh", 4);
-	f->store_32(48);
-	f->store_buffer((const uint8_t *)"auds", 4);
-	f->store_32(0); // Handler
-	f->store_32(0); // Flags
-	f->store_16(0); // Priority
-	f->store_16(0); // Language
-	f->store_32(0); // Initial Frames
-	f->store_32(blockalign); // Scale
-	f->store_32(mix_rate * blockalign); // mix rate
-	f->store_32(0); // Start
-	total_audio_frames_ofs4 = f->get_position();
-	f->store_32(0); // Number of frames (to be updated later)
-	f->store_32(12288); // Suggested Buffer Size
-	f->store_32(0xFFFFFFFF); // Quality
-	f->store_32(blockalign); // Block Align to 32 bits
-
-	audio_block_size = (mix_rate / fps) * blockalign;
-
-	f->store_buffer((const uint8_t *)"strf", 4);
-	f->store_32(16); // Standard format, no extra fields
-	f->store_16(1); // Compression code, standard PCM
-	f->store_16(channels);
-	f->store_32(mix_rate); // Samples (frames) / Sec
-	f->store_32(mix_rate * blockalign); // Bytes / sec
-	f->store_16(blockalign); // Bytes / sec
-	f->store_16(bit_depth); // Bytes / sec
-
 	f->store_buffer((const uint8_t *)"LIST", 4);
 	movi_data_ofs = f->get_position();
 	f->store_32(0); // Number of frames (to be updated later)
@@ -191,7 +133,7 @@ Error MovieWriterMJPEG::write_begin(const Size2i &p_movie_size, uint32_t p_fps, 
 	return OK;
 }
 
-Error MovieWriterMJPEG::write_frame(const Ref<Image> &p_image, const int32_t *p_audio_data) {
+Error MovieWriterMJPEG::write_frame(const Ref<Image> &p_image) {
 	ERR_FAIL_COND_V(f.is_null(), ERR_UNCONFIGURED);
 
 	Vector<uint8_t> jpg_buffer = p_image->save_jpg_to_buffer(quality);
@@ -206,10 +148,6 @@ Error MovieWriterMJPEG::write_frame(const Ref<Image> &p_image, const int32_t *p_
 	}
 	jpg_frame_sizes.push_back(s);
 
-	f->store_buffer((const uint8_t *)"01wb", 4); // Stream 1, Audio.
-	f->store_32(audio_block_size);
-	f->store_buffer((const uint8_t *)p_audio_data, audio_block_size);
-
 	frame_count++;
 
 	return OK;
@@ -219,7 +157,7 @@ void MovieWriterMJPEG::write_end() {
 	if (f.is_valid()) {
 		// Finalize the file (frame indices)
 		f->store_buffer((const uint8_t *)"idx1", 4);
-		f->store_32(8 * 4 * frame_count);
+		f->store_32(4 * 4 * frame_count);
 		uint32_t ofs = 4;
 		uint32_t all_data_size = 0;
 		for (uint32_t i = 0; i < frame_count; i++) {
@@ -229,14 +167,7 @@ void MovieWriterMJPEG::write_end() {
 			f->store_32(jpg_frame_sizes[i]);
 
 			ofs += jpg_frame_sizes[i] + 8;
-
-			f->store_buffer((const uint8_t *)"01wb", 4);
-			f->store_32(16); // AVI_KEYFRAME
-			f->store_32(ofs);
-			f->store_32(audio_block_size);
-
-			ofs += audio_block_size + 8;
-			all_data_size += jpg_frame_sizes[i] + audio_block_size;
+			all_data_size += jpg_frame_sizes[i];
 		}
 
 		uint32_t file_size = f->get_position();
@@ -248,17 +179,13 @@ void MovieWriterMJPEG::write_end() {
 		f->store_32(frame_count);
 		f->seek(total_frames_ofs3);
 		f->store_32(frame_count);
-		f->seek(total_audio_frames_ofs4);
-		f->store_32(frame_count * mix_rate / fps);
 		f->seek(movi_data_ofs);
-		f->store_32(all_data_size + 4 + 16 * frame_count);
+		f->store_32(all_data_size + 4 + 8 * frame_count);
 
 		f.unref();
 	}
 }
 
 MovieWriterMJPEG::MovieWriterMJPEG() {
-	mix_rate = GLOBAL_GET("editor/movie_writer/mix_rate");
-	speaker_mode = AudioServer::SpeakerMode(int(GLOBAL_GET("editor/movie_writer/speaker_mode")));
 	quality = GLOBAL_GET("editor/movie_writer/video_quality");
 }

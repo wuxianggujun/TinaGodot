@@ -42,7 +42,7 @@
 #include "core/version.h"
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/debugger/script_editor_debugger.h"
-#include "editor/doc/editor_help_search.h"
+// TinaGodot: 文档功能已移除
 #include "editor/docks/filesystem_dock.h"
 #include "editor/docks/inspector_dock.h"
 #include "editor/docks/node_dock.h"
@@ -656,9 +656,10 @@ void ScriptEditor::_save_history() {
 		if (Object::cast_to<ScriptEditorBase>(n)) {
 			history.write[history_pos].state = Object::cast_to<ScriptEditorBase>(n)->get_navigation_state();
 		}
-		if (Object::cast_to<EditorHelp>(n)) {
-			history.write[history_pos].state = Object::cast_to<EditorHelp>(n)->get_scroll();
-		}
+		// TinaGodot: 文档功能已移除
+		// if (Object::cast_to<EditorHelp>(n)) {
+		// 	history.write[history_pos].state = Object::cast_to<EditorHelp>(n)->get_scroll();
+		// }
 	}
 
 	history.resize(history_pos + 1);
@@ -717,9 +718,10 @@ void ScriptEditor::_go_to_tab(int p_idx) {
 		if (Object::cast_to<ScriptEditorBase>(n)) {
 			history.write[history_pos].state = Object::cast_to<ScriptEditorBase>(n)->get_navigation_state();
 		}
-		if (Object::cast_to<EditorHelp>(n)) {
-			history.write[history_pos].state = Object::cast_to<EditorHelp>(n)->get_scroll();
-		}
+		// TinaGodot: 文档功能已移除
+		// if (Object::cast_to<EditorHelp>(n)) {
+		// 	history.write[history_pos].state = Object::cast_to<EditorHelp>(n)->get_scroll();
+		// }
 	}
 
 	history.resize(history_pos + 1);
@@ -750,15 +752,15 @@ void ScriptEditor::_go_to_tab(int p_idx) {
 		seb->validate();
 	}
 
-	EditorHelp *eh = Object::cast_to<EditorHelp>(c);
-	if (eh) {
-		script_name_label->set_text(eh->get_class());
-
-		if (is_visible_in_tree()) {
-			eh->set_focused();
-		}
-	}
-
+	// TinaGodot: 文档功能已移除
+	// EditorHelp *eh = Object::cast_to<EditorHelp>(c);
+	// if (eh) {
+	// 	script_name_label->set_text(eh->get_class());
+	//
+	// 	if (is_visible_in_tree()) {
+	// 		eh->set_focused();
+	// 	}
+	// }
 	c->set_meta("__editor_pass", ++edit_pass);
 	_update_history_arrows();
 	_update_script_colors();
@@ -959,14 +961,15 @@ void ScriptEditor::_close_discard_current_tab(const String &p_str) {
 }
 
 void ScriptEditor::_close_docs_tab() {
-	int child_count = tab_container->get_tab_count();
-	for (int i = child_count - 1; i >= 0; i--) {
-		EditorHelp *se = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
-
-		if (se) {
-			_close_tab(i, true, false);
-		}
-	}
+	// TinaGodot: 文档功能已移除
+	// int child_count = tab_container->get_tab_count();
+	// for (int i = child_count - 1; i >= 0; i--) {
+	// 	EditorHelp *se = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
+	//
+	// 	if (se) {
+	// 		_close_tab(i, true, false);
+	// 	}
+	// }
 }
 
 void ScriptEditor::_copy_script_path() {
@@ -1479,25 +1482,29 @@ void ScriptEditor::_menu_option(int p_option) {
 		case REPLACE_IN_FILES: {
 			_on_replace_in_files_requested("");
 		} break;
-		case SEARCH_HELP: {
-			help_search_dialog->popup_dialog();
-		} break;
+        case SEARCH_HELP: {
+#ifndef TINAGODOT_NO_DOCS
+            help_search_dialog->popup_dialog();
+#endif
+        } break;
 		case SEARCH_WEBSITE: {
 			Control *tab = tab_container->get_current_tab_control();
 
-			EditorHelp *eh = Object::cast_to<EditorHelp>(tab);
+			// TinaGodot: 文档功能已移除
+			// EditorHelp *eh = Object::cast_to<EditorHelp>(tab);
 			bool native_class_doc = false;
-			if (eh) {
-				const HashMap<String, DocData::ClassDoc>::ConstIterator E = EditorHelp::get_doc_data()->class_list.find(eh->get_class());
-				native_class_doc = E && !E->value.is_script_doc;
-			}
-			if (native_class_doc) {
-				String name = eh->get_class().to_lower();
-				String doc_url = vformat(GODOT_VERSION_DOCS_URL "/classes/class_%s.html", name);
-				OS::get_singleton()->shell_open(doc_url);
-			} else {
+			// if (eh) {
+			// 	const HashMap<String, DocData::ClassDoc>::ConstIterator E = EditorHelp::get_doc_data()->class_list.find(eh->get_class());
+			// 	native_class_doc = E && !E->value.is_script_doc;
+			// }
+			// TinaGodot: 文档功能已移除 - eh 变量未定义
+			// if (native_class_doc) {
+			// 	String name = eh->get_class().to_lower();
+			// 	String doc_url = vformat(GODOT_VERSION_DOCS_URL "/classes/class_%s.html", name);
+			// 	OS::get_singleton()->shell_open(doc_url);
+			// } else {
 				OS::get_singleton()->shell_open(GODOT_VERSION_DOCS_URL "/");
-			}
+			// }
 		} break;
 		case FILE_MENU_HISTORY_NEXT: {
 			_history_forward();
@@ -1514,11 +1521,12 @@ void ScriptEditor::_menu_option(int p_option) {
 			if (current) {
 				current->update_toggle_files_button();
 			} else {
-				Control *tab = tab_container->get_current_tab_control();
-				EditorHelp *editor_help = Object::cast_to<EditorHelp>(tab);
-				if (editor_help) {
-					editor_help->update_toggle_files_button();
-				}
+				// TinaGodot: 文档功能已移除
+				// Control *tab = tab_container->get_current_tab_control();
+				// EditorHelp *editor_help = Object::cast_to<EditorHelp>(tab);
+				// if (editor_help) {
+				// 	editor_help->update_toggle_files_button();
+				// }
 			}
 		}
 	}
@@ -1659,49 +1667,50 @@ void ScriptEditor::_menu_option(int p_option) {
 			} break;
 		}
 	} else {
-		EditorHelp *help = Object::cast_to<EditorHelp>(tab_container->get_current_tab_control());
-		if (help) {
-			switch (p_option) {
-				case HELP_SEARCH_FIND: {
-					help->popup_search();
-				} break;
-				case HELP_SEARCH_FIND_NEXT: {
-					help->search_again();
-				} break;
-				case HELP_SEARCH_FIND_PREVIOUS: {
-					help->search_again(true);
-				} break;
-				case FILE_MENU_CLOSE: {
-					_close_current_tab();
-				} break;
-				case FILE_MENU_CLOSE_DOCS: {
-					_close_docs_tab();
-				} break;
-				case FILE_MENU_CLOSE_OTHER_TABS: {
-					_close_other_tabs();
-				} break;
-				case FILE_MENU_CLOSE_TABS_BELOW: {
-					_close_tabs_below();
-				} break;
-				case FILE_MENU_CLOSE_ALL: {
-					_close_all_tabs();
-				} break;
-				case FILE_MENU_MOVE_UP: {
-					if (tab_container->get_current_tab() > 0) {
-						tab_container->move_child(help, tab_container->get_current_tab() - 1);
-						tab_container->set_current_tab(tab_container->get_current_tab());
-						_update_script_names();
-					}
-				} break;
-				case FILE_MENU_MOVE_DOWN: {
-					if (tab_container->get_current_tab() < tab_container->get_tab_count() - 1) {
-						tab_container->move_child(help, tab_container->get_current_tab() + 1);
-						tab_container->set_current_tab(tab_container->get_current_tab());
-						_update_script_names();
-					}
-				} break;
-			}
-		}
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *help = Object::cast_to<EditorHelp>(tab_container->get_current_tab_control());
+		// if (help) {
+		// 	switch (p_option) {
+		// 		case HELP_SEARCH_FIND: {
+		// 			help->popup_search();
+		// 		} break;
+		// 		case HELP_SEARCH_FIND_NEXT: {
+		// 			help->search_again();
+		// 		} break;
+		// 		case HELP_SEARCH_FIND_PREVIOUS: {
+		// 			help->search_again(true);
+		// 		} break;
+		// 		case FILE_MENU_CLOSE: {
+		// 			_close_current_tab();
+		// 		} break;
+		// 		case FILE_MENU_CLOSE_DOCS: {
+		// 			_close_docs_tab();
+		// 		} break;
+		// 		case FILE_MENU_CLOSE_OTHER_TABS: {
+		// 			_close_other_tabs();
+		// 		} break;
+		// 		case FILE_MENU_CLOSE_TABS_BELOW: {
+		// 			_close_tabs_below();
+		// 		} break;
+		// 		case FILE_MENU_CLOSE_ALL: {
+		// 			_close_all_tabs();
+		// 		} break;
+		// 		case FILE_MENU_MOVE_UP: {
+		// 			if (tab_container->get_current_tab() > 0) {
+		// 				tab_container->move_child(help, tab_container->get_current_tab() - 1);
+		// 				tab_container->set_current_tab(tab_container->get_current_tab());
+		// 				_update_script_names();
+		// 			}
+		// 		} break;
+		// 		case FILE_MENU_MOVE_DOWN: {
+		// 			if (tab_container->get_current_tab() < tab_container->get_tab_count() - 1) {
+		// 				tab_container->move_child(help, tab_container->get_current_tab() + 1);
+		// 				tab_container->set_current_tab(tab_container->get_current_tab());
+		// 				_update_script_names();
+		// 			}
+		// 		} break;
+		// 	}
+		// }
 	}
 }
 
@@ -1738,12 +1747,13 @@ void ScriptEditor::_show_save_theme_as_dialog() {
 }
 
 bool ScriptEditor::_has_docs_tab() const {
-	const int child_count = tab_container->get_tab_count();
-	for (int i = 0; i < child_count; i++) {
-		if (Object::cast_to<EditorHelp>(tab_container->get_tab_control(i))) {
-			return true;
-		}
-	}
+	// TinaGodot: 文档功能已移除
+	// const int child_count = tab_container->get_tab_count();
+	// for (int i = 0; i < child_count; i++) {
+	// 	if (Object::cast_to<EditorHelp>(tab_container->get_tab_control(i))) {
+	// 		return true;
+	// 	}
+	// }
 	return false;
 }
 
@@ -1832,7 +1842,9 @@ void ScriptEditor::_notification(int p_what) {
 		case NOTIFICATION_THEME_CHANGED: {
 			tab_container->add_theme_style_override(SceneStringName(panel), get_theme_stylebox(SNAME("ScriptEditor"), EditorStringName(EditorStyles)));
 
-			help_search->set_button_icon(get_editor_theme_icon(SNAME("HelpSearch")));
+        #ifndef TINAGODOT_NO_DOCS
+        help_search->set_button_icon(get_editor_theme_icon(SNAME("HelpSearch")));
+        #endif
 			site_search->set_button_icon(get_editor_theme_icon(SNAME("ExternalLink")));
 
 			if (is_layout_rtl()) {
@@ -1861,7 +1873,9 @@ void ScriptEditor::_notification(int p_what) {
 
 			get_tree()->connect("tree_changed", callable_mp(this, &ScriptEditor::_tree_changed));
 			InspectorDock::get_singleton()->connect("request_help", callable_mp(this, &ScriptEditor::_help_class_open));
-			EditorNode::get_singleton()->connect("request_help_search", callable_mp(this, &ScriptEditor::_help_search));
+            #ifndef TINAGODOT_NO_DOCS
+            EditorNode::get_singleton()->connect("request_help_search", callable_mp(this, &ScriptEditor::_help_search));
+            #endif
 			EditorNode::get_singleton()->connect("scene_closed", callable_mp(this, &ScriptEditor::_close_builtin_scripts_from_scene));
 			EditorNode::get_singleton()->connect("script_add_function_request", callable_mp(this, &ScriptEditor::_add_callback));
 			EditorNode::get_singleton()->connect("resource_saved", callable_mp(this, &ScriptEditor::_res_saved_callback));
@@ -2011,12 +2025,13 @@ void ScriptEditor::_members_overview_selected(int p_idx) {
 }
 
 void ScriptEditor::_help_overview_selected(int p_idx) {
-	Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
-	EditorHelp *se = Object::cast_to<EditorHelp>(current);
-	if (!se) {
-		return;
-	}
-	se->scroll_to_section(help_overview->get_item_metadata(p_idx));
+	// TinaGodot: 文档功能已移除
+	// Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
+	// EditorHelp *se = Object::cast_to<EditorHelp>(current);
+	// if (!se) {
+	// 	return;
+	// }
+	// se->scroll_to_section(help_overview->get_item_metadata(p_idx));
 }
 
 void ScriptEditor::_script_selected(int p_idx) {
@@ -2094,9 +2109,10 @@ void ScriptEditor::_update_members_overview_visibility() {
 		members_overview_alphabeta_sort_button->set_visible(false);
 		members_overview->set_visible(false);
 
-		Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
-		EditorHelp *editor_help = Object::cast_to<EditorHelp>(current);
-		overview_vbox->set_visible(help_overview_enabled && editor_help);
+		// TinaGodot: 文档功能已移除
+		// Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
+		// EditorHelp *editor_help = Object::cast_to<EditorHelp>(current);
+		overview_vbox->set_visible(false); // help_overview_enabled && editor_help
 		return;
 	}
 
@@ -2165,12 +2181,13 @@ void ScriptEditor::_update_help_overview_visibility() {
 		return;
 	}
 
-	Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
-	EditorHelp *se = Object::cast_to<EditorHelp>(current);
-	if (!se) {
+	// TinaGodot: 文档功能已移除
+	// Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
+	// EditorHelp *se = Object::cast_to<EditorHelp>(current);
+	// if (!se) {
 		help_overview->set_visible(false);
 		return;
-	}
+	// }
 
 	if (help_overview_enabled) {
 		members_overview_alphabeta_sort_button->set_visible(false);
@@ -2191,30 +2208,32 @@ void ScriptEditor::_update_help_overview() {
 		return;
 	}
 
-	Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
-	EditorHelp *se = Object::cast_to<EditorHelp>(current);
-	if (!se) {
-		return;
-	}
-
-	Vector<Pair<String, int>> sections = se->get_sections();
-	for (int i = 0; i < sections.size(); i++) {
-		help_overview->add_item(sections[i].first);
-		help_overview->set_item_metadata(i, sections[i].second);
-	}
+	// TinaGodot: 文档功能已移除
+	// Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
+	// EditorHelp *se = Object::cast_to<EditorHelp>(current);
+	// if (!se) {
+	// 	return;
+	// }
+	//
+	// Vector<Pair<String, int>> sections = se->get_sections();
+	// for (int i = 0; i < sections.size(); i++) {
+	// 	help_overview->add_item(sections[i].first);
+	// 	help_overview->set_item_metadata(i, sections[i].second);
+	// }
 }
 
 void ScriptEditor::_update_online_doc() {
 	Node *current = tab_container->get_tab_control(tab_container->get_current_tab());
 
-	EditorHelp *eh = Object::cast_to<EditorHelp>(current);
-	bool native_class_doc = false;
-	if (eh) {
-		const HashMap<String, DocData::ClassDoc>::ConstIterator E = EditorHelp::get_doc_data()->class_list.find(eh->get_class());
-		native_class_doc = E && !E->value.is_script_doc;
-	}
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(current);
+		bool native_class_doc = false;
+		// if (eh) {
+		// 	const HashMap<String, DocData::ClassDoc>::ConstIterator E = EditorHelp::get_doc_data()->class_list.find(eh->get_class());
+		// 	native_class_doc = E && !E->value.is_script_doc;
+		// }
 	if (native_class_doc) {
-		String name = eh->get_class();
+		String name = "";
 		String tooltip = vformat(TTR("Open '%s' in Godot online documentation."), name);
 		site_search->set_text(TTRC("Open in Online Docs"));
 		site_search->set_tooltip_text(tooltip);
@@ -2330,24 +2349,25 @@ void ScriptEditor::_update_script_names() {
 			sedata.push_back(sd);
 		}
 
-		EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
-		if (eh && !eh->get_class().is_empty()) {
-			String name = eh->get_class().unquote();
-			Ref<Texture2D> icon = get_editor_theme_icon(SNAME("Help"));
-			String tooltip = vformat(TTR("%s Class Reference"), name);
-
-			_ScriptEditorItemData sd;
-			sd.icon = icon;
-			sd.name = name;
-			sd.sort_key = name.to_lower();
-			sd.tooltip = tooltip;
-			sd.index = i;
-			sd.used = false;
-			sd.category = split_script_help ? 1 : 0;
-			sd.ref = eh;
-
-			sedata.push_back(sd);
-		}
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
+		// if (eh && !eh->get_class().is_empty()) {
+		// 	String name = eh->get_class().unquote();
+		// 	Ref<Texture2D> icon = get_editor_theme_icon(SNAME("Help"));
+		// 	String tooltip = vformat(TTR("%s Class Reference"), name);
+		//
+		// 	_ScriptEditorItemData sd;
+		// 	sd.icon = icon;
+		// 	sd.name = name;
+		// 	sd.sort_key = name.to_lower();
+		// 	sd.tooltip = tooltip;
+		// 	sd.index = i;
+		// 	sd.used = false;
+		// 	sd.category = split_script_help ? 1 : 0;
+		// 	sd.ref = eh;
+		//
+		// 	sedata.push_back(sd);
+		// }
 	}
 
 	Vector<String> disambiguated_script_names;
@@ -3220,11 +3240,12 @@ Variant ScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 		preview_name = se->get_name();
 		preview_icon = se->get_theme_icon();
 	}
-	EditorHelp *eh = Object::cast_to<EditorHelp>(cur_node);
-	if (eh) {
-		preview_name = eh->get_class();
-		preview_icon = get_editor_theme_icon(SNAME("Help"));
-	}
+	// TinaGodot: 文档功能已移除
+	// EditorHelp *eh = Object::cast_to<EditorHelp>(cur_node);
+	// if (eh) {
+	// 	preview_name = eh->get_class();
+	// 	preview_icon = get_editor_theme_icon(SNAME("Help"));
+	// }
 
 	if (preview_icon.is_valid()) {
 		TextureRect *tf = memnew(TextureRect);
@@ -3257,10 +3278,11 @@ bool ScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
 		if (se) {
 			return true;
 		}
-		EditorHelp *eh = Object::cast_to<EditorHelp>(node);
-		if (eh) {
-			return true;
-		}
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(node);
+		// if (eh) {
+		// 	return true;
+		// }
 	}
 
 	if (String(d["type"]) == "nodes") {
@@ -3274,10 +3296,11 @@ bool ScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
 		if (se) {
 			return true;
 		}
-		EditorHelp *eh = Object::cast_to<EditorHelp>(node);
-		if (eh) {
-			return true;
-		}
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(node);
+		// if (eh) {
+		// 	return true;
+		// }
 	}
 
 	if (String(d["type"]) == "files") {
@@ -3327,8 +3350,9 @@ void ScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
 		Node *node = Object::cast_to<Node>(d["script_list_element"]);
 
 		ScriptEditorBase *se = Object::cast_to<ScriptEditorBase>(node);
-		EditorHelp *eh = Object::cast_to<EditorHelp>(node);
-		if (se || eh) {
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(node);
+		if (se) { // || eh
 			int new_index = 0;
 			if (script_list->get_item_count() > 0) {
 				int pos = 0;
@@ -3355,8 +3379,9 @@ void ScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
 		Node *node = get_node(nodes[0]);
 
 		ScriptEditorBase *se = Object::cast_to<ScriptEditorBase>(node);
-		EditorHelp *eh = Object::cast_to<EditorHelp>(node);
-		if (se || eh) {
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(node);
+		if (se) { // || eh
 			int new_index = 0;
 			if (script_list->get_item_count() > 0) {
 				int pos = 0;
@@ -3723,11 +3748,12 @@ void ScriptEditor::get_window_layout(Ref<ConfigFile> p_layout) {
 			scripts.push_back(path);
 		}
 
-		EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
-
-		if (eh) {
-			helps.push_back(eh->get_class());
-		}
+		// TinaGodot: 文档功能已移除
+		// EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
+		//
+		// if (eh) {
+		// 	helps.push_back(eh->get_class());
+		// }
 	}
 
 	p_layout->set_value("ScriptEditor", "open_scripts", scripts);
@@ -3742,95 +3768,99 @@ void ScriptEditor::get_window_layout(Ref<ConfigFile> p_layout) {
 }
 
 void ScriptEditor::_help_class_open(const String &p_class) {
-	if (p_class.is_empty()) {
-		return;
-	}
-
-	for (int i = 0; i < tab_container->get_tab_count(); i++) {
-		EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
-
-		if (eh && eh->get_class() == p_class) {
-			_go_to_tab(i);
-			_update_script_names();
-			return;
-		}
-	}
-
-	EditorHelp *eh = memnew(EditorHelp);
-
-	eh->set_name(p_class);
-	tab_container->add_child(eh);
-	_go_to_tab(tab_container->get_tab_count() - 1);
-	eh->go_to_class(p_class);
-	eh->connect("go_to_help", callable_mp(this, &ScriptEditor::_help_class_goto));
-	eh->connect("request_save_history", callable_mp(this, &ScriptEditor::_save_history));
-	_add_recent_script(p_class);
-	_sort_list_on_update = true;
-	_update_script_names();
-	_save_layout();
+	// TinaGodot: 文档功能已移除
+	// if (p_class.is_empty()) {
+	// 	return;
+	// }
+	//
+	// for (int i = 0; i < tab_container->get_tab_count(); i++) {
+	// 	EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
+	//
+	// 	if (eh && eh->get_class() == p_class) {
+	// 		_go_to_tab(i);
+	// 		_update_script_names();
+	// 		return;
+	// 	}
+	// }
+	//
+	// EditorHelp *eh = memnew(EditorHelp);
+	//
+	// eh->set_name(p_class);
+	// tab_container->add_child(eh);
+	// _go_to_tab(tab_container->get_tab_count() - 1);
+	// eh->go_to_class(p_class);
+	// eh->connect("go_to_help", callable_mp(this, &ScriptEditor::_help_class_goto));
+	// eh->connect("request_save_history", callable_mp(this, &ScriptEditor::_save_history));
+	// _add_recent_script(p_class);
+	// _sort_list_on_update = true;
+	// _update_script_names();
+	// _save_layout();
 }
 
 void ScriptEditor::_help_class_goto(const String &p_desc) {
-	String cname = p_desc.get_slicec(':', 1);
-
-	if (_help_tab_goto(cname, p_desc)) {
-		return;
-	}
-
-	EditorHelp *eh = memnew(EditorHelp);
-
-	eh->set_name(cname);
-	tab_container->add_child(eh);
-	_go_to_tab(tab_container->get_tab_count() - 1);
-	eh->go_to_help(p_desc);
-	eh->connect("go_to_help", callable_mp(this, &ScriptEditor::_help_class_goto));
-	_add_recent_script(eh->get_class());
-	_sort_list_on_update = true;
-	_update_script_names();
-	_save_layout();
+	// TinaGodot: 文档功能已移除
+	// String cname = p_desc.get_slicec(':', 1);
+	//
+	// if (_help_tab_goto(cname, p_desc)) {
+	// 	return;
+	// }
+	//
+	// EditorHelp *eh = memnew(EditorHelp);
+	//
+	// eh->set_name(cname);
+	// tab_container->add_child(eh);
+	// _go_to_tab(tab_container->get_tab_count() - 1);
+	// eh->go_to_help(p_desc);
+	// eh->connect("go_to_help", callable_mp(this, &ScriptEditor::_help_class_goto));
+	// _add_recent_script(eh->get_class());
+	// _sort_list_on_update = true;
+	// _update_script_names();
+	// _save_layout();
 }
 
 bool ScriptEditor::_help_tab_goto(const String &p_name, const String &p_desc) {
-	for (int i = 0; i < tab_container->get_tab_count(); i++) {
-		EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
-
-		if (eh && eh->get_class() == p_name) {
-			_go_to_tab(i);
-			eh->go_to_help(p_desc);
-			_update_script_names();
-			return true;
-		}
-	}
+	// TinaGodot: 文档功能已移除
+	// for (int i = 0; i < tab_container->get_tab_count(); i++) {
+	// 	EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
+	//
+	// 	if (eh && eh->get_class() == p_name) {
+	// 		_go_to_tab(i);
+	// 		eh->go_to_help(p_desc);
+	// 		_update_script_names();
+	// 		return true;
+	// 	}
+	// }
 	return false;
 }
 
 void ScriptEditor::update_doc(const String &p_name) {
-	for (int i = 0; i < tab_container->get_tab_count(); i++) {
-		EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
-		if (eh && eh->get_class() == p_name) {
-			eh->update_doc();
-			return;
-		}
-	}
+	// TinaGodot: 文档功能已移除
+	// for (int i = 0; i < tab_container->get_tab_count(); i++) {
+	// 	EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_tab_control(i));
+	// 	if (eh && eh->get_class() == p_name) {
+	// 		eh->update_doc();
+	// 		return;
+	// 	}
+	// }
 }
 
 void ScriptEditor::clear_docs_from_script(const Ref<Script> &p_script) {
 	ERR_FAIL_COND(p_script.is_null());
-
-	for (const DocData::ClassDoc &cd : p_script->get_documentation()) {
-		if (EditorHelp::get_doc_data()->has_doc(cd.name)) {
-			EditorHelp::get_doc_data()->remove_doc(cd.name);
-		}
-	}
+	// TinaGodot: 文档功能已移除
+	// for (const DocData::ClassDoc &cd : p_script->get_documentation()) {
+	// 	if (EditorHelp::get_doc_data()->has_doc(cd.name)) {
+	// 		EditorHelp::get_doc_data()->remove_doc(cd.name);
+	// 	}
+	// }
 }
 
 void ScriptEditor::update_docs_from_script(const Ref<Script> &p_script) {
 	ERR_FAIL_COND(p_script.is_null());
-
-	for (const DocData::ClassDoc &cd : p_script->get_documentation()) {
-		EditorHelp::get_doc_data()->add_doc(cd);
-		update_doc(cd.name);
-	}
+	// TinaGodot: 文档功能已移除
+	// for (const DocData::ClassDoc &cd : p_script->get_documentation()) {
+	// 	EditorHelp::get_doc_data()->add_doc(cd);
+	// 	update_doc(cd.name);
+	// }
 }
 
 void ScriptEditor::_update_selected_editor_menu() {
@@ -3847,17 +3877,19 @@ void ScriptEditor::_update_selected_editor_menu() {
 		}
 	}
 
-	EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_current_tab_control());
+	// TinaGodot: 文档功能已移除
+	// EditorHelp *eh = Object::cast_to<EditorHelp>(tab_container->get_current_tab_control());
 	script_search_menu->get_popup()->clear();
-	if (eh) {
-		script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find", TTRC("Find..."), KeyModifierMask::CMD_OR_CTRL | Key::F), HELP_SEARCH_FIND);
-		script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find_next", TTRC("Find Next"), Key::F3), HELP_SEARCH_FIND_NEXT);
-		script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find_previous", TTRC("Find Previous"), KeyModifierMask::SHIFT | Key::F3), HELP_SEARCH_FIND_PREVIOUS);
-		script_search_menu->get_popup()->add_separator();
-		script_search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("editor/find_in_files"), SEARCH_IN_FILES);
-		script_search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_editor/replace_in_files"), REPLACE_IN_FILES);
-		script_search_menu->show();
-	} else {
+	// if (eh) {
+	// 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find", TTRC("Find..."), KeyModifierMask::CMD_OR_CTRL | Key::F), HELP_SEARCH_FIND);
+	// 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find_next", TTRC("Find Next"), Key::F3), HELP_SEARCH_FIND_NEXT);
+	// 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find_previous", TTRC("Find Previous"), KeyModifierMask::SHIFT | Key::F3), HELP_SEARCH_FIND_PREVIOUS);
+	// 	script_search_menu->get_popup()->add_separator();
+	// 	script_search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("editor/find_in_files"), SEARCH_IN_FILES);
+	// 	script_search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_editor/replace_in_files"), REPLACE_IN_FILES);
+	// 	script_search_menu->show();
+	// } else {
+	if (true) {
 		if (tab_container->get_tab_count() == 0) {
 			script_search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("editor/find_in_files"), SEARCH_IN_FILES);
 			script_search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_editor/replace_in_files"), REPLACE_IN_FILES);
@@ -3874,9 +3906,10 @@ void ScriptEditor::_update_history_pos(int p_new_pos) {
 	if (Object::cast_to<ScriptEditorBase>(n)) {
 		history.write[history_pos].state = Object::cast_to<ScriptEditorBase>(n)->get_navigation_state();
 	}
-	if (Object::cast_to<EditorHelp>(n)) {
-		history.write[history_pos].state = Object::cast_to<EditorHelp>(n)->get_scroll();
-	}
+	// TinaGodot: 文档功能已移除
+	// if (Object::cast_to<EditorHelp>(n)) {
+	// 	history.write[history_pos].state = Object::cast_to<EditorHelp>(n)->get_scroll();
+	// }
 
 	history_pos = p_new_pos;
 	tab_container->set_current_tab(tab_container->get_tab_idx_from_control(history[history_pos].control));
@@ -3895,11 +3928,12 @@ void ScriptEditor::_update_history_pos(int p_new_pos) {
 		}
 	}
 
-	EditorHelp *eh = Object::cast_to<EditorHelp>(n);
-	if (eh) {
-		eh->set_scroll(history[history_pos].state);
-		eh->set_focused();
-	}
+	// TinaGodot: 文档功能已移除
+	// EditorHelp *eh = Object::cast_to<EditorHelp>(n);
+	// if (eh) {
+	// 	eh->set_scroll(history[history_pos].state);
+	// 	eh->set_focused();
+	// }
 
 	n->set_meta("__editor_pass", ++edit_pass);
 	_update_script_names();
@@ -3977,7 +4011,9 @@ void ScriptEditor::set_live_auto_reload_running_scripts(bool p_enabled) {
 }
 
 void ScriptEditor::_help_search(const String &p_text) {
-	help_search_dialog->popup_dialog(p_text);
+    #ifndef TINAGODOT_NO_DOCS
+    help_search_dialog->popup_dialog(p_text);
+    #endif
 }
 
 void ScriptEditor::_open_script_request(const String &p_path) {
@@ -4457,12 +4493,14 @@ ScriptEditor::ScriptEditor(WindowWrapper *p_wrapper) {
 	site_search->connect(SceneStringName(pressed), callable_mp(this, &ScriptEditor::_menu_option).bind(SEARCH_WEBSITE));
 	menu_hb->add_child(site_search);
 
-	help_search = memnew(Button);
-	help_search->set_theme_type_variation(SceneStringName(FlatButton));
-	help_search->set_text(TTRC("Search Help"));
-	help_search->connect(SceneStringName(pressed), callable_mp(this, &ScriptEditor::_menu_option).bind(SEARCH_HELP));
-	menu_hb->add_child(help_search);
-	help_search->set_tooltip_text(TTRC("Search the reference documentation."));
+    #ifndef TINAGODOT_NO_DOCS
+    help_search = memnew(Button);
+    help_search->set_theme_type_variation(SceneStringName(FlatButton));
+    help_search->set_text(TTRC("Search Help"));
+    help_search->connect(SceneStringName(pressed), callable_mp(this, &ScriptEditor::_menu_option).bind(SEARCH_HELP));
+    menu_hb->add_child(help_search);
+    help_search->set_tooltip_text(TTRC("Search the reference documentation."));
+    #endif
 
 	menu_hb->add_child(memnew(VSeparator));
 
@@ -4552,9 +4590,11 @@ ScriptEditor::ScriptEditor(WindowWrapper *p_wrapper) {
 
 	grab_focus_block = false;
 
-	help_search_dialog = memnew(EditorHelpSearch);
-	add_child(help_search_dialog);
-	help_search_dialog->connect("go_to_help", callable_mp(this, &ScriptEditor::_help_class_goto));
+#ifndef TINAGODOT_NO_DOCS
+    help_search_dialog = memnew(EditorHelpSearch);
+    add_child(help_search_dialog);
+    help_search_dialog->connect("go_to_help", callable_mp(this, &ScriptEditor::_help_class_goto));
+#endif
 
 	find_in_files_dialog = memnew(FindInFilesDialog);
 	find_in_files_dialog->connect(FindInFilesDialog::SIGNAL_FIND_REQUESTED, callable_mp(this, &ScriptEditor::_start_find_in_files).bind(false));

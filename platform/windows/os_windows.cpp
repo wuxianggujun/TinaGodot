@@ -2543,36 +2543,6 @@ Error OS_Windows::move_to_trash(const String &p_path) {
 	return OK;
 }
 
-String OS_Windows::get_system_ca_certificates() {
-	HCERTSTORE cert_store = CertOpenSystemStoreA(0, "ROOT");
-	ERR_FAIL_NULL_V_MSG(cert_store, "", "Failed to read the root certificate store.");
-
-	FILETIME curr_time;
-	GetSystemTimeAsFileTime(&curr_time);
-
-	String certs;
-	PCCERT_CONTEXT curr = CertEnumCertificatesInStore(cert_store, nullptr);
-	while (curr) {
-		FILETIME ft;
-		DWORD size = sizeof(ft);
-		// Check if the certificate is disallowed.
-		if (CertGetCertificateContextProperty(curr, CERT_DISALLOWED_FILETIME_PROP_ID, &ft, &size) && CompareFileTime(&curr_time, &ft) != -1) {
-			curr = CertEnumCertificatesInStore(cert_store, curr);
-			continue;
-		}
-		// Encode and add to certificate list.
-		bool success = CryptBinaryToStringA(curr->pbCertEncoded, curr->cbCertEncoded, CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR, nullptr, &size);
-		ERR_CONTINUE(!success);
-		PackedByteArray pba;
-		pba.resize(size);
-		CryptBinaryToStringA(curr->pbCertEncoded, curr->cbCertEncoded, CRYPT_STRING_BASE64HEADER | CRYPT_STRING_NOCR, (char *)pba.ptrw(), &size);
-		certs += String::ascii(Span((char *)pba.ptr(), size));
-		curr = CertEnumCertificatesInStore(cert_store, curr);
-	}
-	CertCloseStore(cert_store, 0);
-	return certs;
-}
-
 void OS_Windows::add_frame_delay(bool p_can_draw, bool p_wake_for_events) {
 	if (p_wake_for_events) {
 		uint64_t delay = get_frame_delay(p_can_draw);

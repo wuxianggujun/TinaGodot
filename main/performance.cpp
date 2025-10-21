@@ -34,7 +34,6 @@
 #include "core/variant/typed_array.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
-#include "servers/audio/audio_server.h"
 #include "servers/rendering/rendering_server.h"
 
 #ifndef NAVIGATION_2D_DISABLED
@@ -258,7 +257,8 @@ double Performance::get_monitor(Monitor p_monitor) const {
 #endif // PHYSICS_2D_DISABLED
 
 		case AUDIO_OUTPUT_LATENCY:
-			return AudioServer::get_singleton()->get_output_latency();
+			// Audio functionality removed
+		return 0.0;
 
 			// Deprecated, use the 2D/3D specific ones instead.
 		case NAVIGATION_ACTIVE_MAPS:

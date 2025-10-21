@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/doc_data.h"
+// TinaGodot: 文档功能已移除
 #include "core/io/resource.h"
 #include "core/object/script_backtrace.h"
 #include "core/object/script_instance.h"
@@ -161,9 +161,10 @@ public:
 	virtual Error reload(bool p_keep_state = false) = 0;
 
 #ifdef TOOLS_ENABLED
-	virtual StringName get_doc_class_name() const = 0;
-	virtual Vector<DocData::ClassDoc> get_documentation() const = 0;
-	virtual String get_class_icon_path() const = 0;
+	// TinaGodot: 文档功能已移除
+	// virtual StringName get_doc_class_name() const = 0;
+	// virtual Vector<DocData::ClassDoc> get_documentation() const = 0;
+	// virtual String get_class_icon_path() const = 0;
 	virtual PropertyInfo get_class_category() const;
 #endif // TOOLS_ENABLED
 

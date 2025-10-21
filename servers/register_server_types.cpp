@@ -33,26 +33,6 @@
 #include "core/config/engine.h"
 #include "core/config/project_settings.h"
 
-#include "audio/audio_effect.h"
-#include "audio/audio_server.h"
-#include "audio/audio_stream.h"
-#include "audio/effects/audio_effect_amplify.h"
-#include "audio/effects/audio_effect_capture.h"
-#include "audio/effects/audio_effect_chorus.h"
-#include "audio/effects/audio_effect_compressor.h"
-#include "audio/effects/audio_effect_delay.h"
-#include "audio/effects/audio_effect_distortion.h"
-#include "audio/effects/audio_effect_eq.h"
-#include "audio/effects/audio_effect_filter.h"
-#include "audio/effects/audio_effect_hard_limiter.h"
-#include "audio/effects/audio_effect_panner.h"
-#include "audio/effects/audio_effect_phaser.h"
-#include "audio/effects/audio_effect_pitch_shift.h"
-#include "audio/effects/audio_effect_record.h"
-#include "audio/effects/audio_effect_reverb.h"
-#include "audio/effects/audio_effect_spectrum_analyzer.h"
-#include "audio/effects/audio_effect_stereo_enhance.h"
-#include "audio/effects/audio_stream_generator.h"
 #include "camera/camera_feed.h"
 #include "camera/camera_server.h"
 #include "debugger/servers_debugger.h"
@@ -76,9 +56,6 @@
 #include "text/text_server.h"
 #include "text/text_server_dummy.h"
 #include "text/text_server_extension.h"
-#ifndef DISABLE_DEPRECATED
-#include "audio/effects/audio_effect_limiter.h"
-#endif
 
 // 2D physics and navigation.
 #ifndef NAVIGATION_2D_DISABLED
@@ -134,69 +111,10 @@ void register_server_types() {
 
 	GDREGISTER_ABSTRACT_CLASS(DisplayServer);
 	GDREGISTER_ABSTRACT_CLASS(RenderingServer);
-	GDREGISTER_CLASS(AudioServer);
 
 	GDREGISTER_CLASS(NativeMenu);
 
 	GDREGISTER_CLASS(CameraServer);
-
-	GDREGISTER_ABSTRACT_CLASS(RenderingDevice);
-
-	GDREGISTER_CLASS(AudioStream);
-	GDREGISTER_CLASS(AudioStreamPlayback);
-	GDREGISTER_VIRTUAL_CLASS(AudioStreamPlaybackResampled);
-	GDREGISTER_CLASS(AudioStreamMicrophone);
-	GDREGISTER_CLASS(AudioStreamRandomizer);
-	GDREGISTER_CLASS(AudioSample);
-	GDREGISTER_CLASS(AudioSamplePlayback);
-	GDREGISTER_VIRTUAL_CLASS(AudioEffect);
-	GDREGISTER_VIRTUAL_CLASS(AudioEffectInstance);
-	GDREGISTER_CLASS(AudioEffectEQ);
-	GDREGISTER_CLASS(AudioEffectFilter);
-	GDREGISTER_CLASS(AudioBusLayout);
-
-	GDREGISTER_CLASS(AudioStreamGenerator);
-	GDREGISTER_ABSTRACT_CLASS(AudioStreamGeneratorPlayback);
-
-	{
-		//audio effects
-		GDREGISTER_CLASS(AudioEffectAmplify);
-
-		GDREGISTER_CLASS(AudioEffectReverb);
-
-		GDREGISTER_CLASS(AudioEffectLowPassFilter);
-		GDREGISTER_CLASS(AudioEffectHighPassFilter);
-		GDREGISTER_CLASS(AudioEffectBandPassFilter);
-		GDREGISTER_CLASS(AudioEffectNotchFilter);
-		GDREGISTER_CLASS(AudioEffectBandLimitFilter);
-		GDREGISTER_CLASS(AudioEffectLowShelfFilter);
-		GDREGISTER_CLASS(AudioEffectHighShelfFilter);
-
-		GDREGISTER_CLASS(AudioEffectEQ6);
-		GDREGISTER_CLASS(AudioEffectEQ10);
-		GDREGISTER_CLASS(AudioEffectEQ21);
-
-		GDREGISTER_CLASS(AudioEffectDistortion);
-
-		GDREGISTER_CLASS(AudioEffectStereoEnhance);
-
-		GDREGISTER_CLASS(AudioEffectPanner);
-		GDREGISTER_CLASS(AudioEffectChorus);
-		GDREGISTER_CLASS(AudioEffectDelay);
-		GDREGISTER_CLASS(AudioEffectCompressor);
-		GDREGISTER_CLASS(AudioEffectHardLimiter);
-		GDREGISTER_CLASS(AudioEffectPitchShift);
-		GDREGISTER_CLASS(AudioEffectPhaser);
-		GDREGISTER_CLASS(AudioEffectRecord);
-		GDREGISTER_CLASS(AudioEffectSpectrumAnalyzer);
-		GDREGISTER_ABSTRACT_CLASS(AudioEffectSpectrumAnalyzerInstance);
-
-		GDREGISTER_CLASS(AudioEffectCapture);
-
-#ifndef DISABLE_DEPRECATED
-		GDREGISTER_CLASS(AudioEffectLimiter);
-#endif
-	}
 
 	GDREGISTER_ABSTRACT_CLASS(RenderingDevice);
 	GDREGISTER_CLASS(ShaderIncludeDB);
@@ -299,7 +217,7 @@ void unregister_server_types() {
 void register_server_singletons() {
 	OS::get_singleton()->benchmark_begin_measure("Servers", "Register Singletons");
 
-	Engine::get_singleton()->add_singleton(Engine::Singleton("AudioServer", AudioServer::get_singleton(), "AudioServer"));
+	// Audio disabled
 	Engine::get_singleton()->add_singleton(Engine::Singleton("CameraServer", CameraServer::get_singleton(), "CameraServer"));
 	Engine::get_singleton()->add_singleton(Engine::Singleton("DisplayServer", DisplayServer::get_singleton(), "DisplayServer"));
 	Engine::get_singleton()->add_singleton(Engine::Singleton("NativeMenu", NativeMenu::get_singleton(), "NativeMenu"));

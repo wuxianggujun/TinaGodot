@@ -38,7 +38,7 @@
 #include "core/object/worker_thread_pool.h"
 #include "core/os/os.h"
 #include "core/variant/variant_parser.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "editor/editor_node.h"
 #include "editor/file_system/editor_paths.h"
 #include "editor/inspector/editor_resource_preview.h"
@@ -2203,7 +2203,8 @@ void EditorFileSystem::_update_script_documentation() {
 
 		if (!efd || index < 0) {
 			// The file was removed
-			EditorHelp::remove_script_doc_by_path(path);
+			// TinaGodot: 文档功能已移除
+			// EditorHelp::remove_script_doc_by_path(path);
 			continue;
 		}
 
@@ -2216,13 +2217,13 @@ void EditorFileSystem::_update_script_documentation() {
 					for (Ref<Resource> sub_resource : sub_resources) {
 						Ref<Script> scr = sub_resource;
 						if (scr.is_valid()) {
-							for (const DocData::ClassDoc &cd : scr->get_documentation()) {
-								EditorHelp::add_doc(cd);
-								if (!first_scan) {
-									// Update the documentation in the Script Editor if it is open.
-									ScriptEditor::get_singleton()->update_doc(cd.name);
-								}
-							}
+							// TinaGodot: 文档功能已移除
+							// for (const DocData::ClassDoc &cd : scr->get_documentation()) {
+							// 	EditorHelp::add_doc(cd);
+							// 	if (!first_scan) {
+							// 		ScriptEditor::get_singleton()->update_doc(cd.name);
+							// 	}
+							// }
 						}
 					}
 				}
@@ -2243,13 +2244,13 @@ void EditorFileSystem::_update_script_documentation() {
 					// return the last loaded version of the script (without the modifications).
 					scr->reload_from_file();
 				}
-				for (const DocData::ClassDoc &cd : scr->get_documentation()) {
-					EditorHelp::add_doc(cd);
-					if (!first_scan) {
-						// Update the documentation in the Script Editor if it is open.
-						ScriptEditor::get_singleton()->update_doc(cd.name);
-					}
-				}
+				// TinaGodot: 文档功能已移除
+				// for (const DocData::ClassDoc &cd : scr->get_documentation()) {
+				// 	EditorHelp::add_doc(cd);
+				// 	if (!first_scan) {
+				// 		ScriptEditor::get_singleton()->update_doc(cd.name);
+				// 	}
+				// }
 			}
 		}
 

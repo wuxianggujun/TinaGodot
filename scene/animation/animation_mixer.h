@@ -35,7 +35,6 @@
 #include "scene/main/node.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/animation_library.h"
-#include "scene/resources/audio_stream_polyphonic.h"
 
 class AnimatedValuesBackup;
 
@@ -130,7 +129,6 @@ protected:
 	AnimationCallbackModeProcess callback_mode_process = ANIMATION_CALLBACK_MODE_PROCESS_IDLE;
 	AnimationCallbackModeMethod callback_mode_method = ANIMATION_CALLBACK_MODE_METHOD_DEFERRED;
 	AnimationCallbackModeDiscrete callback_mode_discrete = ANIMATION_CALLBACK_MODE_DISCRETE_RECESSIVE;
-	int audio_max_polyphony = 32;
 	NodePath root_node;
 
 	bool processing = false;
@@ -252,43 +250,6 @@ protected:
 		TrackCacheMethod() { type = Animation::TYPE_METHOD; }
 	};
 
-	// Audio stream information for each audio stream placed on the track.
-	struct PlayingAudioStreamInfo {
-		AudioStreamPlaybackPolyphonic::ID index = -1; // ID retrieved from AudioStreamPlaybackPolyphonic.
-		double start = 0.0;
-		double len = 0.0;
-	};
-
-	// Audio track information for mixng and ending.
-	struct PlayingAudioTrackInfo {
-		AHashMap<int, PlayingAudioStreamInfo> stream_info;
-		double length = 0.0;
-		double time = 0.0;
-		real_t volume = 0.0;
-		bool loop = false;
-		bool backward = false;
-		bool use_blend = false;
-	};
-
-	struct TrackCacheAudio : public TrackCache {
-		Ref<AudioStreamPolyphonic> audio_stream;
-		Ref<AudioStreamPlaybackPolyphonic> audio_stream_playback;
-		HashMap<ObjectID, PlayingAudioTrackInfo> playing_streams; // Key is Animation resource ObjectID.
-		AudioServer::PlaybackType playback_type;
-		StringName bus;
-
-		TrackCacheAudio(const TrackCacheAudio &p_other) :
-				TrackCache(p_other),
-				audio_stream(p_other.audio_stream),
-				audio_stream_playback(p_other.audio_stream_playback),
-				playing_streams(p_other.playing_streams),
-				playback_type(p_other.playback_type) {}
-
-		TrackCacheAudio() {
-			type = Animation::TYPE_AUDIO;
-		}
-	};
-
 	struct TrackCacheAnimation : public TrackCache {
 		bool playing = false;
 
@@ -301,18 +262,14 @@ protected:
 	AHashMap<Animation::TypeHash, TrackCache *, HashHasher> track_cache;
 	AHashMap<Ref<Animation>, LocalVector<TrackCache *>> animation_track_num_to_track_cache;
 	HashSet<TrackCache *> playing_caches;
-	Vector<Node *> playing_audio_stream_players;
 
 	// Helpers.
 	void _clear_caches();
-	void _clear_audio_streams();
 	void _clear_playing_caches();
 	void _init_root_motion_cache();
 	bool _update_caches();
 	void _create_track_num_to_track_cache_for_animation(Ref<Animation> &p_animation);
 
-	/* ---- Audio ---- */
-	AudioServer::PlaybackType playback_type;
 
 	/* ---- Blending processor ---- */
 	LocalVector<AnimationInstance> animation_instances;
@@ -428,9 +385,6 @@ public:
 	void set_callback_mode_discrete(AnimationCallbackModeDiscrete p_mode);
 	AnimationCallbackModeDiscrete get_callback_mode_discrete() const;
 
-	/* ---- Audio ---- */
-	void set_audio_max_polyphony(int p_audio_max_polyphony);
-	int get_audio_max_polyphony() const;
 
 	/* ---- Root motion accumulator for Skeleton3D ---- */
 	void set_root_motion_track(const NodePath &p_track);

@@ -1950,7 +1950,6 @@ SceneTree::SceneTree() {
 	// Initialize network state.
 	set_multiplayer(MultiplayerAPI::create_default_interface());
 
-	root->set_as_audio_listener_2d(true);
 	current_scene = nullptr;
 
 	const int msaa_mode_2d = GLOBAL_GET("rendering/anti_aliasing/quality/msaa_2d");

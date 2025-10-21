@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/object/ref_counted.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "scene/gui/dialogs.h"
 #include "scene/gui/option_button.h"
 #include "scene/gui/split_container.h"
@@ -132,7 +132,8 @@ class EditorFeatureProfileManager : public AcceptDialog {
 	Tree *class_list = nullptr;
 	VBoxContainer *property_list_vbc = nullptr;
 	Tree *property_list = nullptr;
-	EditorHelpBit *description_bit = nullptr;
+	// TinaGodot: 文档功能已移除
+	// EditorHelpBit *description_bit = nullptr;
 	Label *no_profile_selected_help = nullptr;
 
 	EditorFileDialog *import_profiles = nullptr;

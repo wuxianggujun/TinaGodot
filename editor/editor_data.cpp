@@ -1146,7 +1146,8 @@ Ref<Texture2D> EditorData::get_script_icon(const String &p_script_path) {
 		String icon_path;
 		StringName base_class_name = script_class_get_name(base_scr->get_path());
 		if (base_scr->is_built_in() || base_class_name == StringName()) {
-			icon_path = base_scr->get_class_icon_path();
+			// TinaGodot: 文档功能已移除
+			icon_path = ""; // base_scr->get_class_icon_path();
 		} else {
 			icon_path = script_class_get_icon_path(base_class_name);
 		}

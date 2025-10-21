@@ -62,8 +62,6 @@ class VBoxContainer;
 class VSplitContainer;
 class Window;
 
-class AudioStreamImportSettingsDialog;
-class AudioStreamPreviewGenerator;
 class BackgroundProgress;
 class DependencyEditor;
 class DependencyErrorDialog;
@@ -414,7 +412,6 @@ private:
 
 	EditorMainScreen *editor_main_screen = nullptr;
 
-	AudioStreamPreviewGenerator *audio_preview_gen = nullptr;
 	ProgressDialog *progress_dialog = nullptr;
 	BackgroundProgress *progress_hb = nullptr;
 
@@ -473,7 +470,6 @@ private:
 	EditorProgress *save_scene_progress = nullptr;
 
 	DynamicFontImportSettingsDialog *fontdata_import_settings = nullptr;
-	AudioStreamImportSettingsDialog *audio_stream_import_settings = nullptr;
 
 	HashSet<String> textfile_extensions;
 	HashSet<String> other_file_extensions;

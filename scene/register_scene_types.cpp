@@ -44,7 +44,6 @@
 #include "scene/animation/animation_player.h"
 #include "scene/animation/animation_tree.h"
 #include "scene/animation/tween.h"
-#include "scene/audio/audio_stream_player.h"
 #include "scene/debugger/scene_debugger.h"
 #include "scene/gui/aspect_ratio_container.h"
 #include "scene/gui/box_container.h"
@@ -94,7 +93,6 @@
 #include "scene/gui/texture_progress_bar.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tree.h"
-#include "scene/gui/video_stream_player.h"
 #include "scene/main/canvas_item.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/http_request.h"
@@ -110,8 +108,6 @@
 #include "scene/main/window.h"
 #include "scene/resources/animation_library.h"
 #include "scene/resources/atlas_texture.h"
-#include "scene/resources/audio_stream_polyphonic.h"
-#include "scene/resources/audio_stream_wav.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/bone_map.h"
 #include "scene/resources/camera_texture.h"
@@ -153,7 +149,6 @@
 #include "scene/resources/texture.h"
 #include "scene/resources/texture_rd.h"
 #include "scene/resources/theme.h"
-#include "scene/resources/video_stream.h"
 #include "scene/resources/visual_shader.h"
 #include "scene/resources/visual_shader_nodes.h"
 #include "scene/resources/visual_shader_particle_nodes.h"
@@ -165,8 +160,6 @@
 
 // 2D
 #include "scene/2d/animated_sprite_2d.h"
-#include "scene/2d/audio_listener_2d.h"
-#include "scene/2d/audio_stream_player_2d.h"
 #include "scene/2d/back_buffer_copy.h"
 #include "scene/2d/camera_2d.h"
 #include "scene/2d/canvas_group.h"
@@ -396,9 +389,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(ItemList);
 
 	GDREGISTER_CLASS(LineEdit);
-	GDREGISTER_CLASS(VideoStreamPlayer);
-	GDREGISTER_VIRTUAL_CLASS(VideoStreamPlayback);
-	GDREGISTER_VIRTUAL_CLASS(VideoStream);
 
 #ifndef ADVANCED_GUI_DISABLED
 	GDREGISTER_CLASS(AcceptDialog);
@@ -660,7 +650,6 @@ void register_scene_types() {
 	OS::get_singleton()->yield(); // may take time to init
 
 	GDREGISTER_CLASS(Camera2D);
-	GDREGISTER_CLASS(AudioListener2D);
 #ifndef PHYSICS_2D_DISABLED
 	GDREGISTER_ABSTRACT_CLASS(Joint2D);
 	GDREGISTER_CLASS(PinJoint2D);
@@ -795,15 +784,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(BoneMap);
 
 	OS::get_singleton()->yield(); // may take time to init
-
-	GDREGISTER_CLASS(AudioStreamPlayer);
-	GDREGISTER_CLASS(AudioStreamWAV);
-	GDREGISTER_CLASS(AudioStreamPolyphonic);
-	GDREGISTER_ABSTRACT_CLASS(AudioStreamPlaybackPolyphonic);
-
-	OS::get_singleton()->yield(); // may take time to init
-
-	GDREGISTER_CLASS(AudioStreamPlayer2D);
 	GDREGISTER_CLASS(Curve2D);
 	GDREGISTER_CLASS(Path2D);
 	GDREGISTER_CLASS(PathFollow2D);
@@ -899,7 +879,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("Sprite", "Sprite2D");
 	ClassDB::add_compatibility_class("StreamTexture", "CompressedTexture2D");
 	ClassDB::add_compatibility_class("TextureProgress", "TextureProgressBar");
-	ClassDB::add_compatibility_class("VideoPlayer", "VideoStreamPlayer");
 	ClassDB::add_compatibility_class("ViewportContainer", "SubViewportContainer");
 	ClassDB::add_compatibility_class("Viewport", "SubViewport");
 	ClassDB::add_compatibility_class("VisibilityNotifier2D", "VisibleOnScreenNotifier2D");
@@ -943,8 +922,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("VisualShaderNodeUniformRef", "VisualShaderNodeParameterRef");
 
 	// Renamed during 4.0 alpha, added to ease transition between alphas.
-	ClassDB::add_compatibility_class("AudioStreamOGGVorbis", "AudioStreamOggVorbis");
-	ClassDB::add_compatibility_class("AudioStreamSample", "AudioStreamWAV");
 	ClassDB::add_compatibility_class("OGGPacketSequence", "OggPacketSequence");
 	ClassDB::add_compatibility_class("StreamCubemap", "CompressedCubemap");
 	ClassDB::add_compatibility_class("StreamCubemapArray", "CompressedCubemapArray");

@@ -39,7 +39,9 @@
 
 class CodeTextEditor;
 class EditorFileDialog;
+#ifndef TINAGODOT_NO_DOCS
 class EditorHelpSearch;
+#endif
 class FindReplaceBar;
 class HSplitContainer;
 class ItemList;
@@ -332,11 +334,13 @@ class ScriptEditor : public PanelContainer {
 	PopupMenu *recent_scripts = nullptr;
 	PopupMenu *theme_submenu = nullptr;
 
-	Button *help_search = nullptr;
-	Button *site_search = nullptr;
+    Button *help_search = nullptr;
+    Button *site_search = nullptr;
 	Button *make_floating = nullptr;
-	bool is_floating = false;
-	EditorHelpSearch *help_search_dialog = nullptr;
+    bool is_floating = false;
+#ifndef TINAGODOT_NO_DOCS
+    EditorHelpSearch *help_search_dialog = nullptr;
+#endif
 
 	ItemList *script_list = nullptr;
 	HSplitContainer *script_split = nullptr;

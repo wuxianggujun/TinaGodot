@@ -39,7 +39,7 @@
 #include "core/version.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 
 static String get_builtin_or_variant_type_name(const Variant::Type p_type) {
 	if (p_type == Variant::NIL) {
@@ -481,7 +481,8 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 	}
 
 	if (p_include_docs) {
-		EditorHelp::generate_doc(false);
+		// TinaGodot: 文档功能已移除
+		// EditorHelp::generate_doc(false);
 	}
 
 	{
@@ -490,11 +491,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 		HashMap<String, List<Pair<String, int64_t>>> enum_list;
 		HashMap<String, bool> enum_is_bitfield;
 
-		const DocData::ClassDoc *global_scope_doc = nullptr;
-		if (p_include_docs) {
-			global_scope_doc = EditorHelp::get_doc_data()->class_list.getptr("@GlobalScope");
-			CRASH_COND_MSG(!global_scope_doc, "Could not find '@GlobalScope' in DocData.");
-		}
+		// TinaGodot: 文档功能已移除 - DocData 不再可用
 
 		for (int i = 0; i < CoreConstants::get_global_constant_count(); i++) {
 			int64_t value = CoreConstants::get_global_constant_value(i);
@@ -509,14 +506,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 				d["name"] = name;
 				d["value"] = value;
 				d["is_bitfield"] = bitfield;
-				if (p_include_docs) {
-					for (const DocData::ConstantDoc &constant_doc : global_scope_doc->constants) {
-						if (constant_doc.name == name) {
-							d["description"] = fix_doc_description(constant_doc.description);
-							break;
-						}
-					}
-				}
+				// TinaGodot: 文档功能已移除 - 不添加 description
 				constants.push_back(d);
 			}
 		}
@@ -528,25 +518,13 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 			Dictionary d1;
 			d1["name"] = E.key;
 			d1["is_bitfield"] = enum_is_bitfield[E.key];
-			if (p_include_docs) {
-				const DocData::EnumDoc *enum_doc = global_scope_doc->enums.getptr(E.key);
-				if (enum_doc) {
-					d1["description"] = fix_doc_description(enum_doc->description);
-				}
-			}
+			// TinaGodot: 文档功能已移除 - 不添加 description
 			Array values;
 			for (const Pair<String, int64_t> &F : E.value) {
 				Dictionary d2;
 				d2["name"] = F.first;
 				d2["value"] = F.second;
-				if (p_include_docs) {
-					for (const DocData::ConstantDoc &constant_doc : global_scope_doc->constants) {
-						if (constant_doc.name == F.first) {
-							d2["description"] = fix_doc_description(constant_doc.description);
-							break;
-						}
-					}
-				}
+				// TinaGodot: 文档功能已移除 - 不添加 description
 				values.push_back(d2);
 			}
 			d1["values"] = values;
@@ -561,11 +539,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 		List<StringName> utility_func_names;
 		Variant::get_utility_function_list(&utility_func_names);
 
-		const DocData::ClassDoc *global_scope_doc = nullptr;
-		if (p_include_docs) {
-			global_scope_doc = EditorHelp::get_doc_data()->class_list.getptr("@GlobalScope");
-			CRASH_COND_MSG(!global_scope_doc, "Could not find '@GlobalScope' in DocData.");
-		}
+		// TinaGodot: 文档功能已移除 - DocData 不再可用
 
 		for (const StringName &name : utility_func_names) {
 			Dictionary func;
@@ -603,14 +577,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 				func["arguments"] = arguments;
 			}
 
-			if (p_include_docs) {
-				for (const DocData::MethodDoc &method_doc : global_scope_doc->methods) {
-					if (method_doc.name == name) {
-						func["description"] = fix_doc_description(method_doc.description);
-						break;
-					}
-				}
-			}
+			// TinaGodot: 文档功能已移除 - 不添加 description
 
 			utility_funcs.push_back(func);
 		}
@@ -638,11 +605,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 
 			d["is_keyed"] = Variant::is_keyed(type);
 
-			DocData::ClassDoc *builtin_doc = nullptr;
-			if (p_include_docs && d["name"] != "Nil") {
-				builtin_doc = EditorHelp::get_doc_data()->class_list.getptr(d["name"]);
-				CRASH_COND_MSG(!builtin_doc, vformat("Could not find '%s' in DocData.", d["name"]));
-			}
+			// TinaGodot: 文档功能已移除 - DocData 不再可用
 
 			{
 				//members
@@ -654,14 +617,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 					Dictionary d2;
 					d2["name"] = String(member_name);
 					d2["type"] = get_builtin_or_variant_type_name(Variant::get_member_type(type, member_name));
-					if (p_include_docs) {
-						for (const DocData::PropertyDoc &property_doc : builtin_doc->properties) {
-							if (property_doc.name == member_name) {
-								d2["description"] = fix_doc_description(property_doc.description);
-								break;
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 					members.push_back(d2);
 				}
 				if (members.size()) {
@@ -680,14 +636,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 					Variant constant = Variant::get_constant_value(type, constant_name);
 					d2["type"] = get_builtin_or_variant_type_name(constant.get_type());
 					d2["value"] = constant.get_construct_string();
-					if (p_include_docs) {
-						for (const DocData::ConstantDoc &constant_doc : builtin_doc->constants) {
-							if (constant_doc.name == constant_name) {
-								d2["description"] = fix_doc_description(constant_doc.description);
-								break;
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 					constants.push_back(d2);
 				}
 				if (constants.size()) {
@@ -713,23 +662,11 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 						Dictionary values_dict;
 						values_dict["name"] = String(enumeration);
 						values_dict["value"] = Variant::get_enum_value(type, enum_name, enumeration);
-						if (p_include_docs) {
-							for (const DocData::ConstantDoc &constant_doc : builtin_doc->constants) {
-								if (constant_doc.name == enumeration) {
-									values_dict["description"] = fix_doc_description(constant_doc.description);
-									break;
-								}
-							}
-						}
+						// TinaGodot: 文档功能已移除 - 不添加 description
 						values.push_back(values_dict);
 					}
 
-					if (p_include_docs) {
-						const DocData::EnumDoc *enum_doc = builtin_doc->enums.getptr(enum_name);
-						if (enum_doc) {
-							enum_dict["description"] = fix_doc_description(enum_doc->description);
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					if (values.size()) {
 						enum_dict["values"] = values;
@@ -761,15 +698,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 
 							d2["return_type"] = get_builtin_or_variant_type_name(Variant::get_operator_return_type(Variant::Operator(k), type, Variant::Type(j)));
 
-							if (p_include_docs && builtin_doc != nullptr) {
-								for (const DocData::MethodDoc &operator_doc : builtin_doc->operators) {
-									if (operator_doc.name == "operator " + operator_name &&
-											(is_unary || operator_doc.arguments[0].type == right_type_name)) {
-										d2["description"] = fix_doc_description(operator_doc.description);
-										break;
-									}
-								}
-							}
+							// TinaGodot: 文档功能已移除 - 不添加 description
 
 							operators.push_back(d2);
 						}
@@ -817,14 +746,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 						d2["arguments"] = arguments;
 					}
 
-					if (p_include_docs) {
-						for (const DocData::MethodDoc &method_doc : builtin_doc->methods) {
-							if (method_doc.name == method_name) {
-								d2["description"] = fix_doc_description(method_doc.description);
-								break;
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					methods.push_back(d2);
 				}
@@ -852,26 +774,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 						d2["arguments"] = arguments;
 					}
 
-					if (p_include_docs && builtin_doc) {
-						for (const DocData::MethodDoc &constructor_doc : builtin_doc->constructors) {
-							if (constructor_doc.arguments.size() != argcount) {
-								continue;
-							}
-							bool constructor_found = true;
-							for (int k = 0; k < argcount; k++) {
-								const DocData::ArgumentDoc &argument_doc = constructor_doc.arguments[k];
-								const Dictionary &argument_dict = arguments[k];
-								const String &argument_string = argument_dict["type"];
-								if (argument_doc.type != argument_string) {
-									constructor_found = false;
-									break;
-								}
-							}
-							if (constructor_found) {
-								d2["description"] = fix_doc_description(constructor_doc.description);
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					constructors.push_back(d2);
 				}
@@ -885,10 +788,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 				d["has_destructor"] = Variant::has_destructor(type);
 			}
 
-			if (p_include_docs && builtin_doc != nullptr) {
-				d["brief_description"] = fix_doc_description(builtin_doc->brief_description);
-				d["description"] = fix_doc_description(builtin_doc->description);
-			}
+			// TinaGodot: 文档功能已移除 - 不添加 brief_description 和 description
 
 			builtins.push_back(d);
 		}
@@ -917,11 +817,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 				d["inherits"] = String(parent_class);
 			}
 
-			DocData::ClassDoc *class_doc = nullptr;
-			if (p_include_docs) {
-				class_doc = EditorHelp::get_doc_data()->class_list.getptr(class_name);
-				CRASH_COND_MSG(!class_doc, vformat("Could not find '%s' in DocData.", class_name));
-			}
+			// TinaGodot: 文档功能已移除 - DocData 不再可用
 
 			{
 				ClassDB::APIType api = ClassDB::get_api_type(class_name);
@@ -944,14 +840,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 					d2["name"] = String(F);
 					d2["value"] = ClassDB::get_integer_constant(class_name, F);
 
-					if (p_include_docs) {
-						for (const DocData::ConstantDoc &constant_doc : class_doc->constants) {
-							if (constant_doc.name == F) {
-								d2["description"] = fix_doc_description(constant_doc.description);
-								break;
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					constants.push_back(d2);
 				}
@@ -978,26 +867,14 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 						d3["name"] = String(enum_constant);
 						d3["value"] = ClassDB::get_integer_constant(class_name, enum_constant);
 
-						if (p_include_docs) {
-							for (const DocData::ConstantDoc &constant_doc : class_doc->constants) {
-								if (constant_doc.name == enum_constant) {
-									d3["description"] = fix_doc_description(constant_doc.description);
-									break;
-								}
-							}
-						}
+						// TinaGodot: 文档功能已移除 - 不添加 description
 
 						values.push_back(d3);
 					}
 
 					d2["values"] = values;
 
-					if (p_include_docs) {
-						const DocData::EnumDoc *enum_doc = class_doc->enums.getptr(F);
-						if (enum_doc) {
-							d2["description"] = fix_doc_description(enum_doc->description);
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					enums.push_back(d2);
 				}
@@ -1070,14 +947,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 							d2["arguments"] = arguments;
 						}
 
-						if (p_include_docs) {
-							for (const DocData::MethodDoc &method_doc : class_doc->methods) {
-								if (method_doc.name == method_name) {
-									d2["description"] = fix_doc_description(method_doc.description);
-									break;
-								}
-							}
-						}
+						// TinaGodot: 文档功能已移除 - 不添加 description
 
 						methods.push_back(d2);
 
@@ -1147,14 +1017,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 							d2["arguments"] = arguments;
 						}
 
-						if (p_include_docs) {
-							for (const DocData::MethodDoc &method_doc : class_doc->methods) {
-								if (method_doc.name == method_name) {
-									d2["description"] = fix_doc_description(method_doc.description);
-									break;
-								}
-							}
-						}
+						// TinaGodot: 文档功能已移除 - 不添加 description
 
 						methods.push_back(d2);
 					}
@@ -1190,14 +1053,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 						d2["arguments"] = arguments;
 					}
 
-					if (p_include_docs) {
-						for (const DocData::MethodDoc &signal_doc : class_doc->signals) {
-							if (signal_doc.name == signal_name) {
-								d2["description"] = fix_doc_description(signal_doc.description);
-								break;
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					signals.push_back(d2);
 				}
@@ -1239,14 +1095,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 						d2["index"] = index;
 					}
 
-					if (p_include_docs) {
-						for (const DocData::PropertyDoc &property_doc : class_doc->properties) {
-							if (property_doc.name == property_name) {
-								d2["description"] = fix_doc_description(property_doc.description);
-								break;
-							}
-						}
-					}
+					// TinaGodot: 文档功能已移除 - 不添加 description
 
 					properties.push_back(d2);
 				}
@@ -1256,10 +1105,7 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 				}
 			}
 
-			if (p_include_docs && class_doc != nullptr) {
-				d["brief_description"] = fix_doc_description(class_doc->brief_description);
-				d["description"] = fix_doc_description(class_doc->description);
-			}
+			// TinaGodot: 文档功能已移除 - 不添加 brief_description 和 description
 
 			classes.push_back(d);
 		}

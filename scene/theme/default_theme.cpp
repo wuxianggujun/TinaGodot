@@ -1356,10 +1356,11 @@ void make_default_theme(float p_scale, Ref<Font> p_font, TextServer::SubpixelPos
 		// Use the default DynamicFont (separate from the editor font).
 		// The default DynamicFont is chosen to have a small file size since it's
 		// embedded in both editor and export template binaries.
+		// TinaGodot: 使用 NotoSans_Regular 替代 OpenSans_SemiBold
 		Ref<FontFile> dynamic_font;
 		dynamic_font.instantiate();
 #ifdef BROTLI_ENABLED
-		dynamic_font->set_data_ptr(_font_OpenSans_SemiBold, _font_OpenSans_SemiBold_size);
+		dynamic_font->set_data_ptr(_font_NotoSans_Regular, _font_NotoSans_Regular_size);
 		dynamic_font->set_subpixel_positioning(p_font_subpixel);
 		dynamic_font->set_hinting(p_font_hinting);
 		dynamic_font->set_antialiasing(p_font_antialiasing);

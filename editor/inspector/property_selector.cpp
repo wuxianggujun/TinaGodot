@@ -30,7 +30,7 @@
 
 #include "property_selector.h"
 
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "editor/editor_node.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/line_edit.h"
@@ -76,7 +76,8 @@ void PropertySelector::_update_search() {
 	}
 
 	search_options->clear();
-	help_bit->set_custom_text(String(), String(), String());
+	// TinaGodot: 文档功能已移除
+	// help_bit->set_custom_text(String(), String(), String());
 
 	TreeItem *root = search_options->create_item();
 
@@ -341,7 +342,8 @@ void PropertySelector::_confirmed() {
 }
 
 void PropertySelector::_item_selected() {
-	help_bit->set_custom_text(String(), String(), String());
+	// TinaGodot: 文档功能已移除
+	// help_bit->set_custom_text(String(), String(), String());
 
 	TreeItem *item = search_options->get_selected();
 	get_ok_button()->set_disabled(item == nullptr);
@@ -364,12 +366,14 @@ void PropertySelector::_item_selected() {
 	while (!class_type.is_empty()) {
 		if (properties) {
 			if (ClassDB::has_property(class_type, name, true)) {
-				help_bit->parse_symbol("property|" + class_type + "|" + name);
+				// TinaGodot: 文档功能已移除
+				// help_bit->parse_symbol("property|" + class_type + "|" + name);
 				break;
 			}
 		} else {
 			if (ClassDB::has_method(class_type, name, true)) {
-				help_bit->parse_symbol("method|" + class_type + "|" + name);
+				// TinaGodot: 文档功能已移除
+				// help_bit->parse_symbol("method|" + class_type + "|" + name);
 				break;
 			}
 		}
@@ -680,8 +684,9 @@ PropertySelector::PropertySelector() {
 	search_options->connect("cell_selected", callable_mp(this, &PropertySelector::_item_selected));
 	search_options->set_hide_root(true);
 
-	help_bit = memnew(EditorHelpBit);
-	help_bit->set_content_height_limits(80 * EDSCALE, 80 * EDSCALE);
-	help_bit->connect("request_hide", callable_mp(this, &PropertySelector::_hide_requested));
-	vbc->add_margin_child(TTR("Description:"), help_bit);
+	// TinaGodot: 文档功能已移除
+	// help_bit = memnew(EditorHelpBit);
+	// help_bit->set_content_height_limits(80 * EDSCALE, 80 * EDSCALE);
+	// help_bit->connect("request_hide", callable_mp(this, &PropertySelector::_hide_requested));
+	// vbc->add_margin_child(TTR("Description:"), help_bit);
 }

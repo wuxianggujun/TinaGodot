@@ -87,21 +87,22 @@ void CreateDialog::_fill_type_list() {
 	ScriptServer::get_global_class_list(complete_type_list);
 
 	EditorData &ed = EditorNode::get_editor_data();
-	HashMap<String, DocData::ClassDoc> &class_docs_list = EditorHelp::get_doc_data()->class_list;
+	// TinaGodot: 文档功能已移除
+	// HashMap<String, DocData::ClassDoc> &class_docs_list = EditorHelp::get_doc_data()->class_list;
 
 	for (const StringName &type : complete_type_list) {
 		if (!_should_hide_type(type)) {
 			TypeInfo type_info;
 			type_info.type_name = type;
 
-			const DocData::ClassDoc *class_docs = class_docs_list.getptr(type);
-			if (class_docs) {
-				type_info.search_keywords = class_docs->keywords.split(",");
+			// const DocData::ClassDoc *class_docs = class_docs_list.getptr(type);
+			// if (class_docs) {
+			// 	type_info.search_keywords = class_docs->keywords.split(",");
 
-				for (int i = 0; i < type_info.search_keywords.size(); i++) {
-					type_info.search_keywords.set(i, type_info.search_keywords[i].strip_edges());
-				}
-			}
+			// 	for (int i = 0; i < type_info.search_keywords.size(); i++) {
+			// 		type_info.search_keywords.set(i, type_info.search_keywords[i].strip_edges());
+			// 	}
+			// }
 
 			type_info_list.push_back(type_info);
 
@@ -286,9 +287,10 @@ void CreateDialog::_update_search() {
 	} else if (best_match != StringName()) {
 		select_type(best_match);
 	} else {
-		favorite->set_disabled(true);
-		help_bit->set_custom_text(String(), String(), vformat(TTR("No results for \"%s\"."), search_text.replace("[", "[lb]")));
-		get_ok_button()->set_disabled(true);
+			favorite->set_disabled(true);
+			// TinaGodot: 文档功能已移除
+			// help_bit->set_custom_text(String(), String(), vformat(TTR("No results for \"%s\"."), search_text.replace("[", "[lb]")));
+			get_ok_button()->set_disabled(true);
 		search_options->deselect_all();
 	}
 }
@@ -409,10 +411,11 @@ void CreateDialog::_configure_search_option_item(TreeItem *r_item, const StringN
 		r_item->set_custom_color(0, search_options->get_theme_color(SNAME("font_disabled_color"), EditorStringName(Editor)));
 	}
 
-	HashMap<String, DocData::ClassDoc>::Iterator class_doc = EditorHelp::get_doc_data()->class_list.find(p_type);
+	// TinaGodot: 文档功能已移除
+	// HashMap<String, DocData::ClassDoc>::Iterator class_doc = EditorHelp::get_doc_data()->class_list.find(p_type);
 
-	bool is_deprecated = (class_doc && class_doc->value.is_deprecated);
-	bool is_experimental = (class_doc && class_doc->value.is_experimental);
+	bool is_deprecated = false; // (class_doc && class_doc->value.is_deprecated);
+	bool is_experimental = false; // (class_doc && class_doc->value.is_experimental);
 
 	if (is_deprecated) {
 		r_item->add_button(0, get_editor_theme_icon("StatusError"), 0, false, TTR("This class is marked as deprecated."));
@@ -432,7 +435,8 @@ void CreateDialog::_configure_search_option_item(TreeItem *r_item, const StringN
 		r_item->set_collapsed(should_collapse);
 	}
 
-	const String &description = DTR(class_doc ? class_doc->value.brief_description : "");
+	// TinaGodot: 文档功能已移除
+	const String &description = ""; // DTR(class_doc ? class_doc->value.brief_description : "");
 	r_item->set_tooltip_text(0, description);
 
 	if (p_type_category == TypeCategory::OTHER_TYPE && !script_type) {
@@ -592,7 +596,8 @@ void CreateDialog::select_type(const String &p_type, bool p_center_on_item) {
 	to_select->select(0);
 	search_options->scroll_to_item(to_select, p_center_on_item);
 
-	help_bit->parse_symbol("class|" + p_type + "|");
+	// TinaGodot: 文档功能已移除
+	// help_bit->parse_symbol("class|" + p_type + "|");
 
 	favorite->set_disabled(false);
 	favorite->set_pressed(favorite_list.has(p_type));
@@ -927,11 +932,12 @@ CreateDialog::CreateDialog() {
 	search_options->connect("button_clicked", callable_mp(this, &CreateDialog::_script_button_clicked));
 	vbc->add_margin_child(TTR("Matches:"), search_options, true);
 
-	help_bit = memnew(EditorHelpBit);
-	help_bit->set_accessibility_name(TTRC("Description:"));
-	help_bit->set_content_height_limits(80 * EDSCALE, 80 * EDSCALE);
-	help_bit->connect("request_hide", callable_mp(this, &CreateDialog::_hide_requested));
-	vbc->add_margin_child(TTR("Description:"), help_bit);
+	// TinaGodot: 文档功能已移除 - EditorHelpBit
+	// help_bit = memnew(EditorHelpBit);
+	// help_bit->set_accessibility_name(TTRC("Description:"));
+	// help_bit->set_content_height_limits(80 * EDSCALE, 80 * EDSCALE);
+	// help_bit->connect("request_hide", callable_mp(this, &CreateDialog::_hide_requested));
+	// vbc->add_margin_child(TTR("Description:"), help_bit);
 
 	register_text_enter(search_box);
 	set_hide_on_ok(false);

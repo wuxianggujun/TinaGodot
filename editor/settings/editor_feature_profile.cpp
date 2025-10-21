@@ -41,6 +41,7 @@
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/separator.h"
+#include "scene/main/timer.h"
 
 const char *EditorFeatureProfile::feature_names[FEATURE_MAX] = {
 	TTRC("3D Editor"),
@@ -565,10 +566,12 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
 
 	Variant md = item->get_metadata(0);
 	if (md.is_string()) {
-		description_bit->parse_symbol("class|" + md.operator String() + "|");
+		// TinaGodot: 文档功能已移除
+		// description_bit->parse_symbol("class|" + md.operator String() + "|");
 	} else if (md.get_type() == Variant::INT) {
 		String feature_description = EditorFeatureProfile::get_feature_description(EditorFeatureProfile::Feature((int)md));
-		description_bit->set_custom_text(TTR(item->get_text(0)), String(), TTRGET(feature_description));
+		// TinaGodot: 文档功能已移除
+		// description_bit->set_custom_text(TTR(item->get_text(0)), String(), TTRGET(feature_description));
 		return;
 	} else {
 		return;
@@ -1001,10 +1004,11 @@ EditorFeatureProfileManager::EditorFeatureProfileManager() {
 	h_split->add_child(property_list_vbc);
 	property_list_vbc->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 
-	description_bit = memnew(EditorHelpBit);
-	description_bit->set_content_height_limits(80 * EDSCALE, 80 * EDSCALE);
-	description_bit->connect("request_hide", callable_mp(this, &EditorFeatureProfileManager::_hide_requested));
-	property_list_vbc->add_margin_child(TTR("Description:"), description_bit, false);
+	// TinaGodot: 文档功能已移除
+	// description_bit = memnew(EditorHelpBit);
+	// description_bit->set_content_height_limits(80 * EDSCALE, 80 * EDSCALE);
+	// description_bit->connect("request_hide", callable_mp(this, &EditorFeatureProfileManager::_hide_requested));
+	// property_list_vbc->add_margin_child(TTR("Description:"), description_bit, false);
 
 	property_list = memnew(Tree);
 	property_list_vbc->add_margin_child(TTR("Extra Options:"), property_list, true);

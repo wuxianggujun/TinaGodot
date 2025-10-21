@@ -997,35 +997,6 @@ Error OS_MacOS::move_to_trash(const String &p_path) {
 	return OK;
 }
 
-String OS_MacOS::get_system_ca_certificates() {
-	CFArrayRef result;
-	SecCertificateRef item;
-	CFDataRef der;
-
-	OSStatus ret = SecTrustCopyAnchorCertificates(&result);
-	ERR_FAIL_COND_V(ret != noErr, "");
-
-	CFIndex l = CFArrayGetCount(result);
-	String certs;
-	PackedByteArray pba;
-	for (CFIndex i = 0; i < l; i++) {
-		item = (SecCertificateRef)CFArrayGetValueAtIndex(result, i);
-		der = SecCertificateCopyData(item);
-		int derlen = CFDataGetLength(der);
-		if (pba.size() < derlen * 3) {
-			pba.resize(derlen * 3);
-		}
-		size_t b64len = 0;
-		Error err = CryptoCore::b64_encode(pba.ptrw(), pba.size(), &b64len, (unsigned char *)CFDataGetBytePtr(der), derlen);
-		CFRelease(der);
-		ERR_CONTINUE(err != OK);
-		// Certificate is bas64 encoded, aka ascii.
-		certs += "-----BEGIN CERTIFICATE-----\n" + String::ascii(Span((char *)pba.ptr(), b64len)) + "\n-----END CERTIFICATE-----\n";
-	}
-	CFRelease(result);
-	return certs;
-}
-
 OS::PreferredTextureFormat OS_MacOS::get_preferred_texture_format() const {
 	// macOS supports both formats on ARM. Prefer S3TC/BPTC
 	// for better compatibility with x86 platforms.

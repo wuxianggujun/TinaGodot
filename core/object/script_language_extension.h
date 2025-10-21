@@ -75,34 +75,7 @@ public:
 	EXBIND1(set_source_code, const String &)
 	EXBIND1R(Error, reload, bool)
 
-	GDVIRTUAL0RC_REQUIRED(StringName, _get_doc_class_name)
-	GDVIRTUAL0RC_REQUIRED(TypedArray<Dictionary>, _get_documentation)
-	GDVIRTUAL0RC(String, _get_class_icon_path)
-#ifdef TOOLS_ENABLED
-	virtual StringName get_doc_class_name() const override {
-		StringName ret;
-		GDVIRTUAL_CALL(_get_doc_class_name, ret);
-		return ret;
-	}
-
-	virtual Vector<DocData::ClassDoc> get_documentation() const override {
-		TypedArray<Dictionary> doc;
-		GDVIRTUAL_CALL(_get_documentation, doc);
-
-		Vector<DocData::ClassDoc> class_doc;
-		for (int i = 0; i < doc.size(); i++) {
-			class_doc.append(DocData::ClassDoc::from_dict(doc[i]));
-		}
-
-		return class_doc;
-	}
-
-	virtual String get_class_icon_path() const override {
-		String ret;
-		GDVIRTUAL_CALL(_get_class_icon_path, ret);
-		return ret;
-	}
-#endif // TOOLS_ENABLED
+	// 文档相关的虚函数已删除 - 不再支持文档生成
 
 	EXBIND1RC(bool, has_method, const StringName &)
 	EXBIND1RC(bool, has_static_method, const StringName &)

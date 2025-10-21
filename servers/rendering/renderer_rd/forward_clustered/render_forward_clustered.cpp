@@ -82,12 +82,6 @@ void RenderForwardClustered::RenderBufferDataForwardClustered::ensure_voxelgi() 
 	}
 }
 
-void RenderForwardClustered::RenderBufferDataForwardClustered::ensure_fsr2(RendererRD::FSR2Effect *p_effect) {
-	if (fsr2_context == nullptr) {
-		fsr2_context = p_effect->create_context(render_buffers->get_internal_size(), render_buffers->get_target_size());
-	}
-}
-
 #ifdef METAL_MFXTEMPORAL_ENABLED
 bool RenderForwardClustered::RenderBufferDataForwardClustered::ensure_mfx_temporal(RendererRD::MFXTemporalEffect *p_effect) {
 	if (mfx_temporal_context == nullptr) {
@@ -120,11 +114,6 @@ void RenderForwardClustered::RenderBufferDataForwardClustered::free_data() {
 	if (cluster_builder) {
 		memdelete(cluster_builder);
 		cluster_builder = nullptr;
-	}
-
-	if (fsr2_context) {
-		memdelete(fsr2_context);
-		fsr2_context = nullptr;
 	}
 
 #ifdef METAL_MFXTEMPORAL_ENABLED
@@ -1723,14 +1712,10 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 
 	enum {
 		SCALE_NONE,
-		SCALE_FSR2,
 		SCALE_MFX,
 	} scale_type = SCALE_NONE;
 
 	switch (rb->get_scaling_3d_mode()) {
-		case RS::VIEWPORT_SCALING_3D_MODE_FSR2:
-			scale_type = SCALE_FSR2;
-			break;
 		case RS::VIEWPORT_SCALING_3D_MODE_METALFX_TEMPORAL:
 #ifdef METAL_MFXTEMPORAL_ENABLED
 			scale_type = SCALE_MFX;
@@ -2407,53 +2392,8 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	RD::get_singleton()->draw_command_end_label();
 
 	if (rb_data.is_valid() && (using_upscaling || using_taa)) {
-		if (scale_type == SCALE_FSR2) {
-			rb_data->ensure_fsr2(fsr2_effect);
-
-			RID exposure;
-			if (RSG::camera_attributes->camera_attributes_uses_auto_exposure(p_render_data->camera_attributes)) {
-				exposure = luminance->get_current_luminance_buffer(rb);
-			}
-
-			RD::get_singleton()->draw_command_begin_label("FSR2");
-			RENDER_TIMESTAMP("FSR2");
-
-			for (uint32_t v = 0; v < rb->get_view_count(); v++) {
-				real_t fov = p_render_data->scene_data->cam_projection.get_fov();
-				real_t aspect = p_render_data->scene_data->cam_projection.get_aspect();
-				real_t fovy = p_render_data->scene_data->cam_projection.get_fovy(fov, 1.0 / aspect);
-				Vector2 jitter = p_render_data->scene_data->taa_jitter * Vector2(rb->get_internal_size()) * 0.5f;
-				RendererRD::FSR2Effect::Parameters params;
-				params.context = rb_data->get_fsr2_context();
-				params.internal_size = rb->get_internal_size();
-				params.sharpness = CLAMP(1.0f - (rb->get_fsr_sharpness() / 2.0f), 0.0f, 1.0f);
-				params.color = rb->get_internal_texture(v);
-				params.depth = rb->get_depth_texture(v);
-				params.velocity = rb->get_velocity_buffer(false, v);
-				params.reactive = rb->get_internal_texture_reactive(v);
-				params.exposure = exposure;
-				params.output = rb->get_upscaled_texture(v);
-				params.z_near = p_render_data->scene_data->z_near;
-				params.z_far = p_render_data->scene_data->z_far;
-				params.fovy = fovy;
-				params.jitter = jitter;
-				params.delta_time = float(time_step);
-				params.reset_accumulation = false; // FIXME: The engine does not provide a way to reset the accumulation.
-
-				Projection correction;
-				correction.set_depth_correction(true, true, false);
-
-				const Projection &prev_proj = p_render_data->scene_data->prev_cam_projection;
-				const Projection &cur_proj = p_render_data->scene_data->cam_projection;
-				const Transform3D &prev_transform = p_render_data->scene_data->prev_cam_transform;
-				const Transform3D &cur_transform = p_render_data->scene_data->cam_transform;
-				params.reprojection = (correction * prev_proj) * prev_transform.affine_inverse() * cur_transform * (correction * cur_proj).inverse();
-
-				fsr2_effect->upscale(params);
-			}
-
-			RD::get_singleton()->draw_command_end_label();
-		} else if (scale_type == SCALE_MFX) {
+		// FSR2 disabled
+		if (scale_type == SCALE_MFX) {
 #ifdef METAL_MFXTEMPORAL_ENABLED
 			bool reset = rb_data->ensure_mfx_temporal(mfx_temporal_effect);
 
@@ -5043,7 +4983,7 @@ RenderForwardClustered::RenderForwardClustered() {
 	_update_global_pipeline_data_requirements_from_project();
 
 	taa = memnew(RendererRD::TAA);
-	fsr2_effect = memnew(RendererRD::FSR2Effect);
+	// FSR2 disabled
 	ss_effects = memnew(RendererRD::SSEffects);
 #ifdef METAL_MFXTEMPORAL_ENABLED
 	motion_vectors_store = memnew(RendererRD::MotionVectorsStore);
@@ -5062,10 +5002,11 @@ RenderForwardClustered::~RenderForwardClustered() {
 		taa = nullptr;
 	}
 
-	if (fsr2_effect) {
-		memdelete(fsr2_effect);
-		fsr2_effect = nullptr;
-	}
+	// FSR2 disabled
+	// if (fsr2_effect) {
+	// 	memdelete(fsr2_effect);
+	// 	fsr2_effect = nullptr;
+	// }
 
 #ifdef METAL_MFXTEMPORAL_ENABLED
 	if (mfx_temporal_effect) {

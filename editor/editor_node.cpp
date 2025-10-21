@@ -76,7 +76,7 @@
 #include "editor/debugger/debugger_editor_plugin.h"
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/debugger/script_editor_debugger.h"
-#include "editor/doc/editor_help.h"
+// TinaGodot: 文档功能已移除
 #include "editor/docks/editor_dock_manager.h"
 #include "editor/docks/filesystem_dock.h"
 #include "editor/docks/history_dock.h"
@@ -537,9 +537,10 @@ void EditorNode::_gdextensions_reloaded() {
 	// Reload script editor to revalidate GDScript if classes are added or removed.
 	ScriptEditor::get_singleton()->reload_scripts(true);
 
-	// Regenerate documentation without using script documentation cache since that would
-	// revert doc changes during this session.
-	EditorHelp::generate_doc(true, false);
+    // Regenerate documentation without using script documentation cache since that would
+    // revert doc changes during this session.
+    // TinaGodot: 文档功能已移除
+    // EditorHelp::generate_doc(true, false);
 }
 
 void EditorNode::_update_translations() {
@@ -754,8 +755,9 @@ void EditorNode::_notification(int p_what) {
 			callable_mp(this, &EditorNode::_titlebar_resized).call_deferred();
 		} break;
 
-		case NOTIFICATION_POSTINITIALIZE: {
-			EditorHelp::generate_doc();
+        case NOTIFICATION_POSTINITIALIZE: {
+			// TinaGodot: 文档功能已移除
+			// EditorHelp::generate_doc();
 #if defined(MODULE_GDSCRIPT_ENABLED) || defined(MODULE_MONO_ENABLED)
 			EditorHelpHighlighter::create_singleton();
 #endif
@@ -863,7 +865,9 @@ void EditorNode::_notification(int p_what) {
 			if (save_accept) {
 				save_accept->queue_free();
 			}
-			EditorHelp::save_script_doc_cache();
+            // 保存脚本文档缓存
+			// TinaGodot: 文档功能已移除
+            // EditorHelp::save_script_doc_cache();
 			editor_data.save_editor_external_data();
 			FileAccess::set_file_close_fail_notify_callback(nullptr);
 			log->deinit(); // Do not get messages anymore.
@@ -8727,7 +8731,9 @@ EditorNode::~EditorNode() {
 	EditorContextMenuPluginManager::cleanup();
 
 	remove_print_handler(&print_handler);
-	EditorHelp::cleanup_doc();
+    // 清理文档缓存
+	// TinaGodot: 文档功能已移除
+    // EditorHelp::cleanup_doc();
 #if defined(MODULE_GDSCRIPT_ENABLED) || defined(MODULE_MONO_ENABLED)
 	EditorHelpHighlighter::free_singleton();
 #endif
