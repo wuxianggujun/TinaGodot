@@ -1,6 +1,0 @@
-Fix audio dependencies in animation track editor
-
-- Remove AudioStream header file reference
-- Replace Ref<AudioStream> with Ref<Resource>
-- Use fixed default value 3600s instead of AudioStream::get_length()
-- Audio Track UI remains but functionality disabled

@@ -1,8 +1,0 @@
-Completely remove documentation generation to reduce binary by ~70MB
-
-- Remove doc generation code in editor/SCsub
-- Remove doc_data_compressed.gen.h generation
-- Disable doc translations
-
-Impact: Binary size reduced by approximately 70MB
-Users can refer to online documentation instead
