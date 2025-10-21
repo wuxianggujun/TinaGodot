@@ -133,7 +133,8 @@ void QuickSettingsDialog::_update_current_values() {
 		}
 	}
 
-	// Check for updates options.
+	// Check for updates options - DISABLED (network features removed)
+#if 0
 	{
 		const int current_update_mode = EDITOR_GET("network/connection/check_for_updates");
 
@@ -148,6 +149,7 @@ void QuickSettingsDialog::_update_current_values() {
 			}
 		}
 	}
+#endif
 
 	// Project directory naming options.
 	{
@@ -198,7 +200,8 @@ void QuickSettingsDialog::_network_mode_selected(int p_id) {
 	_set_setting_value("network/connection/network_mode", p_id);
 
 	// Disables Check for Updates selection if Network mode is set to Offline.
-	check_for_update_button->set_disabled(!p_id);
+	// Note: Update check feature disabled
+	// check_for_update_button->set_disabled(!p_id);
 }
 
 void QuickSettingsDialog::_check_for_update_selected(int p_id) {
@@ -347,7 +350,8 @@ QuickSettingsDialog::QuickSettingsDialog() {
 			_add_setting_control(TTRC("Network Mode"), network_mode_option_button);
 		}
 
-		// Check for updates options.
+		// Check for updates options - DISABLED (network features removed)
+#if 0
 		{
 			check_for_update_button = memnew(OptionButton);
 			check_for_update_button->set_fit_to_longest_item(false);
@@ -360,6 +364,7 @@ QuickSettingsDialog::QuickSettingsDialog() {
 
 			_add_setting_control(TTRC("Check for Updates"), check_for_update_button);
 		}
+#endif
 
 		// Project directory naming options.
 		{

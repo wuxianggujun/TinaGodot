@@ -1683,7 +1683,8 @@ ProjectManager::ProjectManager() {
 		footer_bar->add_theme_constant_override("separation", 20 * EDSCALE);
 		main_vbox->add_child(footer_bar);
 
-#ifdef ENGINE_UPDATE_CHECK_ENABLED
+// Note: Engine update check disabled - HTTPS/network features removed in TinaGodot
+#if 0 // ENGINE_UPDATE_CHECK_ENABLED
 		EngineUpdateLabel *update_label = memnew(EngineUpdateLabel);
 		footer_bar->add_child(update_label);
 		update_label->connect("offline_clicked", callable_mp(this, &ProjectManager::_show_quick_settings));

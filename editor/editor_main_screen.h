@@ -44,10 +44,10 @@ class EditorMainScreen : public PanelContainer {
 public:
 	enum EditorTable {
 		EDITOR_2D = 0,
-		EDITOR_3D,
-		EDITOR_SCRIPT,
-		EDITOR_GAME,
-		EDITOR_ASSETLIB,
+		// EDITOR_3D = 1 removed - TinaGodot is 2D only
+		EDITOR_SCRIPT = 2,
+		EDITOR_GAME = 3,
+		EDITOR_ASSETLIB = 4,
 	};
 
 private:
