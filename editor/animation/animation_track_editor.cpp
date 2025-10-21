@@ -61,7 +61,6 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/view_panner.h"
 #include "scene/main/window.h"
-#include "servers/audio/audio_stream.h"
 
 constexpr double FPS_DECIMAL = 1.0;
 constexpr double SECOND_DECIMAL = 0.0001;
@@ -363,7 +362,7 @@ bool AnimationTrackKeyEdit::_set(const StringName &p_name, const Variant &p_valu
 		} break;
 		case Animation::TYPE_AUDIO: {
 			if (name == "stream") {
-				Ref<AudioStream> stream = p_value;
+				Ref<Resource> stream = p_value;
 
 				setting = true;
 				undo_redo->create_action(TTR("Animation Change Keyframe Value"), UndoRedo::MERGE_ENDS);
@@ -632,8 +631,8 @@ void AnimationTrackKeyEdit::_get_property_list(List<PropertyInfo> *p_list) const
 		} break;
 		case Animation::TYPE_AUDIO: {
 			p_list->push_back(PropertyInfo(Variant::OBJECT, PNAME("stream"), PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"));
-			Ref<AudioStream> audio_stream = animation->audio_track_get_key_stream(track, key);
-			String hint_string = vformat("0,%.4f,0.0001,or_greater", audio_stream.is_valid() ? audio_stream->get_length() : 3600.0);
+			Ref<Resource> audio_stream = animation->audio_track_get_key_stream(track, key);
+			String hint_string = vformat("0,%.4f,0.0001,or_greater", 3600.0);
 			p_list->push_back(PropertyInfo(Variant::FLOAT, PNAME("start_offset"), PROPERTY_HINT_RANGE, hint_string));
 			p_list->push_back(PropertyInfo(Variant::FLOAT, PNAME("end_offset"), PROPERTY_HINT_RANGE, hint_string));
 
@@ -934,7 +933,7 @@ bool AnimationMultiTrackKeyEdit::_set(const StringName &p_name, const Variant &p
 				} break;
 				case Animation::TYPE_AUDIO: {
 					if (name == "stream") {
-						Ref<AudioStream> stream = p_value;
+						Ref<Resource> stream = p_value;
 
 						if (!setting) {
 							setting = true;
@@ -6859,11 +6858,11 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 				if (animation->track_get_type(E.key.track) != Animation::TYPE_AUDIO) {
 					continue;
 				}
-				Ref<AudioStream> stream = animation->audio_track_get_key_stream(E.key.track, E.key.key);
+				Ref<Resource> stream = animation->audio_track_get_key_stream(E.key.track, E.key.key);
 				if (stream.is_null()) {
 					continue;
 				}
-				double len = stream->get_length() - animation->audio_track_get_key_end_offset(E.key.track, E.key.key);
+				double len = 3600.0 - animation->audio_track_get_key_end_offset(E.key.track, E.key.key);
 				real_t prev_offset = animation->audio_track_get_key_start_offset(E.key.track, E.key.key);
 				double prev_time = animation->track_get_key_time(E.key.track, E.key.key);
 				float cur_time = timeline->get_play_position();
@@ -6888,11 +6887,11 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 				if (animation->track_get_type(E.key.track) != Animation::TYPE_AUDIO) {
 					continue;
 				}
-				Ref<AudioStream> stream = animation->audio_track_get_key_stream(E.key.track, E.key.key);
+				Ref<Resource> stream = animation->audio_track_get_key_stream(E.key.track, E.key.key);
 				if (stream.is_null()) {
 					continue;
 				}
-				double len = stream->get_length() - animation->audio_track_get_key_start_offset(E.key.track, E.key.key);
+				double len = 3600.0 - animation->audio_track_get_key_start_offset(E.key.track, E.key.key);
 				real_t prev_offset = animation->audio_track_get_key_end_offset(E.key.track, E.key.key);
 				double prev_time = animation->track_get_key_time(E.key.track, E.key.key);
 				float cur_time = timeline->get_play_position();
@@ -7347,8 +7346,8 @@ void AnimationTrackEditor::_cleanup_animation(Ref<Animation> p_animation) {
 					double t = p_animation->track_get_key_time(i, j);
 					if (t < 0) {
 						if (j == p_animation->track_get_key_count(i) - 1 || (j + 1 < p_animation->track_get_key_count(i) && p_animation->track_get_key_time(i, j + 1) > 0)) {
-							Ref<AudioStream> stream = p_animation->audio_track_get_key_stream(i, j);
-							double len = stream->get_length() - p_animation->audio_track_get_key_end_offset(i, j);
+							Ref<Resource> stream = p_animation->audio_track_get_key_stream(i, j);
+							double len = 3600.0 - p_animation->audio_track_get_key_end_offset(i, j);
 							double prev_offset = p_animation->audio_track_get_key_start_offset(i, j);
 							double prev_time = p_animation->track_get_key_time(i, j);
 							double diff = prev_offset - prev_time;
@@ -7381,8 +7380,8 @@ void AnimationTrackEditor::_cleanup_animation(Ref<Animation> p_animation) {
 				for (int j = 0; j < p_animation->track_get_key_count(i); j++) {
 					double t = p_animation->track_get_key_time(i, j);
 					if (t <= p_animation->get_length() && (j == p_animation->track_get_key_count(i) - 1 || (j + 1 < p_animation->track_get_key_count(i) && p_animation->track_get_key_time(i, j + 1) > p_animation->get_length()))) {
-						Ref<AudioStream> stream = animation->audio_track_get_key_stream(i, j);
-						double len = stream->get_length() - animation->audio_track_get_key_start_offset(i, j);
+						Ref<Resource> stream = animation->audio_track_get_key_stream(i, j);
+						double len = 3600.0 - animation->audio_track_get_key_start_offset(i, j);
 						if (t + len < p_animation->get_length()) {
 							continue;
 						}
