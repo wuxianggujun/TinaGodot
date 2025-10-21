@@ -27,28 +27,8 @@ if env.editor_build:
         # Add all .cpp files in export folder
         env.add_source_files(env.editor_sources, f"../platform/{e}/export/*.cpp")
 
-    # Core API documentation.
-    docs = []
-    docs += Glob("#doc/classes/*.xml")
-
-    # Module API documentation.
-    module_dirs = []
-    for d in env.doc_class_path.values():
-        if d not in module_dirs:
-            module_dirs.append(d)
-
-    for d in module_dirs:
-        if not os.path.isabs(d):
-            docs += Glob("#" + d + "/*.xml")  # Built-in.
-        else:
-            docs += Glob(d + "/*.xml")  # Custom.
-
-    docs = sorted(docs)
-    env.CommandNoCache(
-        "#editor/doc/doc_data_compressed.gen.h",
-        docs,
-        env.Run(editor_builders.make_doc_header),
-    )
+    # TinaGodot: Documentation generation completely disabled to reduce binary size by ~70MB
+    # Users can refer to online documentation at https://docs.godotengine.org
 
     # Editor interface and class reference translations incur a significant size
     # cost for the editor binary (see godot-proposals#3421).
@@ -56,11 +36,12 @@ if env.editor_build:
     # ratio (20% for the editor UI, 10% for the class reference).
     # Generated with `make include-list` for each resource.
     
-    # TinaGodot: Only include Chinese translations to reduce binary size (~98MB -> ~15MB)
+    # TinaGodot: Only include Chinese translations to reduce binary size
+    # Doc translations are disabled (see above) to save ~70MB
     translation_targets = {
         "#editor/translations/editor_translations.gen.cpp": Glob("#editor/translations/editor/zh_CN.po"),
         "#editor/translations/property_translations.gen.cpp": Glob("#editor/translations/properties/zh_CN.po"),
-        "#editor/translations/doc_translations.gen.cpp": Glob("#doc/translations/zh_CN.po"),
+        "#editor/translations/doc_translations.gen.cpp": [],  # Disabled - no doc generation
         "#editor/translations/extractable_translations.gen.cpp": Glob("#editor/translations/extractable/*"),
     }
     for target_cpp, sources in translation_targets.items():

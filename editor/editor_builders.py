@@ -68,6 +68,21 @@ inline constexpr const unsigned char _doc_data_compressed[] = {{
 """)
 
 
+def make_empty_doc_header(target, source, env):
+    """Generate an empty doc header to disable documentation embedding.
+    This saves ~70MB in the binary by not including class reference docs.
+    Users can refer to online documentation instead."""
+    with methods.generated_wrapper(str(target[0])) as file:
+        file.write("""\
+// TinaGodot: Documentation generation disabled to reduce binary size
+// Users should refer to online documentation at https://docs.godotengine.org
+inline constexpr const char *_doc_data_hash = "0";
+inline constexpr int _doc_data_compressed_size = 0;
+inline constexpr int _doc_data_uncompressed_size = 0;
+inline constexpr const unsigned char _doc_data_compressed[] = {0};
+""")
+
+
 def make_translations(target, source, env):
     target_h, target_cpp = str(target[0]), str(target[1])
 
