@@ -1,7 +1,7 @@
 # 依赖清理报告（TinaGodot）
 
-> **最后更新**: 2025-10-20
-> **状态**: 第二阶段部分完成
+> **最后更新**: 2025-10-21
+> **状态**: 第四阶段完成
 
 本次操作依据项目定位（UI/2D 精简版）、SCons 默认禁用项与文档模块矩阵，对"默认关闭/明确不需要"的功能模块及对应 thirdparty 依赖进行了物理删除，以缩减源码体积并避免误启用。
 
@@ -51,11 +51,15 @@
 
 ### 已清理的第三方依赖（thirdparty/）✅
 
-**网络相关**（4个依赖）：
+**网络相关**（3个依赖）：
 - ✅ enet - ENet网络库实现 (0.2MB) - 已删除
 - ✅ miniupnpc - UPnP端口映射库 (0.3MB) - 已删除
 - ✅ wslay - WebSocket实现 (0.1MB) - 已删除
-- ✅ mbedtls - TLS/SSL加密库 (7.7MB) - 已删除
+
+**注意**：`thirdparty/mbedtls/` 核心加密库**必须保留** (7.7MB)
+- `modules/mbedtls/` 模块已删除（TLS/SSL网络加密）
+- `thirdparty/mbedtls/` 保留（核心加密：AES、MD5、SHA256等）
+- 原因：`core/crypto/` 依赖这些基础加密功能进行资源hash、数据加密等
 
 **导航相关**（2个依赖）：
 - ✅ recastnavigation - 寻路网格 (0.7MB) - 已删除
@@ -112,6 +116,70 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 
 ---
 
+## 📋 第四阶段：FSR删除，SMAA保留 ✅（已完成 - 2025-10-21）
+
+**删除的渲染特性**：
+
+### FSR (FidelityFX Super Resolution) 缩放技术 ❌ 已删除
+**删除的代码文件**：
+- `servers/rendering/renderer_rd/effects/fsr.h` - FSR1效果实现头文件
+- `servers/rendering/renderer_rd/effects/fsr.cpp` - FSR1效果实现
+- `servers/rendering/renderer_rd/effects/fsr2.h` - FSR2效果实现头文件
+- `servers/rendering/renderer_rd/effects/fsr2.cpp` - FSR2效果实现（约1,200行）
+- `servers/rendering/renderer_rd/shaders/effects/fsr2/*` - 所有FSR2 shader文件
+
+**修改的文件**：
+- `servers/rendering/renderer_rd/renderer_scene_render_rd.h/.cpp` - 移除FSR初始化和使用代码
+- `servers/rendering/renderer_rd/forward_clustered/render_forward_clustered.h/.cpp` - 移除FSR2上下文和处理代码
+- `servers/rendering/renderer_rd/effects/SCsub` - 注释掉amd-fsr2的构建配置
+
+**删除的第三方依赖**：
+- ❌ `thirdparty/amd-fsr/` - AMD FSR 1.0库（已在第二阶段删除）
+- ❌ `thirdparty/amd-fsr2/` - AMD FSR 2.0库（已在第二阶段删除）
+
+**已删除代码**: 约1,500行
+
+**删除原因**：
+- FSR和FSR2是AMD的3D场景缩放技术，主要用于提升3D游戏的渲染性能
+- 它们通过在较低分辨率渲染后放大到目标分辨率来提升性能
+- **对2D UI框架无用**：2D UI直接渲染到目标分辨率，不需要缩放技术
+
+---
+
+### SMAA (Subpixel Morphological Anti-Aliasing) 抗锯齿 ✅ 保留
+**保留的代码文件**：
+- ✅ `servers/rendering/renderer_rd/effects/smaa.h` - SMAA效果实现头文件（约270行）
+- ✅ `servers/rendering/renderer_rd/effects/smaa.cpp` - SMAA效果实现
+- ✅ `servers/rendering/renderer_rd/shaders/effects/smaa_*.glsl` - SMAA shader实现
+
+**保留的第三方资源**：
+- ✅ `thirdparty/smaa/AreaTex.png` - 边缘区域纹理
+- ✅ `thirdparty/smaa/SearchTex.png` - 边缘搜索纹理
+- ✅ `thirdparty/smaa/LICENSE.txt` - SMAA许可证
+
+**构建配置**：
+- ✅ `servers/rendering/renderer_rd/effects/SCsub` - SMAA纹理生成代码已恢复
+
+**保留原因**：
+- SMAA是屏幕空间抗锯齿技术，适用于**2D和3D场景**
+- **对2D UI框架有实际价值**：
+  - 改善位图UI元素在非整数缩放时的锯齿
+  - 优化字体渲染（尤其是小字号和非标准DPI）
+  - 平滑Canvas绘制的线条和形状边缘
+  - 提升混合2D内容的视觉质量
+- 性能开销小，比MSAA轻量，比FXAA清晰
+- **用户可选**：通过`ViewportScreenSpaceAA.SMAA`启用
+
+**API支持**：
+- `RS::VIEWPORT_SCREEN_SPACE_AA_SMAA` - 枚举值
+- `viewport_set_screen_space_aa(RID, ViewportScreenSpaceAA)` - API接口
+
+**相关提交**: 待提交
+- 删除FSR1/FSR2相关代码（约1,500行）
+- **保留SMAA抗锯齿**作为2D UI的可选渲染优化
+
+---
+
 ## 📋 可选模块（计划宏化控制）
 
 以下模块计划通过编译宏控制，暂未删除：
@@ -155,19 +223,21 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 | 第二阶段-模块 | 网络/导航/工具模块 | ~7.7MB | ✅ 完成 |
 | 第二阶段-依赖 | 对应第三方库 | ~10.8MB | ✅ 完成 |
 | 第三阶段-音频 | 音频系统完全删除 | ~600KB（代码） | ✅ 完成 |
-| **已完成总计** | | **~277MB** | ✅ |
+| 第四阶段-渲染特性 | FSR/FSR2删除，SMAA保留 | ~1,500行代码 | ✅ 完成 |
+| **已完成总计** | | **~277MB + 20,694行代码** | ✅ |
 | 可选模块（待宏化） | 扩展图像格式 | ~37MB | 📋 计划中 |
 
-**最新提交**：`8ce31bdcae` (2025-10-20)
-- 删除123个音频文件
-- 删除约19,194行代码
-- 包含scene/audio、servers/audio、editor/audio等
+**最新提交**：待提交 (2025-10-21)
+- 删除FSR1/FSR2相关代码（约1,500行）
+- **保留SMAA抗锯齿**（适用于2D UI渲染）
+- 恢复`thirdparty/smaa/`纹理资源
+- 清理FSR相关构建配置
 
 **当前状态**：
-- thirdparty/ 目录: 107MB（已完成所有依赖清理）
-- modules/ 目录: 2.2MB（保留核心模块）
-- scene/ 目录: 无音频代码
-- servers/ 目录: 无音频服务器
+- thirdparty/ 目录: ~118MB（包含mbedtls核心加密库 + SMAA纹理）
+- modules/ 目录: 2.2MB（保留核心模块，mbedtls模块已删除）
+- scene/ 目录: 无音频代码、无3D代码
+- servers/ 目录: 无音频服务器、无FSR缩放技术、**保留SMAA抗锯齿**
 
 ---
 
@@ -190,21 +260,20 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 - thirdparty/glad/ - OpenGL加载器
 - thirdparty/angle/ - OpenGL ES支持
 - thirdparty/volk/ - Vulkan加载器
-- thirdparty/amd-fsr/ - AMD FSR缩放
-- thirdparty/amd-fsr2/ - AMD FSR 2.0
 
 ### 基础图像格式（~7.6MB）
 - thirdparty/libpng/ - PNG图像格式
 - thirdparty/libjpeg-turbo/ - JPEG图像格式
 - thirdparty/libwebp/ - WebP图像格式（可选删除）
 
-### 核心系统库（~15MB）
+### 核心系统库（~23MB）
 - thirdparty/zlib/ - ZIP压缩
 - thirdparty/minizip/ - ZIP文件处理
 - thirdparty/zstd/ - 高效压缩算法
 - thirdparty/brotli/ - Brotli压缩
 - thirdparty/clipper2/ - 多边形布尔运算
 - thirdparty/pcre2/ - 正则表达式库
+- thirdparty/mbedtls/ - 核心加密库（AES、MD5、SHA256）⚠️ 必需
 - thirdparty/misc/ - 杂项工具
 
 ### 平台支持库（~10MB）
@@ -216,26 +285,46 @@ chore(purge-thirdparty): 移除mbedtls加密库和其他网络依赖
 - thirdparty/wayland-protocols/ - Wayland协议
 - thirdparty/mingw-std-threads/ - MinGW线程支持
 
-**核心依赖总计**: ~110MB（必需保留）
+**核心依赖总计**: ~118MB（必需保留，包含mbedtls核心加密）
 
 ---
 
 ## 📝 下一步行动
 
 1. ✅ **已完成**: 物理删除网络/导航模块代码
-2. 🔄 **待执行**: 运行第三方依赖清理脚本
-3. 📋 **计划中**: 实现音频系统宏控制框架
+2. ✅ **已完成**: 删除音频系统（第三阶段）
+3. ✅ **已完成**: 删除FSR/FSR2/SMAA渲染特性（第四阶段）
 4. 📋 **计划中**: 实现扩展图像格式宏控制框架
 5. 📋 **待评估**: 是否删除libwebp（WebP格式）
+6. 📋 **待评估**: 继续清理其他3D专用渲染特性
 
 ---
 
-**报告生成时间**: 2025-10-20
+**报告生成时间**: 2025-10-21
 **维护者**: TinaGodot Team
 
 ---
 
 ## 变更记录（近期）
+
+- 2025-10-21：**编辑器运行时错误修复** - 修复3D编辑器删除后的遗留问题
+  - ✅ 修复 `spatial_editor/tool_select` 快捷键错误（替换为canvas_item_editor快捷键）
+  - ✅ 修复 `EDITOR_3D` 按钮索引越界错误（删除相关调用）
+  - ✅ 修复 `ScriptServer::get_language(-1)` 索引越界错误（添加边界检查）
+  - 提交：`f3fb3e8559` - Fix runtime errors after 3D editor removal
+
+- 2025-10-21：**音频动画轨道编辑器修复** - 解决AudioStream依赖问题
+  - ✅ 删除已移除的 `AudioStream` 头文件引用
+  - ✅ 将 `Ref<AudioStream>` 替换为 `Ref<Resource>` 保持兼容性
+  - ✅ 使用固定默认值（3600秒）替代 `AudioStream::get_length()` 调用
+  - 说明：Audio Track功能在UI中保留但不可用（音频系统已完全移除）
+  - 提交：待推送 - Fix audio dependencies in animation track editor
+
+- 2025-10-21：**第四阶段完成** - 删除FSR缩放技术，保留SMAA抗锯齿
+  - ❌ 删除 `servers/rendering/renderer_rd/effects/fsr.h/.cpp` 和 `fsr2.h/.cpp`（约1,500行）
+  - ❌ 删除所有FSR2 shader文件
+  - ✅ **保留SMAA抗锯齿**：`smaa.h/.cpp` + shader + `thirdparty/smaa/`纹理
+  - 说明：FSR是3D场景缩放技术对2D UI无用；SMAA是通用抗锯齿技术，对2D UI渲染质量有价值
 
 - 2025-10-20：恢复 Android 帧律库 thirdparty/swappy-frame-pacing（含 arm64-v8a/armeabi-v7a/x86/x86_64 的 libswappy_static.a）。
   - 构建 Android 时可通过 `swappy=yes` 启用；默认不启用则不链接该库。
