@@ -632,7 +632,6 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
 	// External Programs
 	EDITOR_SETTING_BASIC(Variant::STRING, PROPERTY_HINT_GLOBAL_FILE, "filesystem/external_programs/raster_image_editor", "", "")
 	EDITOR_SETTING_BASIC(Variant::STRING, PROPERTY_HINT_GLOBAL_FILE, "filesystem/external_programs/vector_image_editor", "", "")
-	EDITOR_SETTING_BASIC(Variant::STRING, PROPERTY_HINT_GLOBAL_FILE, "filesystem/external_programs/audio_editor", "", "")
 	EDITOR_SETTING_BASIC(Variant::STRING, PROPERTY_HINT_GLOBAL_FILE, "filesystem/external_programs/3d_model_editor", "", "")
 	EDITOR_SETTING_BASIC(Variant::STRING, PROPERTY_HINT_GLOBAL_FILE, "filesystem/external_programs/terminal_emulator", "", "")
 	EDITOR_SETTING(Variant::STRING, PROPERTY_HINT_PLACEHOLDER_TEXT, "filesystem/external_programs/terminal_emulator_flags", "", "Call flags with placeholder: {directory}.");

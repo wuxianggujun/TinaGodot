@@ -2185,8 +2185,6 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
 				} else {
 					external_program = EDITOR_GET("filesystem/external_programs/raster_image_editor");
 				}
-			} else if (ClassDB::is_parent_class(resource_type, "AudioStream")) {
-				external_program = EDITOR_GET("filesystem/external_programs/audio_editor");
 			} else if (resource_type == "PackedScene") {
 				external_program = EDITOR_GET("filesystem/external_programs/3d_model_editor");
 			}
@@ -4385,7 +4383,6 @@ FileSystemDock::FileSystemDock() {
 
 	ProjectSettings::get_singleton()->connect("settings_changed", callable_mp(this, &FileSystemDock::_project_settings_changed));
 	add_resource_tooltip_plugin(memnew(EditorTextureTooltipPlugin));
-	add_resource_tooltip_plugin(memnew(EditorAudioStreamTooltipPlugin));
 }
 
 FileSystemDock::~FileSystemDock() {

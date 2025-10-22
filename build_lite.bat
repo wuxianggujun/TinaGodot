@@ -3,6 +3,9 @@ echo Building Godot 2D Lite...
 echo.
 
 scons platform=windows target=editor arch=x86_64 ^
+    module_minimp3_enabled=no ^
+    module_vorbis_enabled=no ^
+    module_interactive_music_enabled=no ^
     module_gdscript_enabled=no ^
     module_mono_enabled=no ^
     module_webrtc_enabled=no ^
@@ -20,8 +23,6 @@ scons platform=windows target=editor arch=x86_64 ^
     module_objectdb_profiler_enabled=no ^
     module_xatlas_unwrap_enabled=no ^
     module_vhacd_enabled=no ^
-    disable_audio=yes ^
-    disable_exporters=yes ^
     -j7
 
 if %ERRORLEVEL% EQU 0 (

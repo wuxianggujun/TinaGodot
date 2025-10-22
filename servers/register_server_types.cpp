@@ -33,7 +33,6 @@
 #include "core/config/engine.h"
 #include "core/config/project_settings.h"
 
-#ifndef AUDIO_DISABLED
 #include "audio/audio_effect.h"
 #include "audio/audio_server.h"
 #include "audio/audio_stream.h"
@@ -54,7 +53,6 @@
 #include "audio/effects/audio_effect_spectrum_analyzer.h"
 #include "audio/effects/audio_effect_stereo_enhance.h"
 #include "audio/effects/audio_stream_generator.h"
-#endif
 #include "camera/camera_feed.h"
 #include "camera/camera_server.h"
 #include "debugger/servers_debugger.h"
@@ -78,10 +76,8 @@
 #include "text/text_server.h"
 #include "text/text_server_dummy.h"
 #include "text/text_server_extension.h"
-#ifndef AUDIO_DISABLED
 #ifndef DISABLE_DEPRECATED
 #include "audio/effects/audio_effect_limiter.h"
-#endif
 #endif
 
 // 2D physics and navigation.
@@ -138,9 +134,7 @@ void register_server_types() {
 
 	GDREGISTER_ABSTRACT_CLASS(DisplayServer);
     GDREGISTER_ABSTRACT_CLASS(RenderingServer);
-#ifndef AUDIO_DISABLED
     GDREGISTER_CLASS(AudioServer);
-#endif
 
 	GDREGISTER_CLASS(NativeMenu);
 
@@ -148,7 +142,6 @@ void register_server_types() {
 
     GDREGISTER_ABSTRACT_CLASS(RenderingDevice);
 
-#ifndef AUDIO_DISABLED
     GDREGISTER_CLASS(AudioStream);
     GDREGISTER_CLASS(AudioStreamPlayback);
     GDREGISTER_VIRTUAL_CLASS(AudioStreamPlaybackResampled);
@@ -164,47 +157,46 @@ void register_server_types() {
 
     GDREGISTER_CLASS(AudioStreamGenerator);
     GDREGISTER_ABSTRACT_CLASS(AudioStreamGeneratorPlayback);
-#endif
 
-	{
-		//audio effects
-		GDREGISTER_CLASS(AudioEffectAmplify);
+		{
+			//audio effects
+			GDREGISTER_CLASS(AudioEffectAmplify);
 
-		GDREGISTER_CLASS(AudioEffectReverb);
+			GDREGISTER_CLASS(AudioEffectReverb);
 
-		GDREGISTER_CLASS(AudioEffectLowPassFilter);
-		GDREGISTER_CLASS(AudioEffectHighPassFilter);
-		GDREGISTER_CLASS(AudioEffectBandPassFilter);
-		GDREGISTER_CLASS(AudioEffectNotchFilter);
-		GDREGISTER_CLASS(AudioEffectBandLimitFilter);
-		GDREGISTER_CLASS(AudioEffectLowShelfFilter);
-		GDREGISTER_CLASS(AudioEffectHighShelfFilter);
+			GDREGISTER_CLASS(AudioEffectLowPassFilter);
+			GDREGISTER_CLASS(AudioEffectHighPassFilter);
+			GDREGISTER_CLASS(AudioEffectBandPassFilter);
+			GDREGISTER_CLASS(AudioEffectNotchFilter);
+			GDREGISTER_CLASS(AudioEffectBandLimitFilter);
+			GDREGISTER_CLASS(AudioEffectLowShelfFilter);
+			GDREGISTER_CLASS(AudioEffectHighShelfFilter);
 
-		GDREGISTER_CLASS(AudioEffectEQ6);
-		GDREGISTER_CLASS(AudioEffectEQ10);
-		GDREGISTER_CLASS(AudioEffectEQ21);
+			GDREGISTER_CLASS(AudioEffectEQ6);
+			GDREGISTER_CLASS(AudioEffectEQ10);
+			GDREGISTER_CLASS(AudioEffectEQ21);
 
-		GDREGISTER_CLASS(AudioEffectDistortion);
+			GDREGISTER_CLASS(AudioEffectDistortion);
 
-		GDREGISTER_CLASS(AudioEffectStereoEnhance);
+			GDREGISTER_CLASS(AudioEffectStereoEnhance);
 
-		GDREGISTER_CLASS(AudioEffectPanner);
-		GDREGISTER_CLASS(AudioEffectChorus);
-		GDREGISTER_CLASS(AudioEffectDelay);
-		GDREGISTER_CLASS(AudioEffectCompressor);
-		GDREGISTER_CLASS(AudioEffectHardLimiter);
-		GDREGISTER_CLASS(AudioEffectPitchShift);
-		GDREGISTER_CLASS(AudioEffectPhaser);
-		GDREGISTER_CLASS(AudioEffectRecord);
-		GDREGISTER_CLASS(AudioEffectSpectrumAnalyzer);
-		GDREGISTER_ABSTRACT_CLASS(AudioEffectSpectrumAnalyzerInstance);
+			GDREGISTER_CLASS(AudioEffectPanner);
+			GDREGISTER_CLASS(AudioEffectChorus);
+			GDREGISTER_CLASS(AudioEffectDelay);
+			GDREGISTER_CLASS(AudioEffectCompressor);
+			GDREGISTER_CLASS(AudioEffectHardLimiter);
+			GDREGISTER_CLASS(AudioEffectPitchShift);
+			GDREGISTER_CLASS(AudioEffectPhaser);
+			GDREGISTER_CLASS(AudioEffectRecord);
+			GDREGISTER_CLASS(AudioEffectSpectrumAnalyzer);
+			GDREGISTER_ABSTRACT_CLASS(AudioEffectSpectrumAnalyzerInstance);
 
-		GDREGISTER_CLASS(AudioEffectCapture);
+			GDREGISTER_CLASS(AudioEffectCapture);
 
-#ifndef DISABLE_DEPRECATED
-		GDREGISTER_CLASS(AudioEffectLimiter);
-#endif
-	}
+		#ifndef DISABLE_DEPRECATED
+			GDREGISTER_CLASS(AudioEffectLimiter);
+		#endif
+		}
 
 	GDREGISTER_ABSTRACT_CLASS(RenderingDevice);
 	GDREGISTER_CLASS(ShaderIncludeDB);

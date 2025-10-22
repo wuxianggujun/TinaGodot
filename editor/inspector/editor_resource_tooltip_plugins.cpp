@@ -130,28 +130,3 @@ Control *EditorTextureTooltipPlugin::make_tooltip_for_path(const String &p_resou
 	return hb;
 }
 
-// EditorAudioStreamTooltipPlugin
-
-bool EditorAudioStreamTooltipPlugin::handles(const String &p_resource_type) const {
-	return ClassDB::is_parent_class(p_resource_type, "AudioStream");
-}
-
-Control *EditorAudioStreamTooltipPlugin::make_tooltip_for_path(const String &p_resource_path, const Dictionary &p_metadata, Control *p_base) const {
-	VBoxContainer *vb = Object::cast_to<VBoxContainer>(p_base);
-	DEV_ASSERT(vb);
-
-	double length = p_metadata.get("length", 0.0);
-	if (length >= 60.0) {
-		vb->add_child(memnew(Label(vformat(TTR("Length: %0dm %0ds"), int(length / 60.0), int(std::fmod(length, 60))))));
-	} else if (length >= 1.0) {
-		vb->add_child(memnew(Label(vformat(TTR("Length: %0.1fs"), length))));
-	} else {
-		vb->add_child(memnew(Label(vformat(TTR("Length: %0.3fs"), length))));
-	}
-
-	TextureRect *tr = memnew(TextureRect);
-	vb->add_child(tr);
-	request_thumbnail(p_resource_path, tr);
-
-	return vb;
-}

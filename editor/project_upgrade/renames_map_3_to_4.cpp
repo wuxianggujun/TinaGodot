@@ -114,7 +114,6 @@ const char *RenamesMap3To4::enum_renames[][2] = {
 	{ "JOINT_HINGE", "JOINT_TYPE_HINGE" }, // PhysicsServer3D
 	{ "JOINT_PIN", "JOINT_TYPE_PIN" }, // PhysicsServer2D
 	{ "JOINT_SLIDER", "JOINT_TYPE_SLIDER" }, // PhysicsServer3D
-	{ "LOOP_PING_PONG", "LOOP_PINGPONG" }, // AudioStreamWAV
 	{ "MODE_KINEMATIC", "FREEZE_MODE_KINEMATIC" }, // RigidBody
 	{ "MODE_OPEN_ANY", "FILE_MODE_OPEN_ANY" }, // FileDialog
 	{ "MODE_OPEN_DIR", "FILE_MODE_OPEN_DIR" }, // FileDialog
@@ -391,7 +390,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "get_timer_process_mode", "get_timer_process_callback" }, // Timer
 	{ "get_translation", "get_position" }, // Node3D -- Breaks GLTFNode, but it is used rarely.
 	{ "get_uniform_name", "get_parameter_name" }, // ParameterRef
-	{ "get_unit_db", "get_volume_db" }, // AudioStreamPlayer3D
 	{ "get_unit_offset", "get_progress_ratio" }, // PathFollow2D, PathFollow3D
 	{ "get_use_in_baked_light", "is_baking_navigation" }, // GridMap
 	{ "get_verts_per_poly", "get_vertices_per_polygon" }, // NavigationMesh
@@ -572,7 +570,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "set_timer_process_mode", "set_timer_process_callback" }, // Timer
 	{ "set_translation", "set_position" }, // Node3D -- This breaks GLTFNode, but it is used rarely.
 	{ "set_uniform_name", "set_parameter_name" }, // ParameterRef
-	{ "set_unit_db", "set_volume_db" }, // AudioStreamPlayer3D
 	{ "set_unit_offset", "set_progress_ratio" }, // PathFollow2D, PathFollow3D
 	{ "set_uv2", "surface_set_uv2" }, // ImmediateMesh -- Breaks SurfaceTool.
 	{ "set_verts_per_poly", "set_vertices_per_polygon" }, // NavigationMesh
@@ -810,7 +807,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "GetTimerProcessMode", "GetTimerProcessCallback" }, // Timer
 	{ "GetTranslation", "GetPosition" }, // Node3D -- Breaks GLTFNode, but it is used rarely.
 	{ "GetUniformName", "GetParameterName" }, // ParameterRef
-	{ "GetUnitDb", "GetVolumeDb" }, // AudioStreamPlayer3D
 	{ "GetUnitOffset", "GetProgressRatio" }, // PathFollow2D, PathFollow3D
 	{ "GetUseInBakedLight", "IsBakingNavigation" }, // GridMap
 	{ "GetVertsPerPoly", "GetVerticesPerPolygon" }, // NavigationMesh
@@ -983,7 +979,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "SetTonemapAutoExposure", "SetTonemapAutoExposureEnabled" }, // Environment
 	{ "SetTranslation", "SetPosition" }, // Node3D -- This breaks GLTFNode, but it is used rarely.
 	{ "SetUniformName", "SetParameterName" }, // ParameterRef
-	{ "SetUnitDb", "SetVolumeDb" }, // AudioStreamPlayer3D
 	{ "SetUnitOffset", "SetProgressRatio" }, // PathFollow2D, PathFollow3D
 	{ "SetUv2", "SurfaceSetUv2" }, // ImmediateMesh -- Breaks SurfaceTool.
 	{ "SetVertsPerPoly", "SetVerticesPerPolygon" }, // NavigationMesh
@@ -1129,7 +1124,6 @@ const char *RenamesMap3To4::gdscript_properties_renames[][2] = {
 	{ "off_disabled", "unchecked_disabled" }, // Theme
 	{ "on_disabled", "checked_disabled" }, // Theme
 	{ "oneshot", "one_shot" }, // AnimatedTexture
-	{ "out_of_range_mode", "max_polyphony" }, // AudioStreamPlayer3D
 	{ "pause_mode", "process_mode" }, // Node
 	{ "physical_scancode", "physical_keycode" }, // InputEventKey
 	{ "polygon_verts_per_poly", "polygon_vertices_per_polyon" }, // NavigationMesh
@@ -1166,7 +1160,6 @@ const char *RenamesMap3To4::gdscript_properties_renames[][2] = {
 	{ "target_location", "target_position" }, // NavigationAgent2D, NavigationAgent3D
 	{ "toplevel", "top_level" }, // Node
 	{ "translation", "position" }, // Node3D
-	{ "unit_db", "volume_db" }, // AudioStreamPlayer3D
 	{ "unit_offset", "progress_ratio" }, // PathFollow2D, PathFollow3D
 	{ "vseparation", "v_separation" }, // Theme
 
@@ -1227,7 +1220,6 @@ const char *RenamesMap3To4::csharp_properties_renames[][2] = {
 	{ "OffDisabled", "UncheckedDisabled" }, // Theme
 	{ "OnDisabled", "CheckedDisabled" }, // Theme
 	{ "Oneshot", "OneShot" }, // AnimatedTexture
-	{ "OutOfRangeMode", "MaxPolyphony" }, // AudioStreamPlayer3D
 	{ "PauseMode", "ProcessMode" }, // Node
 	{ "Perpendicular", "Orthogonal" }, // Vector2 - Only exists in C#
 	{ "PhysicalScancode", "PhysicalKeycode" }, // InputEventKey
@@ -1264,7 +1256,6 @@ const char *RenamesMap3To4::csharp_properties_renames[][2] = {
 	{ "TargetLocation", "TargetPosition" }, // NavigationAgent2D, NavigationAgent3D
 	{ "Toplevel", "TopLevel" }, // Node
 	{ "Translation", "Position" }, // Node3D
-	{ "UnitDb", "VolumeDb" }, // AudioStreamPlayer3D
 	{ "UnitOffset", "ProgressRatio" }, // PathFollow2D, PathFollow3D
 	{ "Vseparation", "VSeparation" }, // Theme
 
@@ -1477,9 +1468,6 @@ const char *RenamesMap3To4::class_renames[][2] = {
 	{ "ARVRServer", "XRServer" },
 	{ "AStar", "AStar3D" },
 	{ "AnimatedSprite", "AnimatedSprite2D" },
-	{ "AudioStreamOGGVorbis", "AudioStreamOggVorbis" },
-	{ "AudioStreamRandomPitch", "AudioStreamRandomizer" },
-	{ "AudioStreamSample", "AudioStreamWAV" },
 	{ "BakedLightmap", "LightmapGI" },
 	{ "BakedLightmapData", "LightmapGIData" },
 	{ "BitmapFont", "FontFile" },

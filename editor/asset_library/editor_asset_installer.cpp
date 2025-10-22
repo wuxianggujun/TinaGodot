@@ -618,9 +618,6 @@ void EditorAssetInstaller::_notification(int p_what) {
 				extension_icon_map["tga"] = get_editor_theme_icon(SNAME("ImageTexture"));
 				extension_icon_map["webp"] = get_editor_theme_icon(SNAME("ImageTexture"));
 
-				extension_icon_map["wav"] = get_editor_theme_icon(SNAME("AudioStreamWAV"));
-				extension_icon_map["ogg"] = get_editor_theme_icon(SNAME("AudioStreamOggVorbis"));
-				extension_icon_map["mp3"] = get_editor_theme_icon(SNAME("AudioStreamMP3"));
 
 				extension_icon_map["scn"] = get_editor_theme_icon(SNAME("PackedScene"));
 				extension_icon_map["tscn"] = get_editor_theme_icon(SNAME("PackedScene"));

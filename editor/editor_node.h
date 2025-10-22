@@ -62,10 +62,6 @@ class VBoxContainer;
 class VSplitContainer;
 class Window;
 
-// TinaFlowStudio - Removed audio import settings
-// class AudioStreamImportSettingsDialog;
-// TinaFlowStudio - Removed audio preview generator
-// class AudioStreamPreviewGenerator;
 class BackgroundProgress;
 class DependencyEditor;
 class DependencyErrorDialog;
@@ -416,8 +412,6 @@ private:
 
 	EditorMainScreen *editor_main_screen = nullptr;
 
-	// TinaFlowStudio - Removed audio preview generator
-	// AudioStreamPreviewGenerator *audio_preview_gen = nullptr;
 	ProgressDialog *progress_dialog = nullptr;
 	BackgroundProgress *progress_hb = nullptr;
 
@@ -476,8 +470,6 @@ private:
 	EditorProgress *save_scene_progress = nullptr;
 
 	DynamicFontImportSettingsDialog *fontdata_import_settings = nullptr;
-	// TinaFlowStudio - Removed audio import settings
-	// AudioStreamImportSettingsDialog *audio_stream_import_settings = nullptr;
 
 	HashSet<String> textfile_extensions;
 	HashSet<String> other_file_extensions;

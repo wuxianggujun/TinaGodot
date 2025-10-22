@@ -9,8 +9,9 @@ scons platform=windows target=editor arch=x86_64 ^
     debug_symbols=no ^
     optimize=speed ^
     lto=full ^
-    disable_audio=yes ^
-    disable_exporters=yes ^
+    module_minimp3_enabled=no ^
+    module_vorbis_enabled=no ^
+    module_interactive_music_enabled=no ^
     module_gdscript_enabled=no ^
     module_mono_enabled=no ^
     module_webrtc_enabled=no ^

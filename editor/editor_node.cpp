@@ -73,9 +73,6 @@
 
 #include "editor/animation/animation_player_editor_plugin.h"
 #include "editor/asset_library/asset_library_editor_plugin.h"
-// TinaFlowStudio - Removed audio editor includes
-// #include "editor/audio_stream_preview.h"
-// #include "editor/audio/editor_audio_buses.h"
 #include "editor/debugger/debugger_editor_plugin.h"
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/debugger/script_editor_debugger.h"
@@ -110,8 +107,6 @@
 #include "editor/gui/editor_toaster.h"
 #include "editor/gui/progress_dialog.h"
 #include "editor/gui/window_wrapper.h"
-// TinaFlowStudio - Removed audio import settings
-// #include "editor/import/audio_stream_import_settings.h"
 #include "editor/import/dynamic_font_import_settings.h"
 #include "editor/import/fbx_importer_manager.h"
 #include "editor/import/resource_importer_bitmask.h"
@@ -125,7 +120,6 @@
 #include "editor/import/resource_importer_svg.h"
 #include "editor/import/resource_importer_texture.h"
 #include "editor/import/resource_importer_texture_atlas.h"
-#include "editor/import/resource_importer_wav.h"
 #include "editor/inspector/editor_inspector.h"
 #include "editor/inspector/editor_preview_plugins.h"
 #include "editor/inspector/editor_properties.h"
@@ -7676,9 +7670,7 @@ EditorNode::EditorNode() {
 		import_csv_translation.instantiate();
 		ResourceFormatImporter::get_singleton()->add_importer(import_csv_translation);
 
-		Ref<ResourceImporterWAV> import_wav;
-		import_wav.instantiate();
-		ResourceFormatImporter::get_singleton()->add_importer(import_wav);
+        // Removed: WAV importer (editor audio import disabled)
 
 		Ref<ResourceImporterShaderFile> import_shader_file;
 		import_shader_file.instantiate();
@@ -7963,10 +7955,6 @@ EditorNode::EditorNode() {
 
 	project_settings_editor = memnew(ProjectSettingsEditor(&editor_data));
 	gui_base->add_child(project_settings_editor);
-
-	// TinaFlowStudio - Removed audio import settings dialog
-	// audio_stream_import_settings = memnew(AudioStreamImportSettingsDialog);
-	// gui_base->add_child(audio_stream_import_settings);
 
 	fontdata_import_settings = memnew(DynamicFontImportSettingsDialog);
 	gui_base->add_child(fontdata_import_settings);
@@ -8455,10 +8443,6 @@ EditorNode::EditorNode() {
 	file->connect("file_selected", callable_mp(this, &EditorNode::_dialog_action));
 	file_templates->connect("file_selected", callable_mp(this, &EditorNode::_dialog_action));
 
-	// TinaFlowStudio - Removed audio preview generator
-	// audio_preview_gen = memnew(AudioStreamPreviewGenerator);
-	// add_child(audio_preview_gen);
-
 	add_editor_plugin(memnew(DebuggerEditorPlugin(debug_menu)));
 
 	disk_changed = memnew(ConfirmationDialog);
@@ -8508,9 +8492,6 @@ EditorNode::EditorNode() {
 		add_editor_plugin(get_game_view_plugin());
 	}
 
-	// TinaFlowStudio - Removed audio bus editor
-	// EditorAudioBuses *audio_bus_editor = EditorAudioBuses::register_editor();
-
 	ScriptTextEditor::register_editor(); // Register one for text scripts.
 	TextEditor::register_editor();
 
@@ -8531,9 +8512,6 @@ EditorNode::EditorNode() {
 	vcs_actions_menu->add_item(TTRC("Version Control Settings..."), VCS_SETTINGS);
 	project_menu->set_item_submenu_node(project_menu->get_item_index(PROJECT_VERSION_CONTROL), vcs_actions_menu);
 
-	// TinaFlowStudio - Removed audio buses editor plugin
-	// add_editor_plugin(memnew(AudioBusesEditorPlugin(audio_bus_editor)));
-
 	for (int i = 0; i < EditorPlugins::get_plugin_count(); i++) {
 		add_editor_plugin(EditorPlugins::create(i));
 	}
@@ -8553,8 +8531,6 @@ EditorNode::EditorNode() {
 	resource_preview->add_preview_generator(Ref<EditorPackedScenePreviewPlugin>(memnew(EditorPackedScenePreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorMaterialPreviewPlugin>(memnew(EditorMaterialPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorScriptPreviewPlugin>(memnew(EditorScriptPreviewPlugin)));
-	// TinaFlowStudio - Removed audio stream preview plugin
-	// resource_preview->add_preview_generator(Ref<EditorAudioStreamPreviewPlugin>(memnew(EditorAudioStreamPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorMeshPreviewPlugin>(memnew(EditorMeshPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorBitmapPreviewPlugin>(memnew(EditorBitmapPreviewPlugin)));
 	resource_preview->add_preview_generator(Ref<EditorFontPreviewPlugin>(memnew(EditorFontPreviewPlugin)));

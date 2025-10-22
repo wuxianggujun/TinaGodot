@@ -240,8 +240,7 @@ opts.Add(BoolVariable("disable_navigation_2d", "Disable 2D navigation features",
 opts.Add(BoolVariable("disable_navigation_3d", "Disable 3D navigation features", False))
 opts.Add(BoolVariable("disable_xr", "Disable XR nodes and server", False))
 opts.Add(BoolVariable("disable_overrides", "Disable project settings overrides and related CLI arguments", False))
-opts.Add(BoolVariable("disable_audio", "Disable audio server, drivers and audio scene nodes", False))
-opts.Add(BoolVariable("disable_exporters", "Disable editor exporters and export UI", False))
+# (Removed) legacy toggles: disable_audio, disable_exporters
 opts.Add("build_profile", "Path to a file containing a feature build profile", "")
 opts.Add("custom_modules", "A list of comma-separated directory paths containing custom modules to build.", "")
 opts.Add(BoolVariable("custom_modules_recursive", "Detect custom modules recursively for each specified path.", True))
@@ -523,11 +522,7 @@ else:
     env.Append(CPPDEFINES=["NDEBUG"])
 
 # Custom feature toggles
-if env.get("disable_audio", False):
-    env.Append(CPPDEFINES=["AUDIO_DISABLED"])
-
-if env.get("disable_exporters", False):
-    env.Append(CPPDEFINES=["EXPORTERS_DISABLED"])
+# No exporter/audio feature macros; keep symbols to avoid link issues.
 
 # This is not part of fast_unsafe because the only downside it has compared to
 # the default is that SCons won't mark files that were changed in the last second
@@ -1090,6 +1085,8 @@ for name, path in modules_detected.items():
 
 env.module_list = modules_enabled
 methods.sort_module_list(env)
+
+# Keep modules list intact; slimming can be done via module_*_enabled flags.
 
 if env.editor_build:
     # Add editor-specific dependencies to the dependency graph.

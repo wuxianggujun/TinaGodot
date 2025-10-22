@@ -193,28 +193,3 @@ public:
 	ShaderMaterial *get_edited_material() const;
 	void set_preferred_mode(int p_preferred_mode);
 };
-
-// TinaFlowStudio - Disabled audio stream picker
-#if 0
-class EditorAudioStreamPicker : public EditorResourcePicker {
-	GDCLASS(EditorAudioStreamPicker, EditorResourcePicker);
-
-	uint64_t last_preview_version = 0;
-	Control *stream_preview_rect = nullptr;
-
-	enum {
-		MAX_TAGGED_FRAMES = 8
-	};
-	float tagged_frame_offsets[MAX_TAGGED_FRAMES];
-	uint32_t tagged_frame_offset_count = 0;
-
-	void _preview_draw();
-	virtual void _update_resource() override;
-
-protected:
-	void _notification(int p_what);
-
-public:
-	EditorAudioStreamPicker();
-};
-#endif // TinaFlowStudio
