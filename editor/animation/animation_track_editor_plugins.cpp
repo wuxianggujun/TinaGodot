@@ -1334,11 +1334,14 @@ void AnimationTrackEditTypeAnimation::set_node(Object *p_object) {
 
 /////////
 AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Object *p_object, Variant::Type p_type, const String &p_property, PropertyHint p_hint, const String &p_hint_string, int p_usage) {
+	// TinaFlowStudio - Disabled audio track editing
+	#if 0
 	if (p_property == "playing" && (p_object->is_class("AudioStreamPlayer") || p_object->is_class("AudioStreamPlayer2D"))) {
 		AnimationTrackEditAudio *audio = memnew(AnimationTrackEditAudio);
 		audio->set_node(p_object);
 		return audio;
 	}
+	#endif
 
 	if (p_property == "frame" && (p_object->is_class("Sprite2D") || p_object->is_class("AnimatedSprite2D"))) {
 		AnimationTrackEditSpriteFrame *sprite = memnew(AnimationTrackEditSpriteFrame);
@@ -1374,9 +1377,12 @@ AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Obj
 	return nullptr;
 }
 
+// TinaFlowStudio - Disabled audio track editing
+#if 0
 AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_audio_track_edit() {
 	return memnew(AnimationTrackEditTypeAudio);
 }
+#endif
 
 AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_animation_track_edit(Object *p_object) {
 	AnimationTrackEditTypeAnimation *an = memnew(AnimationTrackEditTypeAnimation);
