@@ -54,17 +54,20 @@ if env.editor_build:
         env.Run(editor_builders.make_empty_doc_header),
     )
 
+    # TinaGodot 2D Lite - Only include Chinese translations to reduce binary size
     # Editor interface and class reference translations incur a significant size
     # cost for the editor binary (see godot-proposals#3421).
-    # To limit it, we only include translations with a high enough completion
-    # ratio (20% for the editor UI, 10% for the class reference).
-    # Generated with `make include-list` for each resource.
+    # We only include Chinese (zh_CN, zh_TW, zh_HK) to match our font selection.
+
+    def filter_chinese_translations(pattern):
+        all_files = Glob(pattern)
+        return [f for f in all_files if any(x in str(f) for x in ["zh_CN", "zh_TW", "zh_HK"])]
 
     translation_targets = {
-        "#editor/translations/editor_translations.gen.cpp": Glob("#editor/translations/editor/*"),
-        "#editor/translations/property_translations.gen.cpp": Glob("#editor/translations/properties/*"),
-        "#editor/translations/doc_translations.gen.cpp": Glob("#doc/translations/*"),
-        "#editor/translations/extractable_translations.gen.cpp": Glob("#editor/translations/extractable/*"),
+        "#editor/translations/editor_translations.gen.cpp": filter_chinese_translations("#editor/translations/editor/*.po"),
+        "#editor/translations/property_translations.gen.cpp": filter_chinese_translations("#editor/translations/properties/*.po"),
+        "#editor/translations/doc_translations.gen.cpp": filter_chinese_translations("#doc/translations/*.po"),
+        "#editor/translations/extractable_translations.gen.cpp": filter_chinese_translations("#editor/translations/extractable/*.po"),
     }
     for target_cpp, sources in translation_targets.items():
         target_h = os.path.splitext(target_cpp)[0] + ".h"
