@@ -110,7 +110,8 @@
 #include "editor/gui/editor_toaster.h"
 #include "editor/gui/progress_dialog.h"
 #include "editor/gui/window_wrapper.h"
-#include "editor/import/audio_stream_import_settings.h"
+// TinaFlowStudio - Removed audio import settings
+// #include "editor/import/audio_stream_import_settings.h"
 #include "editor/import/dynamic_font_import_settings.h"
 #include "editor/import/fbx_importer_manager.h"
 #include "editor/import/resource_importer_bitmask.h"
@@ -7963,8 +7964,9 @@ EditorNode::EditorNode() {
 	project_settings_editor = memnew(ProjectSettingsEditor(&editor_data));
 	gui_base->add_child(project_settings_editor);
 
-	audio_stream_import_settings = memnew(AudioStreamImportSettingsDialog);
-	gui_base->add_child(audio_stream_import_settings);
+	// TinaFlowStudio - Removed audio import settings dialog
+	// audio_stream_import_settings = memnew(AudioStreamImportSettingsDialog);
+	// gui_base->add_child(audio_stream_import_settings);
 
 	fontdata_import_settings = memnew(DynamicFontImportSettingsDialog);
 	gui_base->add_child(fontdata_import_settings);

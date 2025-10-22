@@ -34,7 +34,8 @@
 #include "core/io/resource_saver.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/import/audio_stream_import_settings.h"
+// TinaFlowStudio - Removed audio import settings
+// #include "editor/import/audio_stream_import_settings.h"
 #endif
 
 #include <ogg/ogg.h>
@@ -85,12 +86,15 @@ bool ResourceImporterOggVorbis::has_advanced_options() const {
 	return true;
 }
 
+// TinaFlowStudio - Removed audio import settings dialog
+#if 0
 void ResourceImporterOggVorbis::show_advanced_options(const String &p_path) {
 	Ref<AudioStreamOggVorbis> ogg_stream = AudioStreamOggVorbis::load_from_file(p_path);
 	if (ogg_stream.is_valid()) {
 		AudioStreamImportSettingsDialog::get_singleton()->edit(p_path, "oggvorbisstr", ogg_stream);
 	}
 }
+#endif
 #endif
 
 Error ResourceImporterOggVorbis::import(ResourceUID::ID p_source_id, const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
