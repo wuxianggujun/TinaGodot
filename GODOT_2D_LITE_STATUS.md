@@ -532,6 +532,100 @@ TinaGodot 已成功从完整的3D引擎精简为**纯2D引擎**，所有scene/�
 
 ---
 
-**最后更新**: 2025-10-18 22:30
-**清理轮次**: 第一阶段 + 6轮系统化清理
+## 🎨 资源优化 (2025-10-22)
+
+### 字体优化
+
+**删除非中文字体** (22个文件, ~800KB):
+- ❌ 阿拉伯语 (Vazirmatn_Regular, Vazirmatn_Bold)
+- ❌ 孟加拉语 (NotoSansBengaliUI_Regular, NotoSansBengaliUI_Bold)
+- ❌ 梵文 (NotoSansDevanagariUI_Regular, NotoSansDevanagariUI_Bold)
+- ❌ 格鲁吉亚语 (NotoSansGeorgian_Regular, NotoSansGeorgian_Bold)
+- ❌ 希伯来语 (NotoSansHebrew_Regular, NotoSansHebrew_Bold)
+- ❌ 马拉雅拉姆语 (NotoSansMalayalamUI_Regular, NotoSansMalayalamUI_Bold)
+- ❌ 奥里亚语 (NotoSansOriya_Regular, NotoSansOriya_Bold)
+- ❌ 僧伽罗语 (NotoSansSinhalaUI_Regular, NotoSansSinhalaUI_Bold)
+- ❌ 泰米尔语 (NotoSansTamilUI_Regular, NotoSansTamilUI_Bold)
+- ❌ 泰卢固语 (NotoSansTeluguUI_Regular, NotoSansTeluguUI_Bold)
+- ❌ 泰语 (NotoSansThai_Regular, NotoSansThai_Bold)
+- ❌ OpenSans_SemiBold (未使用)
+
+**保留字体** (5个文件, ~2MB):
+- ✅ NotoSans_Regular + NotoSans_Bold (拉丁字母，英文)
+- ✅ JetBrainsMono_Regular (等宽代码字体)
+- ✅ DroidSansFallback (中文后备字体)
+- ✅ DroidSansJapanese (日文字体)
+
+**代码修改**:
+- editor/themes/editor_fonts.cpp: 注释掉已删除字体的加载代码
+- scene/theme/SCsub: 更新默认字体为 NotoSans_Regular
+- scene/theme/default_theme.cpp: 更新字体数据指针引用
+
+---
+
+### 翻译优化
+
+**删除非中文翻译** (119个文件, ~1,976,143行):
+
+编辑器翻译 (editor/translations/editor/):
+- 删除 40 种语言 (ar, bg, bn, ca, cs, de, el, eo, es, et, fa, fi, fr, ga, gl, he, hu, id, it, ja, ka, ko, lv, ms, nb, nl, pl, pt, pt_BR, ro, ru, sk, sv, ta, th, tok, tr, uk, vi, es_AR)
+- 保留 2 种: zh_CN, zh_TW
+
+属性翻译 (editor/translations/properties/):
+- 删除 23 种语言 (ar, cs, de, es, et, fa, fr, ga, hi, id, it, ja, ka, ko, pl, pt, pt_BR, ru, sv, ta, tr, uk, vi)
+- 保留 2 种: zh_CN, zh_TW
+
+文档翻译 (doc/translations/):
+- 删除 9 种语言 (de, es, fr, ga, it, ko, ru, ta, uk)
+- 保留 2 种: zh_CN, zh_TW
+
+可提取翻译 (editor/translations/extractable/):
+- 删除 50 种语言
+- 保留 3 种: zh_CN, zh_TW, zh_HK
+
+**代码修改**:
+- editor/SCsub: 添加中文翻译过滤函数，仅打包中文变体
+
+---
+
+### 文档优化
+
+**禁用 XML 文档打包**:
+- ❌ 核心 API 文档 (doc/classes/*.xml)
+- ❌ 模块 API 文档
+- ❌ 文档压缩数据嵌入
+
+**代码修改**:
+- editor/SCsub: 禁用文档收集和打包流程
+- editor/editor_builders.py: 添加 make_empty_doc_header() 生成空文档头
+
+**效果**:
+- 生成的 doc_data_compressed.gen.h 仅包含占位符
+- 预计节省 5-10MB 二进制体积
+
+---
+
+### 资源优化统计
+
+| 优化项目 | 删除数量 | 节省空间 | 状态 |
+|---------|---------|---------|------|
+| 非中文字体文件 | 22个 | ~800KB | ✅ 已删除 |
+| 非中文翻译文件 | 119个 | ~3-5MB | ✅ 已删除 |
+| XML 文档打包 | 全部 | ~5-10MB | ✅ 已禁用 |
+| **总计** | **141个文件** | **~10-20MB** | ✅ **完成** |
+
+---
+
+### 资源优化提交记录
+
+1. `93fcf61e37` - 减少资源打包体积 - 移除非中文字体和文档
+2. `1439f4d6db` - 修复空文档数组编译错误
+3. `ec1f3294b2` - 修复默认字体引用 - 替换 OpenSans 为 NotoSans
+4. `1ecf84cd8e` - 仅保留中文翻译以减少二进制体积
+5. `7d2d1e066d` - 物理删除所有非中文翻译文件
+
+---
+
+**最后更新**: 2025-10-22 (添加资源优化记录)
+**清理轮次**: 第一阶段 + 6轮系统化清理 + 资源优化
 **清理状态**: ✅ **完成**
