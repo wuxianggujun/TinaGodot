@@ -9,8 +9,9 @@ env.add_source_files(env.scene_sources, "*.cpp")
 
 SConscript("icons/SCsub")
 
+# TinaGodot 2D Lite - Use NotoSans_Regular as default font instead of OpenSans_SemiBold
 env.CommandNoCache(
     "#scene/theme/default_font.gen.h",
-    "#thirdparty/fonts/OpenSans_SemiBold.woff2",
+    "#thirdparty/fonts/NotoSans_Regular.woff2",
     env.Run(default_theme_builders.make_fonts_header),
 )
