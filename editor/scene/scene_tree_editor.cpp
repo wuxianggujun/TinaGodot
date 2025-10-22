@@ -32,7 +32,7 @@
 
 #include "core/config/project_settings.h"
 #include "core/object/script_language.h"
-#include "editor/animation/animation_player_editor_plugin.h"
+// #include "editor/animation/animation_player_editor_plugin.h"  // TinaFlowStudio: Animation editor removed
 #include "editor/docks/editor_dock_manager.h"
 #include "editor/docks/node_dock.h"
 #include "editor/editor_node.h"
@@ -46,7 +46,9 @@
 #include "scene/2d/node_2d.h"
 #include "scene/gui/flow_container.h"
 #include "scene/gui/label.h"
+#include "scene/gui/line_edit.h"
 #include "scene/gui/texture_rect.h"
+#include "scene/main/timer.h"
 #include "scene/main/window.h"
 #include "scene/resources/packed_scene.h"
 
@@ -134,10 +136,11 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
 		undo_redo->add_undo_method(CanvasItemEditor::get_singleton(), "emit_signal", "item_lock_status_changed");
 		undo_redo->commit_action();
 	} else if (p_id == BUTTON_PIN) {
-		if (n->is_class("AnimationMixer")) {
-			AnimationPlayerEditor::get_singleton()->unpin();
-			_update_tree();
-		}
+		// TinaFlowStudio: Animation editor removed
+		// if (n->is_class("AnimationMixer")) {
+		// 	AnimationPlayerEditor::get_singleton()->unpin();
+		// 	_update_tree();
+		// }
 
 	} else if (p_id == BUTTON_GROUP) {
 		undo_redo->create_action(TTR("Ungroup Children"));
@@ -612,13 +615,14 @@ void SceneTreeEditor::_update_node(Node *p_node, TreeItem *p_item, bool p_part_o
 			_update_visibility_color(p_node, p_item);
 		}
 
-		if (p_node->is_class("AnimationMixer")) {
-			bool is_pinned = AnimationPlayerEditor::get_singleton()->get_editing_node() == p_node && AnimationPlayerEditor::get_singleton()->is_pinned();
-
-			if (is_pinned) {
-				p_item->add_button(0, get_editor_theme_icon(SNAME("Pin")), BUTTON_PIN, false, TTR("AnimationPlayer is pinned.\nClick to unpin."));
-			}
-		}
+		// TinaFlowStudio: Animation editor removed
+		// if (p_node->is_class("AnimationMixer")) {
+		// 	bool is_pinned = AnimationPlayerEditor::get_singleton()->get_editing_node() == p_node && AnimationPlayerEditor::get_singleton()->is_pinned();
+		// 
+		// 	if (is_pinned) {
+		// 		p_item->add_button(0, get_editor_theme_icon(SNAME("Pin")), BUTTON_PIN, false, TTR("AnimationPlayer is pinned.\nClick to unpin."));
+		// 	}
+		// }
 	}
 
 	if (editor_selection) {
@@ -929,26 +933,27 @@ void SceneTreeEditor::_update_tree(bool p_scroll_to_selected) {
 	last_hash = hash_djb2_one_64(0);
 
 	if (node_cache.current_scene_node) {
+		// TinaFlowStudio: Animation editor removed
 		// Handle pinning/unpinning the animation player only do this once per iteration.
-		Node *pinned_node = AnimationPlayerEditor::get_singleton()->get_editing_node();
+		// Node *pinned_node = AnimationPlayerEditor::get_singleton()->get_editing_node();
 		// If pinned state changed, update the currently pinned node.
-		if (AnimationPlayerEditor::get_singleton()->is_pinned() != node_cache.current_has_pin) {
-			node_cache.current_has_pin = AnimationPlayerEditor::get_singleton()->is_pinned();
-			if (node_cache.has(pinned_node)) {
-				node_cache.mark_dirty(pinned_node);
-			}
-		}
+		// if (AnimationPlayerEditor::get_singleton()->is_pinned() != node_cache.current_has_pin) {
+		// 	node_cache.current_has_pin = AnimationPlayerEditor::get_singleton()->is_pinned();
+		// 	if (node_cache.has(pinned_node)) {
+		// 		node_cache.mark_dirty(pinned_node);
+		// 	}
+		// }
 		// If the current pinned node changed update both the old and new node.
-		if (node_cache.current_pinned_node != pinned_node) {
-			// get_editing_node() will return deleted nodes. If the nodes are not in cache don't try to mark them.
-			if (node_cache.has(pinned_node)) {
-				node_cache.mark_dirty(pinned_node);
-			}
-			if (node_cache.has(node_cache.current_pinned_node)) {
-				node_cache.mark_dirty(node_cache.current_pinned_node);
-			}
-			node_cache.current_pinned_node = pinned_node;
-		}
+		// if (node_cache.current_pinned_node != pinned_node) {
+		// 	// get_editing_node() will return deleted nodes. If the nodes are not in cache don't try to mark them.
+		// 	if (node_cache.has(pinned_node)) {
+		// 		node_cache.mark_dirty(pinned_node);
+		// 	}
+		// 	if (node_cache.has(node_cache.current_pinned_node)) {
+		// 		node_cache.mark_dirty(node_cache.current_pinned_node);
+		// 	}
+		// 	node_cache.current_pinned_node = pinned_node;
+		// }
 
 		_update_node_subtree(get_scene_node(), nullptr, node_cache.force_update);
 		_compute_hash(get_scene_node(), last_hash);

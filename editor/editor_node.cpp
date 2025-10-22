@@ -49,6 +49,7 @@
 #include "editor/inspector/editor_context_menu_plugin.h"
 #include "main/main.h"
 #include "scene/2d/node_2d.h"
+#include "scene/animation/animation_player.h"
 #include "scene/animation/animation_tree.h"
 #include "scene/gui/color_picker.h"
 #include "scene/gui/dialogs.h"
@@ -71,7 +72,7 @@
 #include "servers/navigation_2d/navigation_server_2d.h"
 #include "servers/rendering/rendering_server.h"
 
-#include "editor/animation/animation_player_editor_plugin.h"
+// #include "editor/animation/animation_player_editor_plugin.h"  // TinaFlowStudio: Animation editor removed
 #include "editor/asset_library/asset_library_editor_plugin.h"
 #include "editor/debugger/debugger_editor_plugin.h"
 #include "editor/debugger/editor_debugger_node.h"
@@ -1315,11 +1316,12 @@ void EditorNode::_resources_reimported(const Vector<String> &p_resources) {
 		}
 	}
 
+	// TinaFlowStudio: Animation editor removed
 	// Editor may crash when related animation is playing while re-importing GLTF scene, stop it in advance.
-	AnimationPlayer *ap = AnimationPlayerEditor::get_singleton()->get_player();
-	if (ap && scenes_reimported.size() > 0) {
-		ap->stop(true);
-	}
+	// AnimationPlayer *ap = AnimationPlayerEditor::get_singleton()->get_player();
+	// if (ap && scenes_reimported.size() > 0) {
+	// 	ap->stop(true);
+	// }
 
 	// Only refresh the current scene tab if it's been reimported.
 	// Otherwise the scene tab will try to grab focus unnecessarily.
@@ -8482,9 +8484,10 @@ EditorNode::EditorNode() {
 
 	gui_base->add_child(project_data_missing);
 
-	add_editor_plugin(memnew(AnimationPlayerEditorPlugin));
-	add_editor_plugin(memnew(AnimationTrackKeyEditEditorPlugin));
-	add_editor_plugin(memnew(AnimationMarkerKeyEditEditorPlugin));
+	// TinaFlowStudio: Animation editor removed
+	// add_editor_plugin(memnew(AnimationPlayerEditorPlugin));
+	// add_editor_plugin(memnew(AnimationTrackKeyEditEditorPlugin));
+	// add_editor_plugin(memnew(AnimationMarkerKeyEditEditorPlugin));
 	add_editor_plugin(memnew(CanvasItemEditorPlugin));
 	add_editor_plugin(memnew(ScriptEditorPlugin));
 
@@ -8501,8 +8504,9 @@ EditorNode::EditorNode() {
 		print_verbose("Asset Library not available (due to using Web editor, or SSL support disabled).");
 	}
 
+	// TinaFlowStudio: Animation editor removed
 	// More visually meaningful to have this later.
-	bottom_panel->move_item_to_end(AnimationPlayerEditor::get_singleton());
+	// bottom_panel->move_item_to_end(AnimationPlayerEditor::get_singleton());
 
 	add_editor_plugin(VersionControlEditorPlugin::get_singleton());
 

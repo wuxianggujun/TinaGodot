@@ -31,7 +31,7 @@
 #include "register_editor_types.h"
 
 #include "core/object/script_language.h"
-#include "editor/animation/animation_tree_editor_plugin.h"
+// #include "editor/animation/animation_tree_editor_plugin.h"  // TinaFlowStudio: Animation editor removed
 #include "editor/debugger/debug_adapter/debug_adapter_server.h"
 #include "editor/debugger/editor_debugger_plugin.h"
 #include "editor/docks/filesystem_dock.h"
@@ -182,7 +182,8 @@ void register_editor_types() {
     // Removed: ResourceImporterWAV (editor audio import disabled)
 
 	// This list is alphabetized, and plugins that depend on Node2D are in their own section below.
-	EditorPlugins::add_by_type<AnimationTreeEditorPlugin>();
+	// TinaFlowStudio: Animation editor removed
+	// EditorPlugins::add_by_type<AnimationTreeEditorPlugin>();
 	EditorPlugins::add_by_type<BitMapEditorPlugin>();
 	EditorPlugins::add_by_type<ControlEditorPlugin>();
 	EditorPlugins::add_by_type<CurveEditorPlugin>();

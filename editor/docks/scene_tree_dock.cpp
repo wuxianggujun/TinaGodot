@@ -35,7 +35,9 @@
 #include "core/io/resource_saver.h"
 #include "core/object/class_db.h"
 #include "core/os/keyboard.h"
-#include "editor/animation/animation_player_editor_plugin.h"
+#include "scene/animation/animation_player.h"
+#include "scene/animation/animation_tree.h"
+// #include "editor/animation/animation_player_editor_plugin.h"  // TinaFlowStudio: Animation editor removed
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/docks/filesystem_dock.h"
 #include "editor/docks/inspector_dock.h"
@@ -2402,9 +2404,10 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 
 		undo_redo->add_do_method(this, "_set_owners", edited_scene, owners);
 
-		if (AnimationPlayerEditor::get_singleton()->get_track_editor()->get_root() == node) {
-			undo_redo->add_do_method(AnimationPlayerEditor::get_singleton()->get_track_editor(), "set_root", node);
-		}
+		// TinaFlowStudio: Animation editor removed
+		// if (AnimationPlayerEditor::get_singleton()->get_track_editor()->get_root() == node) {
+		// 	undo_redo->add_do_method(AnimationPlayerEditor::get_singleton()->get_track_editor(), "set_root", node);
+		// }
 
 		undo_redo->add_undo_method(p_new_parent, "remove_child", node);
 		undo_redo->add_undo_method(node, "set_name", former_names[ni]);
@@ -2429,9 +2432,10 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 		undo_redo->add_undo_method(node->get_parent(), "add_child", node, true);
 		undo_redo->add_undo_method(node->get_parent(), "move_child", node, child_pos);
 		undo_redo->add_undo_method(this, "_set_owners", edited_scene, owners);
-		if (AnimationPlayerEditor::get_singleton()->get_track_editor()->get_root() == node) {
-			undo_redo->add_undo_method(AnimationPlayerEditor::get_singleton()->get_track_editor(), "set_root", node);
-		}
+		// TinaFlowStudio: Animation editor removed
+		// if (AnimationPlayerEditor::get_singleton()->get_track_editor()->get_root() == node) {
+		// 	undo_redo->add_undo_method(AnimationPlayerEditor::get_singleton()->get_track_editor(), "set_root", node);
+		// }
 
 		if (p_keep_global_xform) {
 			if (Object::cast_to<Node2D>(node)) {
@@ -2730,9 +2734,10 @@ void SceneTreeDock::_delete_confirm(bool p_cut) {
 			undo_redo->add_do_method(n->get_parent(), "remove_child", n);
 			undo_redo->add_undo_method(n->get_parent(), "add_child", n, true);
 			undo_redo->add_undo_method(n->get_parent(), "move_child", n, n->get_index(false));
-			if (AnimationPlayerEditor::get_singleton()->get_track_editor()->get_root() == n) {
-				undo_redo->add_undo_method(AnimationPlayerEditor::get_singleton()->get_track_editor(), "set_root", n);
-			}
+			// TinaFlowStudio: Animation editor removed
+			// if (AnimationPlayerEditor::get_singleton()->get_track_editor()->get_root() == n) {
+			// 	undo_redo->add_undo_method(AnimationPlayerEditor::get_singleton()->get_track_editor(), "set_root", n);
+			// }
 			undo_redo->add_undo_method(this, "_set_owners", edited_scene, owners);
 			undo_redo->add_undo_reference(n);
 

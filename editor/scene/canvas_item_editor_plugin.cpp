@@ -34,7 +34,7 @@
 #include "core/input/input.h"
 #include "core/io/resource_loader.h"
 #include "core/os/keyboard.h"
-#include "editor/animation/animation_player_editor_plugin.h"
+// #include "editor/animation/animation_player_editor_plugin.h"  // TinaFlowStudio: Animation editor removed
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/docks/scene_tree_dock.h"
 #include "editor/editor_main_screen.h"
@@ -56,9 +56,12 @@
 #include "scene/2d/skeleton_2d.h"
 #include "scene/2d/sprite_2d.h"
 #include "scene/gui/base_button.h"
+#include "scene/gui/dialogs.h"
 #include "scene/gui/flow_container.h"
 #include "scene/gui/grid_container.h"
+#include "scene/gui/menu_button.h"
 #include "scene/gui/separator.h"
+#include "scene/gui/spin_box.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/subviewport_container.h"
 #include "scene/gui/view_panner.h"
@@ -555,12 +558,13 @@ Object *CanvasItemEditor::_get_editor_data(Object *p_what) {
 }
 
 void CanvasItemEditor::_keying_changed() {
-	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
-	if (te && te->is_visible_in_tree() && te->get_current_animation().is_valid()) {
-		animation_hb->show();
-	} else {
+	// TinaFlowStudio: Animation editor removed
+	// AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
+	// if (te && te->is_visible_in_tree() && te->get_current_animation().is_valid()) {
+	// 	animation_hb->show();
+	// } else {
 		animation_hb->hide();
-	}
+	// }
 }
 
 Rect2 CanvasItemEditor::_get_encompassing_rect_from_list(const List<CanvasItem *> &p_list) {
@@ -4321,8 +4325,9 @@ void CanvasItemEditor::_notification(int p_what) {
 			select_sb->set_texture_margin_all(4);
 			select_sb->set_content_margin_all(4);
 
-			AnimationPlayerEditor::get_singleton()->get_track_editor()->connect("keying_changed", callable_mp(this, &CanvasItemEditor::_keying_changed));
-			AnimationPlayerEditor::get_singleton()->connect("animation_selected", callable_mp(this, &CanvasItemEditor::_keying_changed).unbind(1));
+			// TinaFlowStudio: Animation editor removed
+			// AnimationPlayerEditor::get_singleton()->get_track_editor()->connect("keying_changed", callable_mp(this, &CanvasItemEditor::_keying_changed));
+			// AnimationPlayerEditor::get_singleton()->connect("animation_selected", callable_mp(this, &CanvasItemEditor::_keying_changed).unbind(1));
 			_keying_changed();
 			_update_editor_settings();
 
@@ -4522,7 +4527,10 @@ void CanvasItemEditor::_button_tool_select(int p_index) {
 }
 
 void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, bool p_scale, bool p_on_existing) {
-	const HashMap<Node *, Object *> &selection = editor_selection->get_selection();
+	// TinaFlowStudio: Animation editor removed
+	return;
+	
+	/* const HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
 	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
 	ERR_FAIL_COND_MSG(te->get_current_animation().is_null(), "Cannot insert animation key. No animation selected.");
@@ -4596,7 +4604,7 @@ void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, 
 			}
 		}
 	}
-	te->commit_insert_queue();
+	te->commit_insert_queue(); */
 }
 
 void CanvasItemEditor::_prepare_view_menu() {
