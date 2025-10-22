@@ -1401,6 +1401,8 @@ void EditorShaderPicker::set_preferred_mode(int p_mode) {
 	preferred_mode = p_mode;
 }
 
+// TinaFlowStudio - Disabled audio stream picker
+#if 0
 //////////////
 
 void EditorAudioStreamPicker::_notification(int p_what) {
@@ -1576,3 +1578,4 @@ EditorAudioStreamPicker::EditorAudioStreamPicker() :
 	get_assign_button()->move_child(stream_preview_rect, 0);
 	set_process_internal(true);
 }
+#endif // TinaFlowStudio - Disabled audio stream picker

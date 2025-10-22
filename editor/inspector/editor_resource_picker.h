@@ -194,6 +194,8 @@ public:
 	void set_preferred_mode(int p_preferred_mode);
 };
 
+// TinaFlowStudio - Disabled audio stream picker
+#if 0
 class EditorAudioStreamPicker : public EditorResourcePicker {
 	GDCLASS(EditorAudioStreamPicker, EditorResourcePicker);
 
@@ -215,3 +217,4 @@ protected:
 public:
 	EditorAudioStreamPicker();
 };
+#endif // TinaFlowStudio
