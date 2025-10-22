@@ -68,6 +68,19 @@ inline constexpr const unsigned char _doc_data_compressed[] = {{
 """)
 
 
+def make_empty_doc_header(target, source, env):
+    # TinaGodot 2D Lite - Generate empty doc header to disable documentation
+    with methods.generated_wrapper(str(target[0])) as file:
+        file.write("""\
+// TinaGodot 2D Lite - Documentation disabled to reduce binary size
+inline constexpr const char *_doc_data_hash = "disabled";
+inline constexpr int _doc_data_compressed_size = 0;
+inline constexpr int _doc_data_uncompressed_size = 0;
+inline constexpr const unsigned char _doc_data_compressed[] = {};
+""")
+
+
+
 def make_translations(target, source, env):
     target_h, target_cpp = str(target[0]), str(target[1])
 

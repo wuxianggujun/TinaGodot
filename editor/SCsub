@@ -27,27 +27,31 @@ if env.editor_build:
         # Add all .cpp files in export folder
         env.add_source_files(env.editor_sources, f"../platform/{e}/export/*.cpp")
 
+    # TinaGodot 2D Lite - Disable doc packaging to reduce binary size
     # Core API documentation.
-    docs = []
-    docs += Glob("#doc/classes/*.xml")
+    # docs = []
+    # docs += Glob("#doc/classes/*.xml")
 
     # Module API documentation.
-    module_dirs = []
-    for d in env.doc_class_path.values():
-        if d not in module_dirs:
-            module_dirs.append(d)
+    # module_dirs = []
+    # for d in env.doc_class_path.values():
+    #     if d not in module_dirs:
+    #         module_dirs.append(d)
 
-    for d in module_dirs:
-        if not os.path.isabs(d):
-            docs += Glob("#" + d + "/*.xml")  # Built-in.
-        else:
-            docs += Glob(d + "/*.xml")  # Custom.
+    # for d in module_dirs:
+    #     if not os.path.isabs(d):
+    #         docs += Glob("#" + d + "/*.xml")  # Built-in.
+    #     else:
+    #         docs += Glob(d + "/*.xml")  # Custom.
 
-    docs = sorted(docs)
+    # docs = sorted(docs)
+
+    # Generate empty doc header to disable documentation embedding
+    import editor_builders
     env.CommandNoCache(
         "#editor/doc/doc_data_compressed.gen.h",
-        docs,
-        env.Run(editor_builders.make_doc_header),
+        env.Value("disabled"),
+        env.Run(editor_builders.make_empty_doc_header),
     )
 
     # Editor interface and class reference translations incur a significant size
