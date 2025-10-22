@@ -44,7 +44,9 @@
 #include "scene/animation/animation_player.h"
 #include "scene/animation/animation_tree.h"
 #include "scene/animation/tween.h"
+#ifndef AUDIO_DISABLED
 #include "scene/audio/audio_stream_player.h"
+#endif
 #include "scene/debugger/scene_debugger.h"
 #include "scene/gui/aspect_ratio_container.h"
 #include "scene/gui/box_container.h"
@@ -165,8 +167,10 @@
 
 // 2D
 #include "scene/2d/animated_sprite_2d.h"
+#ifndef AUDIO_DISABLED
 #include "scene/2d/audio_listener_2d.h"
 #include "scene/2d/audio_stream_player_2d.h"
+#endif
 #include "scene/2d/back_buffer_copy.h"
 #include "scene/2d/camera_2d.h"
 #include "scene/2d/canvas_group.h"
@@ -796,14 +800,18 @@ void register_scene_types() {
 
 	OS::get_singleton()->yield(); // may take time to init
 
+	#ifndef AUDIO_DISABLED
 	GDREGISTER_CLASS(AudioStreamPlayer);
 	GDREGISTER_CLASS(AudioStreamWAV);
 	GDREGISTER_CLASS(AudioStreamPolyphonic);
 	GDREGISTER_ABSTRACT_CLASS(AudioStreamPlaybackPolyphonic);
+	#endif
 
 	OS::get_singleton()->yield(); // may take time to init
 
+	#ifndef AUDIO_DISABLED
 	GDREGISTER_CLASS(AudioStreamPlayer2D);
+	#endif
 	GDREGISTER_CLASS(Curve2D);
 	GDREGISTER_CLASS(Path2D);
 	GDREGISTER_CLASS(PathFollow2D);

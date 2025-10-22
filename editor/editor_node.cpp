@@ -73,8 +73,9 @@
 
 #include "editor/animation/animation_player_editor_plugin.h"
 #include "editor/asset_library/asset_library_editor_plugin.h"
-#include "editor/audio/audio_stream_preview.h"
-#include "editor/audio/editor_audio_buses.h"
+// TinaFlowStudio - Removed audio editor includes
+// #include "editor/audio/audio_stream_preview.h"
+// #include "editor/audio/editor_audio_buses.h"
 #include "editor/debugger/debugger_editor_plugin.h"
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/debugger/script_editor_debugger.h"
@@ -8504,7 +8505,8 @@ EditorNode::EditorNode() {
 		add_editor_plugin(get_game_view_plugin());
 	}
 
-	EditorAudioBuses *audio_bus_editor = EditorAudioBuses::register_editor();
+	// TinaFlowStudio - Removed audio bus editor
+	// EditorAudioBuses *audio_bus_editor = EditorAudioBuses::register_editor();
 
 	ScriptTextEditor::register_editor(); // Register one for text scripts.
 	TextEditor::register_editor();
@@ -8526,7 +8528,8 @@ EditorNode::EditorNode() {
 	vcs_actions_menu->add_item(TTRC("Version Control Settings..."), VCS_SETTINGS);
 	project_menu->set_item_submenu_node(project_menu->get_item_index(PROJECT_VERSION_CONTROL), vcs_actions_menu);
 
-	add_editor_plugin(memnew(AudioBusesEditorPlugin(audio_bus_editor)));
+	// TinaFlowStudio - Removed audio buses editor plugin
+	// add_editor_plugin(memnew(AudioBusesEditorPlugin(audio_bus_editor)));
 
 	for (int i = 0; i < EditorPlugins::get_plugin_count(); i++) {
 		add_editor_plugin(EditorPlugins::create(i));

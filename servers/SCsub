@@ -7,11 +7,13 @@ env.servers_sources = []
 
 env.add_source_files(env.servers_sources, "register_server_types.cpp")
 
-SConscript("audio/SCsub")
+if not env.get("disable_audio", False):
+    SConscript("audio/SCsub")
 SConscript("camera/SCsub")
 SConscript("debugger/SCsub")
 SConscript("display/SCsub")
-SConscript("movie_writer/SCsub")
+if not env.get("disable_audio", False):
+    SConscript("movie_writer/SCsub")
 SConscript("rendering/SCsub")
 SConscript("text/SCsub")
 SConscript("navigation_2d/SCsub")

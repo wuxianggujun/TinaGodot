@@ -3,7 +3,11 @@ from misc.utility.scons_hints import *
 
 Import("env")
 
-env.add_source_files(env.scene_sources, "*.cpp")
+# Add all 2D sources, optionally excluding audio-related nodes when audio is disabled.
+files = Glob("*.cpp")
+if env.get("disable_audio", False):
+    files = [f for f in files if not str(f).endswith("audio_stream_player_2d.cpp") and not str(f).endswith("audio_listener_2d.cpp")]
+env.add_source_files(env.scene_sources, files)
 
 # Chain load SCsubs
 if not env["disable_physics_2d"]:

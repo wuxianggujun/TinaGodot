@@ -33,6 +33,7 @@
 #include "core/config/engine.h"
 #include "core/config/project_settings.h"
 
+#ifndef AUDIO_DISABLED
 #include "audio/audio_effect.h"
 #include "audio/audio_server.h"
 #include "audio/audio_stream.h"
@@ -53,6 +54,7 @@
 #include "audio/effects/audio_effect_spectrum_analyzer.h"
 #include "audio/effects/audio_effect_stereo_enhance.h"
 #include "audio/effects/audio_stream_generator.h"
+#endif
 #include "camera/camera_feed.h"
 #include "camera/camera_server.h"
 #include "debugger/servers_debugger.h"
@@ -76,8 +78,10 @@
 #include "text/text_server.h"
 #include "text/text_server_dummy.h"
 #include "text/text_server_extension.h"
+#ifndef AUDIO_DISABLED
 #ifndef DISABLE_DEPRECATED
 #include "audio/effects/audio_effect_limiter.h"
+#endif
 #endif
 
 // 2D physics and navigation.
@@ -133,30 +137,34 @@ void register_server_types() {
 	OS::get_singleton()->set_has_server_feature_callback(has_server_feature_callback);
 
 	GDREGISTER_ABSTRACT_CLASS(DisplayServer);
-	GDREGISTER_ABSTRACT_CLASS(RenderingServer);
-	GDREGISTER_CLASS(AudioServer);
+    GDREGISTER_ABSTRACT_CLASS(RenderingServer);
+#ifndef AUDIO_DISABLED
+    GDREGISTER_CLASS(AudioServer);
+#endif
 
 	GDREGISTER_CLASS(NativeMenu);
 
 	GDREGISTER_CLASS(CameraServer);
 
-	GDREGISTER_ABSTRACT_CLASS(RenderingDevice);
+    GDREGISTER_ABSTRACT_CLASS(RenderingDevice);
 
-	GDREGISTER_CLASS(AudioStream);
-	GDREGISTER_CLASS(AudioStreamPlayback);
-	GDREGISTER_VIRTUAL_CLASS(AudioStreamPlaybackResampled);
-	GDREGISTER_CLASS(AudioStreamMicrophone);
-	GDREGISTER_CLASS(AudioStreamRandomizer);
-	GDREGISTER_CLASS(AudioSample);
-	GDREGISTER_CLASS(AudioSamplePlayback);
-	GDREGISTER_VIRTUAL_CLASS(AudioEffect);
-	GDREGISTER_VIRTUAL_CLASS(AudioEffectInstance);
-	GDREGISTER_CLASS(AudioEffectEQ);
-	GDREGISTER_CLASS(AudioEffectFilter);
-	GDREGISTER_CLASS(AudioBusLayout);
+#ifndef AUDIO_DISABLED
+    GDREGISTER_CLASS(AudioStream);
+    GDREGISTER_CLASS(AudioStreamPlayback);
+    GDREGISTER_VIRTUAL_CLASS(AudioStreamPlaybackResampled);
+    GDREGISTER_CLASS(AudioStreamMicrophone);
+    GDREGISTER_CLASS(AudioStreamRandomizer);
+    GDREGISTER_CLASS(AudioSample);
+    GDREGISTER_CLASS(AudioSamplePlayback);
+    GDREGISTER_VIRTUAL_CLASS(AudioEffect);
+    GDREGISTER_VIRTUAL_CLASS(AudioEffectInstance);
+    GDREGISTER_CLASS(AudioEffectEQ);
+    GDREGISTER_CLASS(AudioEffectFilter);
+    GDREGISTER_CLASS(AudioBusLayout);
 
-	GDREGISTER_CLASS(AudioStreamGenerator);
-	GDREGISTER_ABSTRACT_CLASS(AudioStreamGeneratorPlayback);
+    GDREGISTER_CLASS(AudioStreamGenerator);
+    GDREGISTER_ABSTRACT_CLASS(AudioStreamGeneratorPlayback);
+#endif
 
 	{
 		//audio effects

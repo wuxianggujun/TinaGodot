@@ -12,18 +12,19 @@ supported = env.get("supported", [])
 SConscript("unix/SCsub")
 SConscript("windows/SCsub")
 
-# Sounds drivers
-SConscript("alsa/SCsub")
-SConscript("pulseaudio/SCsub")
-if env["platform"] == "windows":
-    SConscript("wasapi/SCsub")
-    if not env.msvc:
-        SConscript("backtrace/SCsub")
-if env["xaudio2"]:
-    if "xaudio2" not in supported:
-        print_error("Target platform '{}' does not support the XAudio2 audio driver".format(env["platform"]))
-        Exit(255)
-    SConscript("xaudio2/SCsub")
+# Sounds drivers (guarded by disable_audio)
+if not env.get("disable_audio", False):
+    SConscript("alsa/SCsub")
+    SConscript("pulseaudio/SCsub")
+    if env["platform"] == "windows":
+        SConscript("wasapi/SCsub")
+        if not env.msvc:
+            SConscript("backtrace/SCsub")
+    if env["xaudio2"]:
+        if "xaudio2" not in supported:
+            print_error("Target platform '{}' does not support the XAudio2 audio driver".format(env["platform"]))
+            Exit(255)
+        SConscript("xaudio2/SCsub")
 
 # Shared Apple platform drivers
 if env["platform"] in ["macos", "ios", "visionos"]:
