@@ -54,20 +54,24 @@ if env.editor_build:
         env.Run(editor_builders.make_empty_doc_header),
     )
 
-    # TinaGodot 2D Lite - Only include Chinese translations to reduce binary size
-    # Editor interface and class reference translations incur a significant size
-    # cost for the editor binary (see godot-proposals#3421).
-    # We only include Chinese (zh_CN, zh_TW, zh_HK) to match our font selection.
+    # TinaGodot 2D Lite - Only include minimal Chinese editor translations to reduce binary size
+    # We only include editor UI translations (zh_CN, zh_TW, zh_HK) and disable:
+    # - property_translations (属性翻译, ~30MB)
+    # - doc_translations (类参考文档翻译, ~50MB)
+    # - extractable_translations (可提取翻译, ~20MB)
+    # This saves approximately 100MB in binary size.
 
     def filter_chinese_translations(pattern):
         all_files = Glob(pattern)
         return [f for f in all_files if any(x in str(f) for x in ["zh_CN", "zh_TW", "zh_HK"])]
 
+    # Only include editor UI translations, disable doc/property/extractable translations
     translation_targets = {
         "#editor/translations/editor_translations.gen.cpp": filter_chinese_translations("#editor/translations/editor/*.po"),
-        "#editor/translations/property_translations.gen.cpp": filter_chinese_translations("#editor/translations/properties/*.po"),
-        "#editor/translations/doc_translations.gen.cpp": filter_chinese_translations("#doc/translations/*.po"),
-        "#editor/translations/extractable_translations.gen.cpp": filter_chinese_translations("#editor/translations/extractable/*.po"),
+        # TinaGodot 2D Lite - Disabled to save ~100MB:
+        # "#editor/translations/property_translations.gen.cpp": filter_chinese_translations("#editor/translations/properties/*.po"),
+        # "#editor/translations/doc_translations.gen.cpp": filter_chinese_translations("#doc/translations/*.po"),
+        # "#editor/translations/extractable_translations.gen.cpp": filter_chinese_translations("#editor/translations/extractable/*.po"),
     }
     for target_cpp, sources in translation_targets.items():
         target_h = os.path.splitext(target_cpp)[0] + ".h"
