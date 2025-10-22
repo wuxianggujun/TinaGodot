@@ -601,6 +601,7 @@ TinaGodot 已成功从完整的3D引擎精简为**纯2D引擎**，所有scene/�
   * ❌ doc_translations.gen.cpp (类参考文档翻译, ~50MB)
   * ❌ extractable_translations.gen.cpp (可提取翻译, ~20MB)
 - **仅保留**: editor_translations.gen.cpp (编辑器界面翻译, ~5MB)
+- editor/translations/editor_translation.cpp: 将三个加载函数改为空实现
 
 ---
 
