@@ -212,7 +212,7 @@ private:
 	void _update_context_toolbar();
 
 	Transform2D transform;
-	GridVisibility grid_visibility = GRID_VISIBILITY_SHOW_WHEN_SNAPPING;
+	GridVisibility grid_visibility = GRID_VISIBILITY_SHOW; // TinaFlowStudio: Default show grid
 	bool show_rulers = true;
 	bool show_guides = true;
 	bool show_origin = true;
@@ -608,16 +608,19 @@ public:
 	CanvasItemEditor();
 };
 
+class FlowNodeLibraryDock;
+
 class CanvasItemEditorPlugin : public EditorPlugin {
 	GDCLASS(CanvasItemEditorPlugin, EditorPlugin);
 
 	CanvasItemEditor *canvas_item_editor = nullptr;
+	FlowNodeLibraryDock *node_library_dock = nullptr;
 
 protected:
 	void _notification(int p_what);
 
 public:
-	virtual String get_plugin_name() const override { return TTRC("2D"); }
+	virtual String get_plugin_name() const override { return TTRC("FlowGraph"); }
 	bool has_main_screen() const override { return true; }
 	virtual void edit(Object *p_object) override;
 	virtual bool handles(Object *p_object) const override;

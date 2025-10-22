@@ -29,6 +29,7 @@
 /**************************************************************************/
 
 #include "canvas_item_editor_plugin.h"
+#include "editor/flow_studio/flow_node_library_dock.h"
 
 #include "core/config/project_settings.h"
 #include "core/input/input.h"
@@ -5938,6 +5939,10 @@ CanvasItemEditorPlugin::CanvasItemEditorPlugin() {
 	EditorNode::get_singleton()->get_editor_main_screen()->get_control()->add_child(canvas_item_editor);
 	canvas_item_editor->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
 	canvas_item_editor->hide();
+	
+	// TinaFlowStudio: Add node library dock
+	node_library_dock = memnew(FlowNodeLibraryDock);
+	add_control_to_dock(DOCK_SLOT_LEFT_UL, node_library_dock);
 }
 
 void CanvasItemEditorViewport::_on_mouse_exit() {
