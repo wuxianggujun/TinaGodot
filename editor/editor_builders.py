@@ -74,9 +74,9 @@ def make_empty_doc_header(target, source, env):
         file.write("""\
 // TinaGodot 2D Lite - Documentation disabled to reduce binary size
 inline constexpr const char *_doc_data_hash = "disabled";
-inline constexpr int _doc_data_compressed_size = 0;
+inline constexpr int _doc_data_compressed_size = 1;
 inline constexpr int _doc_data_uncompressed_size = 0;
-inline constexpr const unsigned char _doc_data_compressed[] = {};
+inline constexpr const unsigned char _doc_data_compressed[] = { 0 };
 """)
 
 
