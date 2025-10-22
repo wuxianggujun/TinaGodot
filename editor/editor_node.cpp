@@ -74,7 +74,7 @@
 #include "editor/animation/animation_player_editor_plugin.h"
 #include "editor/asset_library/asset_library_editor_plugin.h"
 // TinaFlowStudio - Removed audio editor includes
-// #include "editor/audio/audio_stream_preview.h"
+// #include "editor/audio_stream_preview.h"
 // #include "editor/audio/editor_audio_buses.h"
 #include "editor/debugger/debugger_editor_plugin.h"
 #include "editor/debugger/editor_debugger_node.h"
@@ -8453,8 +8453,9 @@ EditorNode::EditorNode() {
 	file->connect("file_selected", callable_mp(this, &EditorNode::_dialog_action));
 	file_templates->connect("file_selected", callable_mp(this, &EditorNode::_dialog_action));
 
-	audio_preview_gen = memnew(AudioStreamPreviewGenerator);
-	add_child(audio_preview_gen);
+	// TinaFlowStudio - Removed audio preview generator
+	// audio_preview_gen = memnew(AudioStreamPreviewGenerator);
+	// add_child(audio_preview_gen);
 
 	add_editor_plugin(memnew(DebuggerEditorPlugin(debug_menu)));
 

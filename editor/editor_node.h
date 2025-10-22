@@ -63,7 +63,8 @@ class VSplitContainer;
 class Window;
 
 class AudioStreamImportSettingsDialog;
-class AudioStreamPreviewGenerator;
+// TinaFlowStudio - Removed audio preview generator
+// class AudioStreamPreviewGenerator;
 class BackgroundProgress;
 class DependencyEditor;
 class DependencyErrorDialog;
@@ -414,7 +415,8 @@ private:
 
 	EditorMainScreen *editor_main_screen = nullptr;
 
-	AudioStreamPreviewGenerator *audio_preview_gen = nullptr;
+	// TinaFlowStudio - Removed audio preview generator
+	// AudioStreamPreviewGenerator *audio_preview_gen = nullptr;
 	ProgressDialog *progress_dialog = nullptr;
 	BackgroundProgress *progress_hb = nullptr;
 

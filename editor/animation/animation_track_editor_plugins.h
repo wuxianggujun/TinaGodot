@@ -55,6 +55,8 @@ public:
 	virtual void draw_key_link(int p_index, float p_pixels_sec, int p_x, int p_next_x, int p_clip_left, int p_clip_right) override;
 };
 
+// TinaFlowStudio - Disabled audio track editing
+#if 0
 class AnimationTrackEditAudio : public AnimationTrackEdit {
 	GDCLASS(AnimationTrackEditAudio, AnimationTrackEdit);
 
@@ -72,6 +74,7 @@ public:
 
 	AnimationTrackEditAudio();
 };
+#endif // TinaFlowStudio
 
 class AnimationTrackEditSpriteFrame : public AnimationTrackEdit {
 	GDCLASS(AnimationTrackEditSpriteFrame, AnimationTrackEdit);
@@ -103,6 +106,8 @@ public:
 	void set_node(Object *p_object);
 };
 
+// TinaFlowStudio - Disabled audio type track editing
+#if 0
 class AnimationTrackEditTypeAudio : public AnimationTrackEdit {
 	GDCLASS(AnimationTrackEditTypeAudio, AnimationTrackEdit);
 
@@ -130,6 +135,7 @@ public:
 
 	AnimationTrackEditTypeAudio();
 };
+#endif // TinaFlowStudio
 
 class AnimationTrackEditTypeAnimation : public AnimationTrackEdit {
 	GDCLASS(AnimationTrackEditTypeAnimation, AnimationTrackEdit);

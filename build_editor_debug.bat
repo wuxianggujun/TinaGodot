@@ -8,6 +8,8 @@ scons platform=windows target=editor arch=x86_64 ^
     dev_build=yes ^
     debug_symbols=yes ^
     optimize=none ^
+    disable_audio=yes ^
+    disable_exporters=yes ^
     module_gdscript_enabled=no ^
     module_mono_enabled=no ^
     module_webrtc_enabled=no ^

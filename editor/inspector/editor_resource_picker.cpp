@@ -30,7 +30,8 @@
 
 #include "editor_resource_picker.h"
 
-#include "editor/audio/audio_stream_preview.h"
+// TinaFlowStudio - Removed audio preview
+// #include "editor/audio/audio_stream_preview.h"
 #include "editor/doc/editor_help.h"
 #include "editor/docks/filesystem_dock.h"
 #include "editor/docks/scene_tree_dock.h"
@@ -1411,6 +1412,8 @@ void EditorAudioStreamPicker::_notification(int p_what) {
 		case NOTIFICATION_INTERNAL_PROCESS: {
 			Ref<AudioStream> audio_stream = get_edited_resource();
 			if (audio_stream.is_valid()) {
+				// TinaFlowStudio - Removed audio preview
+				#if 0
 				if (audio_stream->get_length() > 0) {
 					Ref<AudioStreamPreview> preview = AudioStreamPreviewGenerator::get_singleton()->generate_preview(audio_stream);
 					if (preview.is_valid()) {
@@ -1420,6 +1423,7 @@ void EditorAudioStreamPicker::_notification(int p_what) {
 						}
 					}
 				}
+				#endif
 
 				uint64_t tagged_frame = audio_stream->get_tagged_frame();
 				uint64_t diff_frames = AudioServer::get_singleton()->get_mixed_frames() - tagged_frame;
@@ -1492,6 +1496,8 @@ void EditorAudioStreamPicker::_preview_draw() {
 
 	Rect2 rect(Point2(), size);
 
+	// TinaFlowStudio - Removed audio preview
+	#if 0
 	if (audio_stream->get_length() > 0 && size.width > 0) {
 		rect.size.height *= 0.5;
 
@@ -1529,6 +1535,7 @@ void EditorAudioStreamPicker::_preview_draw() {
 		}
 		rect.position.y += rect.size.height;
 	}
+	#endif // TinaFlowStudio
 
 	Ref<Texture2D> icon;
 	Color icon_modulate(1, 1, 1, 1);

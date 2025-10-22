@@ -634,6 +634,8 @@ Ref<Texture2D> EditorScriptPreviewPlugin::_generate_from_source_code(const Scrip
 	return ImageTexture::create_from_image(img);
 }
 
+// TinaFlowStudio - Disabled audio stream preview plugin
+#if 0
 ///////////////////////////////////////////////////////////////////
 
 bool EditorAudioStreamPreviewPlugin::handles(const String &p_type) const {
@@ -712,6 +714,7 @@ Ref<Texture2D> EditorAudioStreamPreviewPlugin::generate(const Ref<Resource> &p_f
 	Ref<Image> image = Image::create_from_data(w, h, false, Image::FORMAT_RGB8, img);
 	return ImageTexture::create_from_image(image);
 }
+#endif // TinaFlowStudio
 
 ///////////////////////////////////////////////////////////////////////////
 

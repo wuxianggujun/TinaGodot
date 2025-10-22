@@ -99,7 +99,6 @@ if env.editor_build:
     SConscript("doc/SCsub")
     SConscript("docks/SCsub")
     if not env.get("disable_exporters", False):
-    if not env.get("disable_exporters", False):
         SConscript("export/SCsub")
     SConscript("file_system/SCsub")
     SConscript("gui/SCsub")

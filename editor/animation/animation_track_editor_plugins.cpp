@@ -31,7 +31,8 @@
 #include "animation_track_editor_plugins.h"
 
 #include "core/io/resource_loader.h"
-#include "editor/audio/audio_stream_preview.h"
+// TinaFlowStudio - Removed audio preview
+// #include "editor/audio/audio_stream_preview.h"
 #include "editor/editor_string_names.h"
 #include "editor/editor_undo_redo_manager.h"
 #include "editor/inspector/editor_resource_preview.h"
@@ -185,6 +186,8 @@ void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x,
 	}
 }
 
+// TinaFlowStudio - Disabled audio track editing (removed audio preview generator)
+#if 0
 /// AUDIO ///
 
 void AnimationTrackEditAudio::_preview_changed(ObjectID p_which) {
@@ -228,10 +231,13 @@ Rect2 AnimationTrackEditAudio::get_key_rect(int p_index, float p_pixels_sec) {
 	if (play) {
 		float len = stream->get_length();
 
+		// TinaFlowStudio - Removed audio preview
+		#if 0
 		if (len == 0) {
 			Ref<AudioStreamPreview> preview = AudioStreamPreviewGenerator::get_singleton()->generate_preview(stream);
 			len = preview->get_length();
 		}
+		#endif
 
 		if (get_animation()->track_get_key_count(get_track()) > p_index + 1) {
 			len = MIN(len, get_animation()->track_get_key_time(get_track(), p_index + 1) - get_animation()->track_get_key_time(get_track(), p_index));
@@ -355,6 +361,7 @@ void AnimationTrackEditAudio::set_node(Object *p_object) {
 AnimationTrackEditAudio::AnimationTrackEditAudio() {
 	AudioStreamPreviewGenerator::get_singleton()->connect("preview_updated", callable_mp(this, &AnimationTrackEditAudio::_preview_changed));
 }
+#endif // TinaFlowStudio - Disabled audio track editing
 
 /// SPRITE FRAME / FRAME_COORDS ///
 
@@ -785,6 +792,8 @@ void AnimationTrackEditVolumeDB::draw_key_link(int p_index, float p_pixels_sec, 
 	draw_line(Point2(from_x, y_from + h * tex_h), Point2(to_x, y_from + h_n * tex_h), color, 2);
 }
 
+// TinaFlowStudio - Disabled audio type track editing
+#if 0
 ////////////////////////
 
 /// AUDIO ///
@@ -1159,6 +1168,7 @@ Control::CursorShape AnimationTrackEditTypeAudio::get_cursor_shape(const Point2 
 		return get_default_cursor_shape();
 	}
 }
+#endif // TinaFlowStudio - Disabled audio type track editing
 
 ////////////////////
 /// SUB ANIMATION ///
