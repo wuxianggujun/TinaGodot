@@ -111,6 +111,13 @@
 #include "editor/scene/2d/parallax_background_editor_plugin.h"
 #endif // DISABLE_DEPRECATED
 
+// TinaFlowStudio: Flow graph core classes
+#include "editor/flow_studio/core/flow_connection.h"
+#include "editor/flow_studio/core/flow_graph.h"
+#include "editor/flow_studio/core/flow_node.h"
+#include "editor/flow_studio/core/flow_port.h"
+#include "editor/flow_studio/flow_graph_editor_plugin.h"
+
 void register_editor_types() {
 	OS::get_singleton()->benchmark_begin_measure("Editor", "Register Types");
 
@@ -159,6 +166,12 @@ void register_editor_types() {
 	GDREGISTER_CLASS(EditorScriptPicker);
 	GDREGISTER_ABSTRACT_CLASS(EditorUndoRedoManager);
 	GDREGISTER_CLASS(EditorContextMenuPlugin);
+
+	// TinaFlowStudio: Flow graph core classes
+	GDREGISTER_CLASS(FlowPort);
+	GDREGISTER_CLASS(FlowConnection);
+	GDREGISTER_CLASS(FlowNode);
+	GDREGISTER_CLASS(FlowGraph);
 
 	GDREGISTER_ABSTRACT_CLASS(FileSystemDock);
 	GDREGISTER_VIRTUAL_CLASS(EditorFileSystemImportFormatSupportQuery);
@@ -228,6 +241,9 @@ EditorPlugins::add_by_type<ToolButtonEditorPlugin>();
 #ifndef DISABLE_DEPRECATED
 	EditorPlugins::add_by_type<ParallaxBackgroundEditorPlugin>();
 #endif
+
+	// TinaFlowStudio: Flow graph editor
+	EditorPlugins::add_by_type<FlowGraphEditorPlugin>();
 
 	// For correct doc generation.
 	GLOBAL_DEF("editor/run/main_run_args", "");

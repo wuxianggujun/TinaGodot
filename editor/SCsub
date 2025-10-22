@@ -93,6 +93,7 @@ if env.editor_build:
     # Always build core export classes; platform exporters are handled separately.
     SConscript("export/SCsub")
     SConscript("file_system/SCsub")
+    SConscript("flow_studio/SCsub")
     SConscript("gui/SCsub")
     SConscript("icons/SCsub")
     SConscript("inspector/SCsub")
