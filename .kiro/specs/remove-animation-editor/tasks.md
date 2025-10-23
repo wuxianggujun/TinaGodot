@@ -168,7 +168,9 @@
     - Update current phase status
     - _Requirements: 1.1, 1.3_
 
-  - [-] 8.3 Create git commit
+  - [x] 8.3 Create git commit
+
+
 
     - Commit all changes with clear message
     - Use format: [TinaFlowStudio] Remove animation editor UI and plugins

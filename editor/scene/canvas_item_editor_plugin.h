@@ -608,13 +608,10 @@ public:
 	CanvasItemEditor();
 };
 
-class FlowNodeLibraryDock;
-
 class CanvasItemEditorPlugin : public EditorPlugin {
 	GDCLASS(CanvasItemEditorPlugin, EditorPlugin);
 
 	CanvasItemEditor *canvas_item_editor = nullptr;
-	FlowNodeLibraryDock *node_library_dock = nullptr;
 
 protected:
 	void _notification(int p_what);

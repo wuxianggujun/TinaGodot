@@ -83,6 +83,7 @@
 #include "editor/docks/history_dock.h"
 #include "editor/docks/import_dock.h"
 #include "editor/docks/inspector_dock.h"
+#include "editor/flow_studio/flow_node_library_dock.h"
 #include "editor/docks/node_dock.h"
 #include "editor/docks/scene_tree_dock.h"
 #include "editor/editor_data.h"
@@ -8291,6 +8292,10 @@ EditorNode::EditorNode() {
 
 	memnew(ImportDock);
 	editor_dock_manager->add_dock(ImportDock::get_singleton());
+	
+	// TinaFlowStudio: Add FlowNodes dock
+	memnew(FlowNodeLibraryDock);
+	editor_dock_manager->add_dock(FlowNodeLibraryDock::get_singleton());
 
 	FileSystemDock *filesystem_dock = memnew(FileSystemDock);
 	filesystem_dock->connect("inherit", callable_mp(this, &EditorNode::_inherit_request));

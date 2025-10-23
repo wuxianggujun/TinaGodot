@@ -7,15 +7,24 @@
 /**************************************************************************/
 
 #include "flow_node_library_dock.h"
+
+#include "core/input/shortcut.h"
+#include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 
+FlowNodeLibraryDock *FlowNodeLibraryDock::singleton = nullptr;
+
 FlowNodeLibraryDock::FlowNodeLibraryDock() {
-	set_name("FlowNodes");
+	singleton = this;
+	set_name(TTR("FlowNodes"));
+	set_title(TTR("Node Library"));
+	set_icon_name("NodeWarning"); // 使用一个临时图标，后续可以自定义
+	set_default_slot(EditorDockManager::DOCK_SLOT_LEFT_UR); // 与 Scene 和 Import 在同一位置
 	
-	// Title
-	Label *title = memnew(Label);
-	title->set_text(TTR("Node Library"));
-	add_child(title);
+	// Create a VBoxContainer to hold the content
+	VBoxContainer *vbox = memnew(VBoxContainer);
+	vbox->set_v_size_flags(SIZE_EXPAND_FILL);
+	add_child(vbox);
 	
 	// Node tree
 	node_tree = memnew(Tree);
@@ -24,12 +33,13 @@ FlowNodeLibraryDock::FlowNodeLibraryDock() {
 	node_tree->set_allow_reselect(true);
 	node_tree->connect("item_selected", callable_mp(this, &FlowNodeLibraryDock::_on_node_selected));
 	node_tree->connect("item_activated", callable_mp(this, &FlowNodeLibraryDock::_on_node_activated));
-	add_child(node_tree);
+	vbox->add_child(node_tree);
 	
 	_populate_nodes();
 }
 
 FlowNodeLibraryDock::~FlowNodeLibraryDock() {
+	singleton = nullptr;
 }
 
 void FlowNodeLibraryDock::_bind_methods() {

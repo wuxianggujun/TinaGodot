@@ -1008,10 +1008,16 @@ def generate_vs_project(env, original_args, project_name="godot"):
         from SCons import Node
         from SCons.Script import Glob
 
+        # Exclude these directories from VS project generation
+        excluded_dirs = ["out", ".vs", ".git", ".github", ".vscode", "bin", "build"]
+        
         results = []
         for f in Glob(str(node) + "/*", source=True):
             if type(f) is Node.FS.Dir:
-                results += glob_recursive_2(pattern, dirs, f)
+                # Check if this directory should be excluded
+                dir_name = str(f).split("\\")[-1].split("/")[-1]
+                if dir_name not in excluded_dirs:
+                    results += glob_recursive_2(pattern, dirs, f)
         r = Glob(str(node) + "/" + pattern, source=True)
         if len(r) > 0 and str(node) not in dirs:
             d = ""

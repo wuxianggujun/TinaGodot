@@ -9,13 +9,16 @@
 #ifndef FLOW_NODE_LIBRARY_DOCK_H
 #define FLOW_NODE_LIBRARY_DOCK_H
 
+#include "editor/docks/editor_dock.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/tree.h"
 
-class FlowNodeLibraryDock : public VBoxContainer {
-	GDCLASS(FlowNodeLibraryDock, VBoxContainer);
+class FlowNodeLibraryDock : public EditorDock {
+	GDCLASS(FlowNodeLibraryDock, EditorDock);
 
 private:
+	static FlowNodeLibraryDock *singleton;
+	
 	Tree *node_tree = nullptr;
 	
 	void _populate_nodes();
@@ -27,6 +30,8 @@ protected:
 	static void _bind_methods();
 
 public:
+	static FlowNodeLibraryDock *get_singleton() { return singleton; }
+	
 	String get_selected_node_type() const;
 	
 	FlowNodeLibraryDock();
